@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Revize</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -527,6 +528,23 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
   </div>
 </div>
 
+<!-- —— THANK YOU ————————————————————————————————— -->
+<div class="screen hidden" id="s-thankyou">
+  <div class="eyebrow float float-d1">Revize</div>
+  <div class="big-title float float-d2">THANK YOU<br><span>FOR YOUR BUSINESS</span></div>
+  <div class="sub float float-d3">Your content is being prepared</div>
+  <div class="card float float-d4" style="text-align:center">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.08em;margin-bottom:16px">YOUR FILES</div>
+    <div id="dl-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:18px;text-align:left"></div>
+    <div id="dl-progress" style="display:none;margin-bottom:14px">
+      <div style="height:4px;background:var(--border2);border-radius:2px;overflow:hidden"><div id="dl-bar" style="height:100%;width:0%;background:var(--acid);transition:width .3s"></div></div>
+      <div id="dl-status" style="font-size:9px;color:var(--muted);letter-spacing:.08em;margin-top:6px">Preparing zip...</div>
+    </div>
+    <button class="btn-p" id="dl-all-btn" onclick="downloadAll()" style="font-size:19px">DOWNLOAD ALL CONTENT</button>
+  </div>
+  <div class="meta float float-d5">Wolfe Productions · Lakes Entrance, VIC</div>
+</div>
+
 <!-- —— LIGHTBOX ————————————————————————————————— -->
 <div id="lb">
   <div class="lb-top">
@@ -620,6 +638,11 @@ window.addEventListener('DOMContentLoaded',()=>{
   if(client){
     document.getElementById('cl-title').innerHTML=client.toUpperCase().replace(' ','<br>')+"'S<br><span>GALLERY</span>";
     document.getElementById('cl-name').value=client;
+  }
+  // Check for payment success
+  if(getParam('paid')==='success'){
+    showThankYou();
+    return;
   }
   // Client link → straight to client splash; else → Revize splash
   if(location.search.includes('client=')){showScreen('s-client');}
@@ -995,12 +1018,94 @@ async function stripeCheckout(){
       body:JSON.stringify({amount:total,description:desc,clientName,clientEmail:email})
     });
     const data=await res.json();
-    if(data.url){window.location.href=data.url;}
+    if(data.url){
+      // Save selection to localStorage for post-payment download
+      const selectedPhotos=allP.filter(p=>selP.has(p.id));
+      const selectedVideos=allV.filter(v=>selV.has(v.id));
+      localStorage.setItem('revize_paid_items',JSON.stringify({photos:selectedPhotos,videos:selectedVideos,clientName,bundle:selectedBundle}));
+      window.location.href=data.url;
+    }
     else{alert(data.error||'Failed to create checkout');btn.disabled=false;btn.textContent='GET NOW — PAY WITH STRIPE';}
   }catch(e){
     alert('Error: '+e.message);btn.disabled=false;btn.textContent='GET NOW — PAY WITH STRIPE';
   }
 }
+
+// —— THANK YOU / DOWNLOAD ————————————————————————————
+let paidItems=null;
+function showThankYou(){
+  try{paidItems=JSON.parse(localStorage.getItem('revize_paid_items'));}catch(e){}
+  if(!paidItems){showScreen('s-revize');return;}
+  showScreen('s-thankyou');
+  const list=document.getElementById('dl-list');
+  let html='';
+  if(paidItems.photos&&paidItems.photos.length){
+    html+='<div style="font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:4px">'+paidItems.photos.length+' Photos</div>';
+    paidItems.photos.forEach(p=>{
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surface2);border-radius:4px;font-size:10px"><span style="color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">'+p.name+'</span><a href="https://drive.google.com/uc?export=download&id='+p.id+'" target="_blank" style="color:var(--acid);text-decoration:none;font-size:8px;letter-spacing:.1em">DOWNLOAD</a></div>';
+    });
+  }
+  if(paidItems.videos&&paidItems.videos.length){
+    html+='<div style="font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin:10px 0 4px">'+paidItems.videos.length+' Videos</div>';
+    paidItems.videos.forEach(v=>{
+      const url=v.url||'';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surface2);border-radius:4px;font-size:10px"><span style="color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">'+v.name+'</span><a href="'+url+'" target="_blank" download style="color:var(--acid);text-decoration:none;font-size:8px;letter-spacing:.1em">DOWNLOAD</a></div>';
+    });
+  }
+  if(!html)html='<div style="color:var(--muted);font-size:11px;padding:16px 0">No files in selection</div>';
+  list.innerHTML=html;
+}
+async function downloadAll(){
+  if(!paidItems)return;
+  const btn=document.getElementById('dl-all-btn');
+  btn.disabled=true;btn.textContent='ZIPPING...';
+  const prog=document.getElementById('dl-progress');
+  prog.style.display='block';
+  const bar=document.getElementById('dl-bar');
+  const status=document.getElementById('dl-status');
+  const zip=new JSZip();
+  const photos=paidItems.photos||[];
+  const videos=paidItems.videos||[];
+  const total=photos.length+videos.length;
+  let done=0;
+  function updateProgress(name){
+    done++;
+    bar.style.width=Math.round(done/total*100)+'%';
+    status.textContent='Downloading '+name+'... ('+done+'/'+total+')';
+  }
+  // Fetch photos via proxy to avoid CORS
+  for(const p of photos){
+    try{
+      status.textContent='Fetching '+p.name+'...';
+      const res=await fetch('/api/fetch-file?type=drive&id='+p.id);
+      if(res.ok){const blob=await res.blob();zip.file(p.name,blob);}
+    }catch(e){}
+    updateProgress(p.name);
+  }
+  // Fetch videos — try direct R2 first, fall back to proxy
+  for(const v of videos){
+    try{
+      status.textContent='Fetching '+v.name+'...';
+      let res;
+      try{res=await fetch(v.url);if(!res.ok)throw new Error();}
+      catch(e){res=await fetch('/api/fetch-file?type=r2&key='+encodeURIComponent(v.id||v.key));}
+      if(res.ok){const blob=await res.blob();zip.file(v.name,blob);}
+    }catch(e){}
+    updateProgress(v.name);
+  }
+  status.textContent='Creating zip...';
+  bar.style.width='100%';
+  const blob=await zip.generateAsync({type:'blob'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=(paidItems.clientName||'revize')+'-gallery.zip';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  btn.textContent='✓ DOWNLOADED';
+  status.textContent='Done!';
+  localStorage.removeItem('revize_paid_items');
+}
+
 let selectedBundle=null;
 let bundlesOpen=false;
 function toggleBundles(){
