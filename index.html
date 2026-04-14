@@ -21,8 +21,8 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
 .big-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,13vw,76px);letter-spacing:.04em;line-height:.88;text-align:center;margin-bottom:8px}
 .big-title span{color:var(--acid)}
 .sub{font-size:10px;letter-spacing:.12em;color:#999;margin-bottom:36px;text-align:center}
-.card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border2);padding:28px 24px;position:relative;border-radius:10px;overflow:hidden}
-.card::before{content:'';position:absolute;inset:-1px;border-radius:10px;padding:1px;background:linear-gradient(90deg,transparent 0%,var(--acid) 50%,transparent 100%);background-size:200% 100%;animation:borderShimmer 3s ease-in-out infinite;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.4}
+.card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border2);padding:28px 24px;position:relative;border-radius:10px}
+.card::before{content:'';position:absolute;inset:-1px;border-radius:10px;padding:1px;background:linear-gradient(90deg,transparent 0%,var(--acid) 50%,transparent 100%);background-size:200% 100%;animation:borderShimmer 3s ease-in-out infinite;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.4;z-index:0}
 .card::after{content:none}
 @keyframes borderShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .field{margin-bottom:14px}
@@ -138,7 +138,7 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
 .lb-fn{font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.4);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%}
 .lb-x{pointer-events:all;background:none;border:none;color:var(--white);font-size:22px;cursor:pointer;opacity:.7;padding:4px;line-height:1}
 .lb-track{position:absolute;inset:0;overflow:hidden}
-.lb-slide{position:absolute;top:0;height:100%;width:100%;display:flex;align-items:center;justify-content:center;padding:56px 40px 88px;overflow:hidden}
+.lb-slide{position:absolute;top:0;height:100%;width:100%;display:flex;align-items:center;justify-content:center;padding:44px 12px 72px;overflow:hidden}
 .lb-slide img{max-width:100%;max-height:100%;object-fit:contain;display:block;pointer-events:none;user-select:none;transform-origin:center center;will-change:transform}
 .lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.07);border:none;color:var(--white);width:40px;height:64px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:20;transition:background .15s}
 .lb-nav:hover{background:rgba(255,255,255,.15);color:var(--acid)}
@@ -474,7 +474,19 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
     </div>
 
     <button class="btn-p" id="send-btn" onclick="sendSelection()" style="margin-top:4px;font-size:19px">SEND TO JEFFO →</button>
-    <div id="send-ok">✓ Sent! Jeffo will be in touch shortly with your custom quote.</div>
+    <!-- Send confirmation splash -->
+    <div id="send-splash" style="display:none;margin-top:16px">
+      <div style="background:rgba(57,255,20,.06);border:1px solid rgba(57,255,20,.25);padding:18px 16px;border-radius:8px;margin-bottom:12px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.08em;color:var(--acid);margin-bottom:10px">YOUR ORDER SUMMARY</div>
+        <div id="send-summary" style="font-size:10px;color:#ccc;line-height:1.8;white-space:pre-wrap;letter-spacing:.02em"></div>
+      </div>
+      <button class="btn-p" onclick="copySummary()" style="font-size:17px" id="copy-summary-btn">COPY ORDER TO CLIPBOARD</button>
+      <div style="margin-top:16px;text-align:center">
+        <div style="font-size:10px;color:#999;letter-spacing:.08em;margin-bottom:8px">TEXT YOUR ORDER TO JEFFO</div>
+        <a href="sms:0432088960" style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.06em;color:var(--acid);text-decoration:none">0432 088 960</a>
+        <div style="font-size:9px;color:var(--gold);letter-spacing:.06em;margin-top:10px;line-height:1.6">Paste your order in the message.<br>An invoice will be sent to your email shortly.</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -825,7 +837,8 @@ function openPricing(){
   renderPricing();
   document.getElementById('send-btn').disabled=false;
   document.getElementById('send-btn').textContent='SEND TO JEFFO →';
-  document.getElementById('send-ok').style.display='none';
+  document.getElementById('send-btn').style.display='';
+  document.getElementById('send-splash').style.display='none';
   document.getElementById('pricing').classList.add('open');
 }
 function closePricing(){document.getElementById('pricing').classList.remove('open');}
@@ -862,32 +875,45 @@ function renderPricing(){
   else nudge.style.display='none';
 }
 
+function buildSummary(){
+  const pr=calcPrice(selP.size,selV.size);
+  const fp=allP.filter(p=>selP.has(p.id)).map(p=>p.name);
+  const fv=allV.filter(v=>selV.has(v.id)).map(v=>v.name);
+  const clientName=document.getElementById('cl-name')?.value.trim()||'Client';
+  const email=clientEmailAddr||document.getElementById('cl-email')?.value.trim()||'';
+  let lines=['REVIZE ORDER — '+clientName];
+  if(email)lines.push('Email: '+email);
+  lines.push('');
+  if(pr.numPhotos)lines.push(pr.numPhotos+' photos × $'+pr.photoRate+' = $'+pr.photoTotal);
+  if(pr.numVideos)lines.push(pr.numVideos+' videos × $'+pr.videoRate+' = $'+pr.videoTotal);
+  lines.push('TOTAL: $'+pr.total);
+  lines.push('');
+  if(fp.length){lines.push('Photos:');fp.forEach(n=>lines.push('  • '+n));}
+  if(fv.length){lines.push('Videos:');fv.forEach(n=>lines.push('  • '+n));}
+  return lines.join('\n');
+}
 function sendSelection(){
   const pr=calcPrice(selP.size,selV.size);
   if(pr.total===0)return;
   // Prompt for email if not already provided
   let email=clientEmailAddr||document.getElementById('cl-email')?.value.trim()||'';
   if(!email){
-    email=prompt('Enter your email address so Jeffo can get back to you:');
+    email=prompt('Enter your email address so Jeffo can send you an invoice:');
     if(!email)return;
     clientEmailAddr=email;
   }
-  const btn=document.getElementById('send-btn');btn.disabled=true;btn.textContent='SENDING...';
-  const fp=allP.filter(p=>selP.has(p.id)).map(p=>p.name);
-  const fv=allV.filter(v=>selV.has(v.id)).map(v=>v.name);
-  const clientName=document.getElementById('cl-name')?.value.trim()||'Client';
-  let breakdown=[];
-  if(pr.numPhotos)breakdown.push(pr.numPhotos+' photos × $'+pr.photoRate+' = $'+pr.photoTotal);
-  if(pr.numVideos)breakdown.push(pr.numVideos+' videos × $'+pr.videoRate+' = $'+pr.videoTotal);
-  const subject='New Gallery Selection — $'+pr.total;
-  const body='Hi Jeffo,\n\nA client has reviewed their gallery and made a selection.\n\nClient: '+clientName+'\nEmail: '+email+
-    '\n\nPricing:\n'+breakdown.map(x=>'  • '+x).join('\n')+'\n  TOTAL: $'+pr.total+
-    '\n\nPhotos selected ('+fp.length+'):\n'+(fp.map(x=>'  • '+x).join('\n')||'  None')+
-    '\n\nVideos selected ('+fv.length+'):\n'+(fv.map(x=>'  • '+x).join('\n')||'  None')+'\n\nRevize by Wolfe Productions';
-  const mailto='mailto:'+JEFFO_EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)+'&reply-to='+encodeURIComponent(email);
-  window.open(mailto);
-  document.getElementById('send-ok').style.display='block';
-  btn.textContent='✓ SENT';
+  const summary=buildSummary();
+  document.getElementById('send-summary').textContent=summary;
+  document.getElementById('send-btn').style.display='none';
+  document.getElementById('send-splash').style.display='block';
+}
+function copySummary(){
+  const text=document.getElementById('send-summary').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('copy-summary-btn');
+    btn.textContent='✓ COPIED!';
+    setTimeout(()=>btn.textContent='COPY ORDER TO CLIPBOARD',2000);
+  });
 }
 document.getElementById('pricing').addEventListener('click',function(e){if(e.target===this)closePricing();});
 
@@ -1009,7 +1035,7 @@ function lbPreload(){
 function lbMakeSlide(it, offsetPx){
   const slide=document.createElement('div');
   slide.className='lb-slide';
-  slide.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:56px 40px 88px;overflow:hidden;transform:translateX('+offsetPx+'px);will-change:transform';
+  slide.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:44px 12px 72px;overflow:hidden;transform:translateX('+offsetPx+'px);will-change:transform';
 
   if(it.type==='video'){
     const isR2=it.url&&it.url.includes('r2.dev');
@@ -1023,17 +1049,17 @@ function lbMakeSlide(it, offsetPx){
         vid.controls=true;
         vid.autoplay=true;
         vid.setAttribute('playsinline','');
-        vid.style.cssText='max-width:90%;max-height:75vh;display:block;background:#000;outline:none;border-radius:6px';
+        vid.style.cssText='max-width:96%;max-height:85vh;display:block;background:#000;outline:none;border-radius:6px';
         slide.appendChild(vid);
       } else {
         // Drive fallback iframe
         const wrap=document.createElement('div');
-        wrap.style.cssText='max-width:90%;max-height:75vh;position:relative;margin:0 auto';
+        wrap.style.cssText='max-width:96%;max-height:85vh;position:relative;margin:0 auto';
         const iframe=document.createElement('iframe');
         iframe.id='lb-iframe';
         iframe.setAttribute('allow','autoplay;fullscreen');
         iframe.setAttribute('allowfullscreen','');
-        iframe.style.cssText='width:100%;aspect-ratio:9/16;max-height:75vh;border:none;display:block;background:#000;border-radius:6px';
+        iframe.style.cssText='width:100%;aspect-ratio:9/16;max-height:85vh;border:none;display:block;background:#000;border-radius:6px';
         wrap.appendChild(iframe);
         slide.appendChild(wrap);
       }
