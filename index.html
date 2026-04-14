@@ -450,7 +450,8 @@ button:active{transform:translateY(1px)}
     <button class="tab" id="tb-faves" onclick="switchTab('faves')">Faves <span class="tn" id="tn-f">0</span></button>
   </div>
   <div class="panels">
-    <div class="panel on" id="pn-photos"><div class="steps" id="tutorial-steps"><div class="step active" id="step-1"><div class="step-num">1</div>Browse</div><div class="step-arrow">›</div><div class="step" id="step-2"><div class="step-num">2</div>Select favs</div><div class="step-arrow">›</div><div class="step" id="step-3"><div class="step-num">3</div>Check out</div></div><div class="pgrid" id="g-photos"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
+    <div class="steps" id="tutorial-steps"><div class="step active" id="step-1"><div class="step-num">1</div>Browse</div><div class="step-arrow">›</div><div class="step" id="step-2"><div class="step-num">2</div>Select favs</div><div class="step-arrow">›</div><div class="step" id="step-3"><div class="step-num">3</div>Check out</div></div>
+    <div class="panel on" id="pn-photos"><div class="pgrid" id="g-photos"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
     <div class="panel" id="pn-videos"><div class="vgrid" id="g-videos"><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div></div></div>
     <div class="panel" id="pn-faves"><div class="sec">Your Favourites</div><div id="faves-out"></div></div>
   </div>
@@ -510,14 +511,16 @@ button:active{transform:translateY(1px)}
         <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.08em;color:var(--acid);margin-bottom:10px">YOUR ORDER SUMMARY</div>
         <div id="send-summary" style="font-size:10px;color:#ccc;line-height:1.8;white-space:pre-wrap;letter-spacing:.02em"></div>
       </div>
-      <div id="contact-slide" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.25,.46,.45,.94)">
-        <div style="text-align:center;padding:12px 0 16px">
-          <div style="font-size:10px;color:#999;letter-spacing:.08em;margin-bottom:8px">TEXT YOUR ORDER TO JEFFO</div>
-          <a href="sms:0432088960" style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.06em;color:var(--acid);text-decoration:none">0432 088 960</a>
-          <div style="font-size:9px;color:var(--gold);letter-spacing:.06em;margin-top:10px;line-height:1.6">Paste your order in the message.<br>An invoice will be sent to your email shortly.</div>
+      <div style="position:relative">
+        <button class="btn-p" onclick="copySummary()" onmouseenter="showContact()" onmouseleave="hideContact()" ontouchstart="showContact()" style="font-size:17px;position:relative;z-index:2" id="copy-summary-btn">COPY ORDER TO CLIPBOARD</button>
+        <div id="contact-slide" style="overflow:hidden;transition:opacity .4s ease,transform .4s ease;opacity:0;transform:translateY(-8px);pointer-events:none">
+          <div style="text-align:center;padding:14px 0 4px">
+            <div style="font-size:10px;color:#999;letter-spacing:.08em;margin-bottom:8px">TEXT YOUR ORDER TO JEFFO</div>
+            <a href="sms:0432088960" style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.06em;color:var(--acid);text-decoration:none;pointer-events:auto">0432 088 960</a>
+            <div style="font-size:9px;color:var(--gold);letter-spacing:.06em;margin-top:10px;line-height:1.6">Paste your order in the message.<br>An invoice will be sent to your email shortly.</div>
+          </div>
         </div>
       </div>
-      <button class="btn-p" onclick="copySummary()" onmouseenter="showContact()" onmouseleave="hideContact()" ontouchstart="showContact()" style="font-size:17px" id="copy-summary-btn">COPY ORDER TO CLIPBOARD</button>
     </div>
 
     <!-- Stripe always visible -->
@@ -776,7 +779,7 @@ function toggleSelectMode(){
   const btn=document.getElementById('select-btn');
   btn.classList.toggle('done-mode',selectMode);
   btn.textContent=selectMode?'DONE':'SELECT';
-  updateSteps(selectMode?2:1);
+  updateSteps(selectMode?2:(selP.size+selV.size>0?3:1));
 }
 function updateSteps(n){
   [1,2,3].forEach(i=>{
@@ -922,7 +925,7 @@ function openPricing(){
   document.getElementById('send-btn').textContent='CASH (PAY & GET FILES LATER)';
   document.getElementById('send-btn').style.display='';
   document.getElementById('send-splash').style.display='none';
-  const cs=document.getElementById('contact-slide');if(cs)cs.style.maxHeight='0';contactLocked=false;
+  const cs=document.getElementById('contact-slide');if(cs){cs.style.opacity='0';cs.style.transform='translateY(-8px)';cs.style.pointerEvents='none';}contactLocked=false;
   document.getElementById('pricing').classList.add('open');
 }
 function closePricing(){document.getElementById('pricing').classList.remove('open');updateSteps(selectMode?2:1);}
@@ -1001,11 +1004,12 @@ function sendSelection(){
 let contactLocked=false;
 function showContact(){
   const slide=document.getElementById('contact-slide');
-  slide.style.maxHeight=slide.scrollHeight+'px';
+  slide.style.opacity='1';slide.style.transform='translateY(0)';slide.style.pointerEvents='auto';
 }
 function hideContact(){
   if(contactLocked)return;
-  document.getElementById('contact-slide').style.maxHeight='0';
+  const slide=document.getElementById('contact-slide');
+  slide.style.opacity='0';slide.style.transform='translateY(-8px)';slide.style.pointerEvents='none';
 }
 function copySummary(){
   const text=document.getElementById('send-summary').textContent;
