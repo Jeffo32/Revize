@@ -475,7 +475,7 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
 
     <!-- Floating bundle toggle -->
     <div style="text-align:center;margin-bottom:12px">
-      <button id="bundle-toggle" onclick="toggleBundles()" style="background:transparent;border:1px solid var(--border2);color:#999;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;padding:10px 20px;cursor:pointer;border-radius:20px;transition:all .2s;text-transform:uppercase">
+      <button id="bundle-toggle" onclick="toggleBundles()" style="background:rgba(79,195,247,.08);border:1px solid rgba(79,195,247,.3);color:var(--ice);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;padding:10px 20px;cursor:pointer;border-radius:20px;transition:all .2s;text-transform:uppercase;box-shadow:0 0 12px rgba(79,195,247,.15)">
         Or choose a bundle ▾
       </button>
     </div>
@@ -499,7 +499,18 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
       </div>
     </div>
 
-    <button class="btn-p" id="send-btn" onclick="sendSelection()" style="margin-top:4px;font-size:19px">SEND TO JEFFO →</button>
+    <!-- Stripe payment button -->
+    <button class="btn-p" id="stripe-btn" onclick="stripeCheckout()" style="margin-top:4px;font-size:19px;background:#635BFF;border:none;letter-spacing:.1em">GET NOW — PAY WITH STRIPE</button>
+
+    <!-- OR divider for send -->
+    <div style="display:flex;align-items:center;gap:12px;margin:12px 0">
+      <div style="flex:1;height:1px;background:var(--border2)"></div>
+      <div style="font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase">or</div>
+      <div style="flex:1;height:1px;background:var(--border2)"></div>
+    </div>
+
+    <button class="btn-p" id="send-btn" onclick="sendSelection()" style="font-size:17px;background:transparent;border:1px solid var(--acid);color:var(--acid)">SEND TO JEFFO →</button>
+
     <!-- Send confirmation splash -->
     <div id="send-splash" style="display:none;margin-top:16px">
       <div style="background:rgba(57,255,20,.06);border:1px solid rgba(57,255,20,.25);padding:18px 16px;border-radius:8px;margin-bottom:12px">
@@ -507,10 +518,13 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
         <div id="send-summary" style="font-size:10px;color:#ccc;line-height:1.8;white-space:pre-wrap;letter-spacing:.02em"></div>
       </div>
       <button class="btn-p" onclick="copySummary()" style="font-size:17px" id="copy-summary-btn">COPY ORDER TO CLIPBOARD</button>
-      <div style="margin-top:16px;text-align:center">
-        <div style="font-size:10px;color:#999;letter-spacing:.08em;margin-bottom:8px">TEXT YOUR ORDER TO JEFFO</div>
-        <a href="sms:0432088960" style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.06em;color:var(--acid);text-decoration:none">0432 088 960</a>
-        <div style="font-size:9px;color:var(--gold);letter-spacing:.06em;margin-top:10px;line-height:1.6">Paste your order in the message.<br>An invoice will be sent to your email shortly.</div>
+      <!-- Contact info - hidden by default, slides in on copy -->
+      <div id="contact-slide" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.25,.46,.45,.94)">
+        <div style="margin-top:16px;text-align:center;padding-bottom:4px">
+          <div style="font-size:10px;color:#999;letter-spacing:.08em;margin-bottom:8px">TEXT YOUR ORDER TO JEFFO</div>
+          <a href="sms:0432088960" style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.06em;color:var(--acid);text-decoration:none">0432 088 960</a>
+          <div style="font-size:9px;color:var(--gold);letter-spacing:.06em;margin-top:10px;line-height:1.6">Paste your order in the message.<br>An invoice will be sent to your email shortly.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -863,7 +877,7 @@ function openPricing(){
   selectedBundle=null;bundlesOpen=false;
   document.getElementById('bundle-panel').style.maxHeight='0';
   const tb=document.getElementById('bundle-toggle');
-  tb.style.borderColor='var(--border2)';tb.style.color='#999';tb.textContent='Or choose a bundle ▾';
+  tb.style.borderColor='rgba(79,195,247,.3)';tb.style.color='var(--ice)';tb.style.background='rgba(79,195,247,.08)';tb.style.boxShadow='0 0 12px rgba(79,195,247,.15)';tb.textContent='Or choose a bundle ▾';
   document.querySelectorAll('.bundle-opt').forEach(el=>{
     el.style.borderColor='var(--border2)';el.style.background='var(--surface2)';
     el.querySelector('[style*="font-size:24px"]').style.color='var(--muted)';
@@ -872,7 +886,9 @@ function openPricing(){
   document.getElementById('send-btn').disabled=false;
   document.getElementById('send-btn').textContent='SEND TO JEFFO →';
   document.getElementById('send-btn').style.display='';
+  document.getElementById('stripe-btn').style.display='';
   document.getElementById('send-splash').style.display='none';
+  const cs=document.getElementById('contact-slide');if(cs)cs.style.maxHeight='0';
   document.getElementById('pricing').classList.add('open');
 }
 function closePricing(){document.getElementById('pricing').classList.remove('open');}
@@ -946,6 +962,7 @@ function sendSelection(){
   const summary=buildSummary();
   document.getElementById('send-summary').textContent=summary;
   document.getElementById('send-btn').style.display='none';
+  document.getElementById('stripe-btn').style.display='none';
   document.getElementById('send-splash').style.display='block';
 }
 function copySummary(){
@@ -954,7 +971,14 @@ function copySummary(){
     const btn=document.getElementById('copy-summary-btn');
     btn.textContent='✓ COPIED!';
     setTimeout(()=>btn.textContent='COPY ORDER TO CLIPBOARD',2000);
+    // Slide in contact info
+    const slide=document.getElementById('contact-slide');
+    slide.style.maxHeight=slide.scrollHeight+'px';
   });
+}
+function stripeCheckout(){
+  // TODO: wire up Stripe Checkout Session via /api/checkout
+  alert('Stripe integration coming soon — use Send to Jeffo for now');
 }
 let selectedBundle=null;
 let bundlesOpen=false;
@@ -964,11 +988,11 @@ function toggleBundles(){
   const btn=document.getElementById('bundle-toggle');
   if(bundlesOpen){
     panel.style.maxHeight=panel.scrollHeight+'px';
-    btn.style.borderColor='var(--acid)';btn.style.color='var(--acid)';
+    btn.style.borderColor='var(--ice)';btn.style.color='var(--ice)';btn.style.background='rgba(79,195,247,.12)';btn.style.boxShadow='0 0 16px rgba(79,195,247,.25)';
     btn.textContent='Hide bundles ▴';
   } else {
     panel.style.maxHeight='0';
-    btn.style.borderColor='var(--border2)';btn.style.color='#999';
+    btn.style.borderColor='rgba(79,195,247,.3)';btn.style.color='var(--ice)';btn.style.background='rgba(79,195,247,.08)';btn.style.boxShadow='0 0 12px rgba(79,195,247,.15)';
     btn.textContent='Or choose a bundle ▾';
   }
 }
