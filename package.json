@@ -1,1 +1,1 @@
-{"name":"revize","version":"1.0.0","dependencies":{"@aws-sdk/client-s3":"^3.0.0","@aws-sdk/s3-request-presigner":"^3.0.0"}}
+{"name":"revize","version":"1.0.0","dependencies":{"@aws-sdk/client-s3":"^3.0.0","@aws-sdk/s3-request-presigner":"^3.0.0","stripe":"^17.0.0"}}

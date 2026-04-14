@@ -499,17 +499,7 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
       </div>
     </div>
 
-    <!-- Stripe payment button -->
-    <button class="btn-p" id="stripe-btn" onclick="stripeCheckout()" style="margin-top:4px;font-size:19px;background:#635BFF;border:none;letter-spacing:.1em">GET NOW — PAY WITH STRIPE</button>
-
-    <!-- OR divider for send -->
-    <div style="display:flex;align-items:center;gap:12px;margin:12px 0">
-      <div style="flex:1;height:1px;background:var(--border2)"></div>
-      <div style="font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase">or</div>
-      <div style="flex:1;height:1px;background:var(--border2)"></div>
-    </div>
-
-    <button class="btn-p" id="send-btn" onclick="sendSelection()" style="font-size:17px;background:transparent;border:1px solid var(--acid);color:var(--acid)">SEND TO JEFFO →</button>
+    <button class="btn-p" id="send-btn" onclick="sendSelection()" style="margin-top:4px;font-size:17px;background:transparent;border:1px solid var(--acid);color:var(--acid)">SEND TO JEFFO →</button>
 
     <!-- Send confirmation splash -->
     <div id="send-splash" style="display:none;margin-top:16px">
@@ -518,7 +508,6 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
         <div id="send-summary" style="font-size:10px;color:#ccc;line-height:1.8;white-space:pre-wrap;letter-spacing:.02em"></div>
       </div>
       <button class="btn-p" onclick="copySummary()" style="font-size:17px" id="copy-summary-btn">COPY ORDER TO CLIPBOARD</button>
-      <!-- Contact info - hidden by default, slides in on copy -->
       <div id="contact-slide" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.25,.46,.45,.94)">
         <div style="margin-top:16px;text-align:center;padding-bottom:4px">
           <div style="font-size:10px;color:#999;letter-spacing:.08em;margin-bottom:8px">TEXT YOUR ORDER TO JEFFO</div>
@@ -527,6 +516,14 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
         </div>
       </div>
     </div>
+
+    <!-- Stripe always visible -->
+    <div style="display:flex;align-items:center;gap:12px;margin:14px 0 10px">
+      <div style="flex:1;height:1px;background:var(--border2)"></div>
+      <div style="font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase">or pay now</div>
+      <div style="flex:1;height:1px;background:var(--border2)"></div>
+    </div>
+    <button class="btn-p" id="stripe-btn" onclick="stripeCheckout()" style="font-size:19px;background:#635BFF;border:none;letter-spacing:.1em;margin-bottom:8px">GET NOW — PAY WITH STRIPE</button>
   </div>
 </div>
 
@@ -886,7 +883,6 @@ function openPricing(){
   document.getElementById('send-btn').disabled=false;
   document.getElementById('send-btn').textContent='SEND TO JEFFO →';
   document.getElementById('send-btn').style.display='';
-  document.getElementById('stripe-btn').style.display='';
   document.getElementById('send-splash').style.display='none';
   const cs=document.getElementById('contact-slide');if(cs)cs.style.maxHeight='0';
   document.getElementById('pricing').classList.add('open');
@@ -962,7 +958,6 @@ function sendSelection(){
   const summary=buildSummary();
   document.getElementById('send-summary').textContent=summary;
   document.getElementById('send-btn').style.display='none';
-  document.getElementById('stripe-btn').style.display='none';
   document.getElementById('send-splash').style.display='block';
 }
 function copySummary(){
@@ -976,9 +971,35 @@ function copySummary(){
     slide.style.maxHeight=slide.scrollHeight+'px';
   });
 }
-function stripeCheckout(){
-  // TODO: wire up Stripe Checkout Session via /api/checkout
-  alert('Stripe integration coming soon — use Send to Jeffo for now');
+async function stripeCheckout(){
+  const pr=calcPrice(selP.size,selV.size);
+  const total=selectedBundle?BUNDLES[selectedBundle].price:pr.total;
+  if(total===0)return;
+  const btn=document.getElementById('stripe-btn');
+  btn.disabled=true;btn.textContent='LOADING...';
+  // Build description
+  let desc='';
+  if(selectedBundle){desc=BUNDLES[selectedBundle].name;}
+  else{
+    const parts=[];
+    if(pr.numPhotos)parts.push(pr.numPhotos+' photos');
+    if(pr.numVideos)parts.push(pr.numVideos+' videos');
+    desc=parts.join(' + ');
+  }
+  const clientName=document.getElementById('cl-name')?.value.trim()||'Client';
+  const email=clientEmailAddr||document.getElementById('cl-email')?.value.trim()||'';
+  try{
+    const res=await fetch('/api/checkout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({amount:total,description:desc,clientName,clientEmail:email})
+    });
+    const data=await res.json();
+    if(data.url){window.location.href=data.url;}
+    else{alert(data.error||'Failed to create checkout');btn.disabled=false;btn.textContent='GET NOW — PAY WITH STRIPE';}
+  }catch(e){
+    alert('Error: '+e.message);btn.disabled=false;btn.textContent='GET NOW — PAY WITH STRIPE';
+  }
 }
 let selectedBundle=null;
 let bundlesOpen=false;
