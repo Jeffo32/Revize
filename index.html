@@ -16,6 +16,8 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
 button{transition:transform .15s ease}
 button:hover{transform:translateY(-2px)}
 button:active{transform:translateY(1px)}
+#copy-summary-btn{transform:none!important}
+#copy-summary-btn:hover{transform:none!important}
 
 /* —— SCREENS ——————————————————————————————— */
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;overflow-y:auto;transition:opacity .45s ease,transform .45s ease}
@@ -527,7 +529,7 @@ button:active{transform:translateY(1px)}
       <div style="font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase">or pay now</div>
       <div style="flex:1;height:1px;background:var(--border2)"></div>
     </div>
-    <button class="btn-p" id="stripe-btn" onclick="stripeCheckout()" style="font-size:19px;background:#635BFF;border:none;letter-spacing:.1em;margin-bottom:8px">GET FILES NOW</button>
+    <button class="btn-p" id="stripe-btn" onclick="stripeCheckout()" style="font-size:19px;background:#635BFF;border:none;letter-spacing:.1em;margin-bottom:8px">CARD (PAY NOW)</button>
   </div>
 </div>
 
@@ -1036,9 +1038,9 @@ async function stripeCheckout(){
       localStorage.setItem('revize_paid_items',JSON.stringify({photos:selectedPhotos,videos:selectedVideos,clientName,bundle:selectedBundle}));
       window.location.href=data.url;
     }
-    else{alert(data.error||'Failed to create checkout');btn.disabled=false;btn.textContent='GET FILES NOW';}
+    else{alert(data.error||'Failed to create checkout');btn.disabled=false;btn.textContent='CARD (PAY NOW)';}
   }catch(e){
-    alert('Error: '+e.message);btn.disabled=false;btn.textContent='GET FILES NOW';
+    alert('Error: '+e.message);btn.disabled=false;btn.textContent='CARD (PAY NOW)';
   }
 }
 
