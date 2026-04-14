@@ -511,7 +511,7 @@ button:active{transform:translateY(1px)}
         <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.08em;color:var(--acid);margin-bottom:10px">YOUR ORDER SUMMARY</div>
         <div id="send-summary" style="font-size:10px;color:#ccc;line-height:1.8;white-space:pre-wrap;letter-spacing:.02em"></div>
       </div>
-      <button class="btn-p" onclick="copySummary()" style="font-size:17px" id="copy-summary-btn">COPY ORDER TO CLIPBOARD</button>
+      <button class="btn-p" onclick="copySummary()" onmouseenter="showContact()" onmouseleave="hideContact()" ontouchstart="showContact()" style="font-size:17px" id="copy-summary-btn">COPY ORDER TO CLIPBOARD</button>
       <div id="contact-slide" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.25,.46,.45,.94)">
         <div style="margin-top:16px;text-align:center;padding-bottom:4px">
           <div style="font-size:10px;color:#999;letter-spacing:.08em;margin-bottom:8px">TEXT YOUR ORDER TO JEFFO</div>
@@ -910,7 +910,7 @@ function openPricing(){
   document.getElementById('send-btn').textContent='CASH (PAY LATER)';
   document.getElementById('send-btn').style.display='';
   document.getElementById('send-splash').style.display='none';
-  const cs=document.getElementById('contact-slide');if(cs)cs.style.maxHeight='0';
+  const cs=document.getElementById('contact-slide');if(cs)cs.style.maxHeight='0';contactLocked=false;
   document.getElementById('pricing').classList.add('open');
 }
 function closePricing(){document.getElementById('pricing').classList.remove('open');}
@@ -986,15 +986,23 @@ function sendSelection(){
   document.getElementById('send-btn').style.display='none';
   document.getElementById('send-splash').style.display='block';
 }
+let contactLocked=false;
+function showContact(){
+  const slide=document.getElementById('contact-slide');
+  slide.style.maxHeight=slide.scrollHeight+'px';
+}
+function hideContact(){
+  if(contactLocked)return;
+  document.getElementById('contact-slide').style.maxHeight='0';
+}
 function copySummary(){
   const text=document.getElementById('send-summary').textContent;
   navigator.clipboard.writeText(text).then(()=>{
     const btn=document.getElementById('copy-summary-btn');
     btn.textContent='✓ COPIED!';
     setTimeout(()=>btn.textContent='COPY ORDER TO CLIPBOARD',2000);
-    // Slide in contact info
-    const slide=document.getElementById('contact-slide');
-    slide.style.maxHeight=slide.scrollHeight+'px';
+    contactLocked=true;
+    showContact();
   });
 }
 async function stripeCheckout(){
