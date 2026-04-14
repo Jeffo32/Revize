@@ -13,6 +13,9 @@
   --base:#080808;--surface:#111;--surface2:#161616;--border:#1e1e1e;--border2:#2a2a2a
 }
 html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;color:var(--white);overflow:hidden}
+button{transition:transform .15s ease}
+button:hover{transform:translateY(-2px)}
+button:active{transform:translateY(1px)}
 
 /* —— SCREENS ——————————————————————————————— */
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;overflow-y:auto;transition:opacity .45s ease,transform .45s ease}
@@ -82,11 +85,11 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
 .pill{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border2);padding:6px 12px;border-radius:6px}
 .pill .pn{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--acid);line-height:1}
 .pill .pl{font-size:9px;letter-spacing:.08em;color:var(--muted)}
-.tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
-.tab{flex:1;padding:12px 0;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;position:relative;transition:color .2s;display:flex;align-items:center;justify-content:center;gap:5px}
-.tab.on{color:var(--white)}
+.tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+.tab{flex:1;padding:13px 0;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#888;background:var(--surface);border:none;cursor:pointer;position:relative;transition:color .2s,background .2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.tab.on{color:var(--white);background:var(--surface2)}
 .tab.on::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--acid)}
-.tn{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--muted)}
+.tn{font-family:'Bebas Neue',sans-serif;font-size:14px;color:#777}
 .tab.on .tn{color:var(--acid)}
 .panels{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .panel{display:none;padding:14px 14px 100px}
@@ -139,7 +142,7 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
 .lb-fn{font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.4);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%}
 .lb-x{pointer-events:all;background:none;border:none;color:var(--white);font-size:22px;cursor:pointer;opacity:.7;padding:4px;line-height:1}
 .lb-track{position:absolute;inset:0;overflow:hidden}
-.lb-slide{position:absolute;top:0;height:100%;width:100%;display:flex;align-items:center;justify-content:center;padding:40px 6px 64px;overflow:hidden}
+.lb-slide{position:absolute;top:0;height:100%;width:100%;display:flex;align-items:center;justify-content:center;padding:36px 0 60px;overflow:hidden}
 .lb-slide img{max-width:100%;max-height:100%;object-fit:contain;display:block;pointer-events:none;user-select:none;transform-origin:center center;will-change:transform}
 .lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.07);border:none;color:var(--white);width:40px;height:64px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:20;transition:background .15s}
 .lb-nav:hover{background:rgba(255,255,255,.15);color:var(--acid)}
@@ -500,7 +503,7 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
       </div>
     </div>
 
-    <button class="btn-p" id="send-btn" onclick="sendSelection()" style="margin-top:4px;font-size:17px;background:transparent;border:1px solid var(--acid);color:var(--acid)">SEND TO JEFFO →</button>
+    <button class="btn-p" id="send-btn" onclick="sendSelection()" style="margin-top:4px;font-size:17px;background:transparent;border:1px solid var(--acid);color:var(--acid)">CASH (PAY LATER)</button>
 
     <!-- Send confirmation splash -->
     <div id="send-splash" style="display:none;margin-top:16px">
@@ -524,7 +527,7 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
       <div style="font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase">or pay now</div>
       <div style="flex:1;height:1px;background:var(--border2)"></div>
     </div>
-    <button class="btn-p" id="stripe-btn" onclick="stripeCheckout()" style="font-size:19px;background:#635BFF;border:none;letter-spacing:.1em;margin-bottom:8px">GET NOW — PAY WITH STRIPE</button>
+    <button class="btn-p" id="stripe-btn" onclick="stripeCheckout()" style="font-size:19px;background:#635BFF;border:none;letter-spacing:.1em;margin-bottom:8px">GET FILES NOW</button>
   </div>
 </div>
 
@@ -904,7 +907,7 @@ function openPricing(){
   });
   renderPricing();
   document.getElementById('send-btn').disabled=false;
-  document.getElementById('send-btn').textContent='SEND TO JEFFO →';
+  document.getElementById('send-btn').textContent='CASH (PAY LATER)';
   document.getElementById('send-btn').style.display='';
   document.getElementById('send-splash').style.display='none';
   const cs=document.getElementById('contact-slide');if(cs)cs.style.maxHeight='0';
@@ -1025,9 +1028,9 @@ async function stripeCheckout(){
       localStorage.setItem('revize_paid_items',JSON.stringify({photos:selectedPhotos,videos:selectedVideos,clientName,bundle:selectedBundle}));
       window.location.href=data.url;
     }
-    else{alert(data.error||'Failed to create checkout');btn.disabled=false;btn.textContent='GET NOW — PAY WITH STRIPE';}
+    else{alert(data.error||'Failed to create checkout');btn.disabled=false;btn.textContent='GET FILES NOW';}
   }catch(e){
-    alert('Error: '+e.message);btn.disabled=false;btn.textContent='GET NOW — PAY WITH STRIPE';
+    alert('Error: '+e.message);btn.disabled=false;btn.textContent='GET FILES NOW';
   }
 }
 
@@ -1261,7 +1264,7 @@ function lbPreload(){
 function lbMakeSlide(it, offsetPx){
   const slide=document.createElement('div');
   slide.className='lb-slide';
-  slide.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:40px 6px 64px;overflow:hidden;transform:translateX('+offsetPx+'px);will-change:transform';
+  slide.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:36px 0 60px;overflow:hidden;transform:translateX('+offsetPx+'px);will-change:transform';
 
   if(it.type==='video'){
     const isR2=it.url&&it.url.includes('r2.dev');
@@ -1275,17 +1278,17 @@ function lbMakeSlide(it, offsetPx){
         vid.controls=true;
         vid.autoplay=true;
         vid.setAttribute('playsinline','');
-        vid.style.cssText='width:auto;height:auto;max-width:98vw;max-height:88vh;display:block;background:#000;outline:none;border-radius:6px';
+        vid.style.cssText='width:auto;height:auto;max-width:100vw;max-height:calc(100vh - 100px);display:block;background:#000;outline:none';
         slide.appendChild(vid);
       } else {
         // Drive fallback iframe
         const wrap=document.createElement('div');
-        wrap.style.cssText='max-width:98vw;max-height:88vh;position:relative;margin:0 auto';
+        wrap.style.cssText='max-width:100vw;max-height:calc(100vh - 100px);position:relative;margin:0 auto';
         const iframe=document.createElement('iframe');
         iframe.id='lb-iframe';
         iframe.setAttribute('allow','autoplay;fullscreen');
         iframe.setAttribute('allowfullscreen','');
-        iframe.style.cssText='width:100%;aspect-ratio:9/16;max-height:88vh;border:none;display:block;background:#000;border-radius:6px';
+        iframe.style.cssText='width:100%;aspect-ratio:9/16;max-height:calc(100vh - 100px);border:none;display:block;background:#000';
         wrap.appendChild(iframe);
         slide.appendChild(wrap);
       }
@@ -1293,7 +1296,7 @@ function lbMakeSlide(it, offsetPx){
       // Off-screen slide — show thumbnail only
       const img=document.createElement('img');
       img.src=it.thumb||'';
-      img.style.cssText='max-width:98vw;max-height:88vh;object-fit:contain;pointer-events:none;user-select:none';
+      img.style.cssText='max-width:100vw;max-height:calc(100vh - 100px);object-fit:contain;pointer-events:none;user-select:none';
       slide.appendChild(img);
     }
   } else {
