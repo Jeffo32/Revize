@@ -21,9 +21,10 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
 .big-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,13vw,76px);letter-spacing:.04em;line-height:.88;text-align:center;margin-bottom:8px}
 .big-title span{color:var(--acid)}
 .sub{font-size:10px;letter-spacing:.12em;color:#999;margin-bottom:36px;text-align:center}
-.card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border2);padding:28px 24px;position:relative;border-radius:10px}
-.card::before{content:'';position:absolute;top:0;left:0;width:34px;height:34px;border-top:2px solid var(--acid);border-left:2px solid var(--acid)}
-.card::after{content:'';position:absolute;bottom:0;right:0;width:34px;height:34px;border-bottom:2px solid var(--acid);border-right:2px solid var(--acid)}
+.card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border2);padding:28px 24px;position:relative;border-radius:10px;overflow:hidden}
+.card::before{content:'';position:absolute;inset:-1px;border-radius:10px;padding:1px;background:linear-gradient(90deg,transparent 0%,var(--acid) 50%,transparent 100%);background-size:200% 100%;animation:borderShimmer 3s ease-in-out infinite;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.4}
+.card::after{content:none}
+@keyframes borderShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .field{margin-bottom:14px}
 .lbl{display:block;font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:#999;margin-bottom:6px}
 .inp{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--white);font-family:'DM Mono',monospace;font-size:16px;padding:11px 12px;outline:none;transition:border-color .2s;border-radius:6px}
@@ -123,10 +124,10 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
 /* —— PRICING ——————————————————————————————————— */
 #pricing{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.88);overflow-y:auto;padding:20px;display:none;align-items:center;justify-content:center}
 #pricing.open{display:flex}
-.pc{width:100%;max-width:500px;margin:0 auto;background:var(--surface);border:1px solid var(--border2);padding:32px 26px;position:relative;animation:slideUp .35s cubic-bezier(.34,1.56,.64,1);border-radius:12px}
+.pc{width:100%;max-width:500px;margin:0 auto;background:var(--surface);border:1px solid var(--border2);padding:32px 26px;position:relative;animation:slideUp .35s cubic-bezier(.34,1.56,.64,1);border-radius:12px;overflow:hidden}
 @keyframes slideUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
-.pc::before{content:'';position:absolute;top:0;left:0;width:36px;height:36px;border-top:2px solid var(--acid);border-left:2px solid var(--acid)}
-.pc::after{content:'';position:absolute;bottom:0;right:0;width:36px;height:36px;border-bottom:2px solid var(--acid);border-right:2px solid var(--acid)}
+.pc::before{content:'';position:absolute;inset:-1px;border-radius:12px;padding:1px;background:linear-gradient(90deg,transparent 0%,var(--acid) 50%,transparent 100%);background-size:200% 100%;animation:borderShimmer 3s ease-in-out infinite;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.4}
+.pc::after{content:none}
 .pc-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1}
 #send-ok{display:none;margin-top:12px;padding:12px 14px;background:rgba(57,255,20,.07);border:1px solid rgba(57,255,20,.25);font-size:11px;color:var(--acid);letter-spacing:.06em}
 
@@ -224,7 +225,6 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
   57%{box-shadow:0 0 2px rgba(57,255,20,.1)}
   58%{box-shadow:0 0 8px rgba(57,255,20,.5),0 0 20px rgba(57,255,20,.2)}
 }
-.card::before,.card::after,.pc::before,.pc::after{animation:neonBorderFlicker 3.5s ease-in-out infinite}
 @keyframes neonBorderFlicker{
   0%,100%{opacity:1;filter:drop-shadow(0 0 4px rgba(57,255,20,.6))}
   4%{opacity:.7;filter:none}
@@ -386,7 +386,7 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
       <label class="lbl">Select Client</label>
       <div style="display:flex;flex-direction:column;gap:6px">
         <div class="existing-client-row" onclick="loadExistingClient('Tim','1D-2DLKNeMvsdNSwji1tBZa9RVtR5kFIj','1pb3ils63CM0l6CC9pqy6Pt-TONKPes4f')"
-          style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s">
+          style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s,background .15s;border-radius:6px" onmouseover="this.style.background='#000';this.style.borderColor='var(--acid)'" onmouseout="this.style.background='var(--surface2)';this.style.borderColor='var(--border2)'"
           <div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">TIM</div>
           </div>
@@ -443,8 +443,8 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
     <button class="tab" id="tb-faves" onclick="switchTab('faves')">Faves <span class="tn" id="tn-f">0</span></button>
   </div>
   <div class="panels">
-    <div class="panel on" id="pn-photos"><div class="instr-carousel"><div class="instr-track"><span>HAVE A BROWSE</span><span>CHOOSE YOUR FAVS</span><span>TAP ANY PIC TO FULLSCREEN</span><span>HAVE A BROWSE</span><span>CHOOSE YOUR FAVS</span><span>TAP ANY PIC TO FULLSCREEN</span><span>HAVE A BROWSE</span><span>CHOOSE YOUR FAVS</span><span>TAP ANY PIC TO FULLSCREEN</span><span>HAVE A BROWSE</span><span>CHOOSE YOUR FAVS</span><span>TAP ANY PIC TO FULLSCREEN</span></div></div><div class="sec">All Photos</div><div class="pgrid" id="g-photos"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
-    <div class="panel" id="pn-videos"><div class="sec">All Videos</div><div class="vgrid" id="g-videos"><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div></div></div>
+    <div class="panel on" id="pn-photos"><div class="instr-carousel"><div class="instr-track"><span>HAVE A BROWSE</span><span>CHOOSE YOUR FAVS</span><span>TAP ANY PIC TO FULLSCREEN</span><span>HAVE A BROWSE</span><span>CHOOSE YOUR FAVS</span><span>TAP ANY PIC TO FULLSCREEN</span><span>HAVE A BROWSE</span><span>CHOOSE YOUR FAVS</span><span>TAP ANY PIC TO FULLSCREEN</span><span>HAVE A BROWSE</span><span>CHOOSE YOUR FAVS</span><span>TAP ANY PIC TO FULLSCREEN</span></div></div><div class="pgrid" id="g-photos"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
+    <div class="panel" id="pn-videos"><div class="vgrid" id="g-videos"><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div></div></div>
     <div class="panel" id="pn-faves"><div class="sec">Your Favourites</div><div id="faves-out"></div></div>
   </div>
   <div class="cta-bar" id="cta-bar">
@@ -865,6 +865,13 @@ function renderPricing(){
 function sendSelection(){
   const pr=calcPrice(selP.size,selV.size);
   if(pr.total===0)return;
+  // Prompt for email if not already provided
+  let email=clientEmailAddr||document.getElementById('cl-email')?.value.trim()||'';
+  if(!email){
+    email=prompt('Enter your email address so Jeffo can get back to you:');
+    if(!email)return;
+    clientEmailAddr=email;
+  }
   const btn=document.getElementById('send-btn');btn.disabled=true;btn.textContent='SENDING...';
   const fp=allP.filter(p=>selP.has(p.id)).map(p=>p.name);
   const fv=allV.filter(v=>selV.has(v.id)).map(v=>v.name);
@@ -873,11 +880,11 @@ function sendSelection(){
   if(pr.numPhotos)breakdown.push(pr.numPhotos+' photos × $'+pr.photoRate+' = $'+pr.photoTotal);
   if(pr.numVideos)breakdown.push(pr.numVideos+' videos × $'+pr.videoRate+' = $'+pr.videoTotal);
   const subject='New Gallery Selection — $'+pr.total;
-  const body='Hi Jeffo,\n\nA client has reviewed their gallery and made a selection.\n\nClient: '+clientName+(clientEmailAddr?'\nEmail: '+clientEmailAddr:'')+
+  const body='Hi Jeffo,\n\nA client has reviewed their gallery and made a selection.\n\nClient: '+clientName+'\nEmail: '+email+
     '\n\nPricing:\n'+breakdown.map(x=>'  • '+x).join('\n')+'\n  TOTAL: $'+pr.total+
     '\n\nPhotos selected ('+fp.length+'):\n'+(fp.map(x=>'  • '+x).join('\n')||'  None')+
     '\n\nVideos selected ('+fv.length+'):\n'+(fv.map(x=>'  • '+x).join('\n')||'  None')+'\n\nRevize by Wolfe Productions';
-  const mailto='mailto:'+JEFFO_EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)+(clientEmailAddr?'&reply-to='+encodeURIComponent(clientEmailAddr):'');
+  const mailto='mailto:'+JEFFO_EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)+'&reply-to='+encodeURIComponent(email);
   window.open(mailto);
   document.getElementById('send-ok').style.display='block';
   btn.textContent='✓ SENT';
@@ -1016,17 +1023,17 @@ function lbMakeSlide(it, offsetPx){
         vid.controls=true;
         vid.autoplay=true;
         vid.setAttribute('playsinline','');
-        vid.style.cssText='max-width:100%;max-height:72vh;display:block;background:#000;outline:none';
+        vid.style.cssText='max-width:90%;max-height:75vh;display:block;background:#000;outline:none;border-radius:6px';
         slide.appendChild(vid);
       } else {
         // Drive fallback iframe
         const wrap=document.createElement('div');
-        wrap.style.cssText='width:100%;max-width:960px;position:relative';
+        wrap.style.cssText='max-width:90%;max-height:75vh;position:relative;margin:0 auto';
         const iframe=document.createElement('iframe');
         iframe.id='lb-iframe';
         iframe.setAttribute('allow','autoplay;fullscreen');
         iframe.setAttribute('allowfullscreen','');
-        iframe.style.cssText='width:100%;aspect-ratio:16/9;border:none;display:block;background:#000';
+        iframe.style.cssText='width:100%;aspect-ratio:9/16;max-height:75vh;border:none;display:block;background:#000;border-radius:6px';
         wrap.appendChild(iframe);
         slide.appendChild(wrap);
       }
