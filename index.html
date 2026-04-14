@@ -449,7 +449,7 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
   </div>
   <div class="cta-bar" id="cta-bar">
     <div class="cta-info"><div class="cl">Your selection</div><div class="cc"><span id="ct-p">0</span> photos · <span id="ct-v">0</span> videos · <span style="color:var(--acid)" id="ct-total">$0</span></div></div>
-    <button class="cta-btn" onclick="openPricing()">SEE PRICING →</button>
+    <button class="cta-btn" onclick="openPricing()">CHECK OUT →</button>
   </div>
 </div>
 
@@ -473,26 +473,30 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
       <div style="font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:.04em;color:var(--acid)" id="price-total">$0</div>
     </div>
 
-    <!-- OR divider -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-      <div style="flex:1;height:1px;background:var(--border2)"></div>
-      <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">or choose a bundle</div>
-      <div style="flex:1;height:1px;background:var(--border2)"></div>
+    <!-- Floating bundle toggle -->
+    <div style="text-align:center;margin-bottom:12px">
+      <button id="bundle-toggle" onclick="toggleBundles()" style="background:transparent;border:1px solid var(--border2);color:#999;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;padding:10px 20px;cursor:pointer;border-radius:20px;transition:all .2s;text-transform:uppercase">
+        Or choose a bundle ▾
+      </button>
     </div>
 
-    <!-- Bundle options -->
-    <div id="bundle-starter" class="bundle-opt" onclick="pickBundle('starter')" style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;margin-bottom:8px;transition:border-color .15s">
-      <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">STARTER PACK</div><div style="font-size:10px;color:#999;margin-top:3px"><strong style="color:var(--ice)">5 edited photos</strong> — retouched &amp; delivered</div></div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--muted)">$250</div>
-    </div>
-    <div id="bundle-content" class="bundle-opt" onclick="pickBundle('content')" style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;margin-bottom:8px;transition:border-color .15s">
-      <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">CONTENT PACK</div><div style="font-size:10px;color:#999;margin-top:3px"><strong style="color:var(--ice)">15 photos</strong> + <strong style="color:var(--ice)">10 video clips</strong></div></div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--muted)">$600</div>
-    </div>
-    <div id="bundle-complete" class="bundle-opt" onclick="pickBundle('complete')" style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;margin-bottom:16px;transition:border-color .15s;position:relative">
-      <div style="position:absolute;top:-1px;right:14px;background:var(--acid);color:var(--base);font-size:7px;letter-spacing:.18em;text-transform:uppercase;padding:3px 8px;border-radius:0 0 4px 4px">Best Value</div>
-      <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">COMPLETE PACKAGE</div><div style="font-size:10px;color:#999;margin-top:3px"><strong style="color:var(--ice)">All photos</strong> + <strong style="color:var(--ice)">all videos</strong> + <strong style="color:var(--ice)">1 month social content</strong></div><div style="font-size:9px;color:var(--gold);margin-top:4px">Payment plan — $400/month × 3</div></div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--muted)">$1,200</div>
+    <!-- Collapsible bundle options -->
+    <div id="bundle-panel" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.25,.46,.45,.94)">
+      <div style="padding-top:4px">
+        <div id="bundle-starter" class="bundle-opt" onclick="pickBundle('starter')" style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;margin-bottom:8px;transition:border-color .15s,background .15s">
+          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">STARTER PACK</div><div style="font-size:10px;color:#999;margin-top:3px"><strong style="color:var(--ice)">5 edited photos</strong> — retouched &amp; delivered</div></div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--muted)">$250</div>
+        </div>
+        <div id="bundle-content" class="bundle-opt" onclick="pickBundle('content')" style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;margin-bottom:8px;transition:border-color .15s,background .15s">
+          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">CONTENT PACK</div><div style="font-size:10px;color:#999;margin-top:3px"><strong style="color:var(--ice)">15 photos</strong> + <strong style="color:var(--ice)">10 video clips</strong></div></div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--muted)">$600</div>
+        </div>
+        <div id="bundle-complete" class="bundle-opt" onclick="pickBundle('complete')" style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;margin-bottom:12px;transition:border-color .15s,background .15s;position:relative">
+          <div style="position:absolute;top:-1px;right:14px;background:var(--acid);color:var(--base);font-size:7px;letter-spacing:.18em;text-transform:uppercase;padding:3px 8px;border-radius:0 0 4px 4px">Best Value</div>
+          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">COMPLETE PACKAGE</div><div style="font-size:10px;color:#999;margin-top:3px"><strong style="color:var(--ice)">All photos</strong> + <strong style="color:var(--ice)">all videos</strong> + <strong style="color:var(--ice)">1 month social content</strong></div><div style="font-size:9px;color:var(--gold);margin-top:4px">Payment plan — $400/month × 3</div></div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--muted)">$1,200</div>
+        </div>
+      </div>
     </div>
 
     <button class="btn-p" id="send-btn" onclick="sendSelection()" style="margin-top:4px;font-size:19px">SEND TO JEFFO →</button>
@@ -817,16 +821,16 @@ function switchTab(t){
 function calcPrice(numPhotos,numVideos){
   // Photo tiers
   const photoTiers=[
-    {min:1, max:5,  rate:50},
-    {min:6, max:15, rate:40},
-    {min:16,max:30, rate:30},
-    {min:31,max:Infinity,rate:20}
+    {min:1, max:5,  rate:25},
+    {min:6, max:15, rate:20},
+    {min:16,max:30, rate:15},
+    {min:31,max:Infinity,rate:10}
   ];
   // Video tiers
   const videoTiers=[
-    {min:1, max:3, rate:120},
-    {min:4, max:8, rate:90},
-    {min:9, max:Infinity,rate:70}
+    {min:1, max:3, rate:60},
+    {min:4, max:8, rate:45},
+    {min:9, max:Infinity,rate:35}
   ];
   function getRate(n,tiers){
     for(const t of tiers){if(n>=t.min&&n<=t.max)return t.rate;}
@@ -856,7 +860,10 @@ function calcPrice(numPhotos,numVideos){
 }
 
 function openPricing(){
-  selectedBundle=null;
+  selectedBundle=null;bundlesOpen=false;
+  document.getElementById('bundle-panel').style.maxHeight='0';
+  const tb=document.getElementById('bundle-toggle');
+  tb.style.borderColor='var(--border2)';tb.style.color='#999';tb.textContent='Or choose a bundle ▾';
   document.querySelectorAll('.bundle-opt').forEach(el=>{
     el.style.borderColor='var(--border2)';el.style.background='var(--surface2)';
     el.querySelector('[style*="font-size:24px"]').style.color='var(--muted)';
@@ -950,6 +957,21 @@ function copySummary(){
   });
 }
 let selectedBundle=null;
+let bundlesOpen=false;
+function toggleBundles(){
+  bundlesOpen=!bundlesOpen;
+  const panel=document.getElementById('bundle-panel');
+  const btn=document.getElementById('bundle-toggle');
+  if(bundlesOpen){
+    panel.style.maxHeight=panel.scrollHeight+'px';
+    btn.style.borderColor='var(--acid)';btn.style.color='var(--acid)';
+    btn.textContent='Hide bundles ▴';
+  } else {
+    panel.style.maxHeight='0';
+    btn.style.borderColor='var(--border2)';btn.style.color='#999';
+    btn.textContent='Or choose a bundle ▾';
+  }
+}
 const BUNDLES={
   starter:{name:'Starter Pack',price:250,desc:'5 edited photos — retouched & delivered'},
   content:{name:'Content Pack',price:600,desc:'15 photos + 10 video clips'},
