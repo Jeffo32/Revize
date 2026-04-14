@@ -821,16 +821,16 @@ function switchTab(t){
 function calcPrice(numPhotos,numVideos){
   // Photo tiers
   const photoTiers=[
-    {min:1, max:5,  rate:25},
-    {min:6, max:15, rate:20},
-    {min:16,max:30, rate:15},
-    {min:31,max:Infinity,rate:10}
+    {min:1, max:5,  rate:60},
+    {min:6, max:15, rate:50},
+    {min:16,max:30, rate:40},
+    {min:31,max:Infinity,rate:30}
   ];
   // Video tiers
   const videoTiers=[
-    {min:1, max:3, rate:60},
-    {min:4, max:8, rate:45},
-    {min:9, max:Infinity,rate:35}
+    {min:1, max:3, rate:150},
+    {min:4, max:8, rate:120},
+    {min:9, max:Infinity,rate:90}
   ];
   function getRate(n,tiers){
     for(const t of tiers){if(n>=t.min&&n<=t.max)return t.rate;}
