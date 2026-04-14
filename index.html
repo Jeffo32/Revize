@@ -16,8 +16,6 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
 button{transition:transform .15s ease}
 button:hover{transform:translateY(-2px)}
 button:active{transform:translateY(1px)}
-#copy-summary-btn{transform:none!important}
-#copy-summary-btn:hover{transform:none!important}
 
 /* —— SCREENS ——————————————————————————————— */
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;overflow-y:auto;transition:opacity .45s ease,transform .45s ease}
@@ -511,12 +509,12 @@ button:active{transform:translateY(1px)}
         <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.08em;color:var(--acid);margin-bottom:10px">YOUR ORDER SUMMARY</div>
         <div id="send-summary" style="font-size:10px;color:#ccc;line-height:1.8;white-space:pre-wrap;letter-spacing:.02em"></div>
       </div>
-      <div style="position:relative">
-        <button class="btn-p" onclick="copySummary()" onmouseenter="showContact()" onmouseleave="hideContact()" ontouchstart="showContact()" style="font-size:17px;position:relative;z-index:2" id="copy-summary-btn">COPY ORDER TO CLIPBOARD</button>
-        <div id="contact-slide" style="overflow:hidden;transition:opacity .4s ease,transform .4s ease;opacity:0;transform:translateY(-8px);pointer-events:none">
+      <div id="copy-wrap" onmouseenter="showContact()" onmouseleave="hideContact()">
+        <button class="btn-p" onclick="copySummary()" ontouchstart="showContact()" style="font-size:17px" id="copy-summary-btn">COPY ORDER TO CLIPBOARD</button>
+        <div id="contact-slide" style="max-height:0;overflow:hidden;transition:max-height .35s ease">
           <div style="text-align:center;padding:14px 0 4px">
             <div style="font-size:10px;color:#999;letter-spacing:.08em;margin-bottom:8px">TEXT YOUR ORDER TO JEFFO</div>
-            <a href="sms:0432088960" style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.06em;color:var(--acid);text-decoration:none;pointer-events:auto">0432 088 960</a>
+            <a href="sms:0432088960" style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.06em;color:var(--acid);text-decoration:none">0432 088 960</a>
             <div style="font-size:9px;color:var(--gold);letter-spacing:.06em;margin-top:10px;line-height:1.6">Paste your order in the message.<br>An invoice will be sent to your email shortly.</div>
           </div>
         </div>
@@ -644,10 +642,30 @@ window.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('cl-title').innerHTML=client.toUpperCase().replace(' ','<br>')+"'S<br><span>GALLERY</span>";
     document.getElementById('cl-name').value=client;
   }
-  // Check for payment success
+  // Check for payment success/cancel
   if(getParam('paid')==='success'){
     showThankYou();
     return;
+  }
+  if(getParam('paid')==='cancel'){
+    // Restore selection from localStorage and show pricing
+    try{
+      const saved=JSON.parse(localStorage.getItem('revize_paid_items'));
+      if(saved){
+        allP=saved.photos||[];allV=saved.videos||[];
+        allP.forEach(p=>selP.add(p.id));allV.forEach(v=>selV.add(v.id));
+        const name=saved.clientName||'Client';
+        document.getElementById('g-title').textContent=name.toUpperCase()+"'S GALLERY";
+        document.getElementById('cl-name').value=name;
+        showScreen('s-gallery');
+        renderGrid(allP,'photos');renderGrid(allV,'videos');
+        document.getElementById('tn-p').textContent=allP.length;
+        document.getElementById('tn-v').textContent=allV.length;
+        updateCounts();
+        setTimeout(()=>openPricing(),300);
+        return;
+      }
+    }catch(e){}
   }
   // Client link → straight to client splash; else → Revize splash
   if(location.search.includes('client=')){showScreen('s-client');}
@@ -925,7 +943,7 @@ function openPricing(){
   document.getElementById('send-btn').textContent='CASH (PAY & GET FILES LATER)';
   document.getElementById('send-btn').style.display='';
   document.getElementById('send-splash').style.display='none';
-  const cs=document.getElementById('contact-slide');if(cs){cs.style.opacity='0';cs.style.transform='translateY(-8px)';cs.style.pointerEvents='none';}contactLocked=false;
+  const cs=document.getElementById('contact-slide');if(cs)cs.style.maxHeight='0';contactLocked=false;
   document.getElementById('pricing').classList.add('open');
 }
 function closePricing(){document.getElementById('pricing').classList.remove('open');updateSteps(selectMode?2:1);}
@@ -989,6 +1007,9 @@ function sendSelection(){
   const pr=calcPrice(selP.size,selV.size);
   const total=selectedBundle?BUNDLES[selectedBundle].price:pr.total;
   if(total===0)return;
+  // Save selection for potential restore
+  const clientName=document.getElementById('cl-name')?.value.trim()||'Client';
+  localStorage.setItem('revize_paid_items',JSON.stringify({photos:allP.filter(p=>selP.has(p.id)),videos:allV.filter(v=>selV.has(v.id)),clientName,bundle:selectedBundle}));
   // Prompt for email if not already provided
   let email=clientEmailAddr||document.getElementById('cl-email')?.value.trim()||'';
   if(!email){
@@ -1004,12 +1025,11 @@ function sendSelection(){
 let contactLocked=false;
 function showContact(){
   const slide=document.getElementById('contact-slide');
-  slide.style.opacity='1';slide.style.transform='translateY(0)';slide.style.pointerEvents='auto';
+  slide.style.maxHeight=slide.scrollHeight+'px';
 }
 function hideContact(){
   if(contactLocked)return;
-  const slide=document.getElementById('contact-slide');
-  slide.style.opacity='0';slide.style.transform='translateY(-8px)';slide.style.pointerEvents='none';
+  document.getElementById('contact-slide').style.maxHeight='0';
 }
 function copySummary(){
   const text=document.getElementById('send-summary').textContent;
