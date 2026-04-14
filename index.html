@@ -199,7 +199,7 @@ button:active{transform:translateY(1px)}
 /* —— INSTRUCTION CAROUSEL ——————————————————————————— */
 .instr-carousel{overflow:hidden;padding:16px 0 14px;position:relative;white-space:nowrap}
 .instr-track{display:inline-block;animation:instrScroll 18s linear infinite}
-.instr-track span{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--muted);padding:0 18px;text-transform:uppercase}
+.instr-track span{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;color:#aaa;padding:0 18px;text-transform:uppercase}
 .instr-track span::before{content:'◆';margin-right:18px;opacity:.3;font-size:6px;vertical-align:middle}
 @keyframes instrScroll{0%{transform:translateX(0)}100%{transform:translateX(-25%)}}
 
@@ -505,7 +505,7 @@ button:active{transform:translateY(1px)}
       </div>
     </div>
 
-    <button class="btn-p" id="send-btn" onclick="sendSelection()" style="margin-top:4px;font-size:17px;background:transparent;border:1px solid var(--acid);color:var(--acid)">CASH (PAY LATER)</button>
+    <button class="btn-p" id="send-btn" onclick="sendSelection()" style="margin-top:4px;font-size:17px;background:transparent;border:1px solid var(--acid);color:var(--acid)">CASH (PAY & GET FILES LATER)</button>
 
     <!-- Send confirmation splash -->
     <div id="send-splash" style="display:none;margin-top:16px">
@@ -529,7 +529,7 @@ button:active{transform:translateY(1px)}
       <div style="font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase">or pay now</div>
       <div style="flex:1;height:1px;background:var(--border2)"></div>
     </div>
-    <button class="btn-p" id="stripe-btn" onclick="stripeCheckout()" style="font-size:19px;background:var(--ice);color:var(--base);border:none;letter-spacing:.1em;margin-bottom:8px">CARD (PAY NOW)</button>
+    <button class="btn-p" id="stripe-btn" onclick="stripeCheckout()" style="font-size:19px;background:var(--ice);color:var(--base);border:none;letter-spacing:.1em;margin-bottom:8px">CARD (PAY & GET FILES NOW)</button>
   </div>
 </div>
 
@@ -725,6 +725,11 @@ function enterGallery(){
   clientEmailAddr=document.getElementById('cl-email').value.trim();
   document.getElementById('g-title').textContent=name.toUpperCase()+"'S GALLERY";
   showScreen('s-gallery');
+  // Show plenty of skeleton placeholders while loading
+  const pg=document.getElementById('g-photos');
+  const vg=document.getElementById('g-videos');
+  pg.innerHTML=Array(18).fill('<div class="skel"></div>').join('');
+  vg.innerHTML=Array(6).fill('<div class="skel" style="aspect-ratio:9/16"></div>').join('');
   // Use folder IDs from existing client selection, URL params, or demo
   const pf=window._activePF||getParam('pf');
   const vf=window._activeVF||getParam('vf');
@@ -909,7 +914,7 @@ function openPricing(){
   });
   renderPricing();
   document.getElementById('send-btn').disabled=false;
-  document.getElementById('send-btn').textContent='CASH (PAY LATER)';
+  document.getElementById('send-btn').textContent='CASH (PAY & GET FILES LATER)';
   document.getElementById('send-btn').style.display='';
   document.getElementById('send-splash').style.display='none';
   const cs=document.getElementById('contact-slide');if(cs)cs.style.maxHeight='0';contactLocked=false;
@@ -1038,9 +1043,9 @@ async function stripeCheckout(){
       localStorage.setItem('revize_paid_items',JSON.stringify({photos:selectedPhotos,videos:selectedVideos,clientName,bundle:selectedBundle}));
       window.location.href=data.url;
     }
-    else{alert(data.error||'Failed to create checkout');btn.disabled=false;btn.textContent='CARD (PAY NOW)';}
+    else{alert(data.error||'Failed to create checkout');btn.disabled=false;btn.textContent='CARD (PAY & GET FILES NOW)';}
   }catch(e){
-    alert('Error: '+e.message);btn.disabled=false;btn.textContent='CARD (PAY NOW)';
+    alert('Error: '+e.message);btn.disabled=false;btn.textContent='CARD (PAY & GET FILES NOW)';
   }
 }
 
