@@ -191,7 +191,7 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
 @keyframes starPop{0%{transform:translate(0,0) scale(0);opacity:1}15%{opacity:1;transform:translate(calc(var(--sx)*.3),calc(var(--sy)*.3)) scale(1.2)}100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(.6)}}
 
 /* —— INSTRUCTION CAROUSEL ——————————————————————————— */
-.instr-carousel{overflow:hidden;padding:10px 0 4px;position:relative;white-space:nowrap}
+.instr-carousel{overflow:hidden;padding:16px 0 14px;position:relative;white-space:nowrap}
 .instr-track{display:inline-block;animation:instrScroll 18s linear infinite}
 .instr-track span{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--muted);padding:0 18px;text-transform:uppercase}
 .instr-track span::before{content:'◆';margin-right:18px;opacity:.3;font-size:6px;vertical-align:middle}
@@ -471,6 +471,28 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
     <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid var(--border2);margin-bottom:16px">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.08em">TOTAL</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:.04em;color:var(--acid)" id="price-total">$0</div>
+    </div>
+
+    <!-- OR divider -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="flex:1;height:1px;background:var(--border2)"></div>
+      <div style="font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase">or choose a bundle</div>
+      <div style="flex:1;height:1px;background:var(--border2)"></div>
+    </div>
+
+    <!-- Bundle options -->
+    <div id="bundle-starter" class="bundle-opt" onclick="pickBundle('starter')" style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;margin-bottom:8px;transition:border-color .15s">
+      <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">STARTER PACK</div><div style="font-size:10px;color:#999;margin-top:3px"><strong style="color:var(--ice)">5 edited photos</strong> — retouched &amp; delivered</div></div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--muted)">$250</div>
+    </div>
+    <div id="bundle-content" class="bundle-opt" onclick="pickBundle('content')" style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;margin-bottom:8px;transition:border-color .15s">
+      <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">CONTENT PACK</div><div style="font-size:10px;color:#999;margin-top:3px"><strong style="color:var(--ice)">15 photos</strong> + <strong style="color:var(--ice)">10 video clips</strong></div></div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--muted)">$600</div>
+    </div>
+    <div id="bundle-complete" class="bundle-opt" onclick="pickBundle('complete')" style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;margin-bottom:16px;transition:border-color .15s;position:relative">
+      <div style="position:absolute;top:-1px;right:14px;background:var(--acid);color:var(--base);font-size:7px;letter-spacing:.18em;text-transform:uppercase;padding:3px 8px;border-radius:0 0 4px 4px">Best Value</div>
+      <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">COMPLETE PACKAGE</div><div style="font-size:10px;color:#999;margin-top:3px"><strong style="color:var(--ice)">All photos</strong> + <strong style="color:var(--ice)">all videos</strong> + <strong style="color:var(--ice)">1 month social content</strong></div><div style="font-size:9px;color:var(--gold);margin-top:4px">Payment plan — $400/month × 3</div></div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--muted)">$1,200</div>
     </div>
 
     <button class="btn-p" id="send-btn" onclick="sendSelection()" style="margin-top:4px;font-size:19px">SEND TO JEFFO →</button>
@@ -834,6 +856,11 @@ function calcPrice(numPhotos,numVideos){
 }
 
 function openPricing(){
+  selectedBundle=null;
+  document.querySelectorAll('.bundle-opt').forEach(el=>{
+    el.style.borderColor='var(--border2)';el.style.background='var(--surface2)';
+    el.querySelector('[style*="font-size:24px"]').style.color='var(--muted)';
+  });
   renderPricing();
   document.getElementById('send-btn').disabled=false;
   document.getElementById('send-btn').textContent='SEND TO JEFFO →';
@@ -881,12 +908,18 @@ function buildSummary(){
   const fv=allV.filter(v=>selV.has(v.id)).map(v=>v.name);
   const clientName=document.getElementById('cl-name')?.value.trim()||'Client';
   const email=clientEmailAddr||document.getElementById('cl-email')?.value.trim()||'';
+  const total=selectedBundle?BUNDLES[selectedBundle].price:pr.total;
   let lines=['REVIZE ORDER — '+clientName];
   if(email)lines.push('Email: '+email);
   lines.push('');
-  if(pr.numPhotos)lines.push(pr.numPhotos+' photos × $'+pr.photoRate+' = $'+pr.photoTotal);
-  if(pr.numVideos)lines.push(pr.numVideos+' videos × $'+pr.videoRate+' = $'+pr.videoTotal);
-  lines.push('TOTAL: $'+pr.total);
+  if(selectedBundle){
+    lines.push('Bundle: '+BUNDLES[selectedBundle].name);
+    lines.push(BUNDLES[selectedBundle].desc);
+  } else {
+    if(pr.numPhotos)lines.push(pr.numPhotos+' photos × $'+pr.photoRate+' = $'+pr.photoTotal);
+    if(pr.numVideos)lines.push(pr.numVideos+' videos × $'+pr.videoRate+' = $'+pr.videoTotal);
+  }
+  lines.push('TOTAL: $'+total);
   lines.push('');
   if(fp.length){lines.push('Photos:');fp.forEach(n=>lines.push('  • '+n));}
   if(fv.length){lines.push('Videos:');fv.forEach(n=>lines.push('  • '+n));}
@@ -894,7 +927,8 @@ function buildSummary(){
 }
 function sendSelection(){
   const pr=calcPrice(selP.size,selV.size);
-  if(pr.total===0)return;
+  const total=selectedBundle?BUNDLES[selectedBundle].price:pr.total;
+  if(total===0)return;
   // Prompt for email if not already provided
   let email=clientEmailAddr||document.getElementById('cl-email')?.value.trim()||'';
   if(!email){
@@ -914,6 +948,26 @@ function copySummary(){
     btn.textContent='✓ COPIED!';
     setTimeout(()=>btn.textContent='COPY ORDER TO CLIPBOARD',2000);
   });
+}
+let selectedBundle=null;
+const BUNDLES={
+  starter:{name:'Starter Pack',price:250,desc:'5 edited photos — retouched & delivered'},
+  content:{name:'Content Pack',price:600,desc:'15 photos + 10 video clips'},
+  complete:{name:'Complete Package',price:1200,desc:'All photos + all videos + 1 month social content'}
+};
+function pickBundle(id){
+  if(selectedBundle===id){selectedBundle=null;}
+  else{selectedBundle=id;}
+  document.querySelectorAll('.bundle-opt').forEach(el=>{
+    const isOn=el.id==='bundle-'+selectedBundle;
+    el.style.borderColor=isOn?'var(--acid)':'var(--border2)';
+    el.style.background=isOn?'rgba(57,255,20,.04)':'var(--surface2)';
+    el.querySelector('[style*="font-size:24px"]').style.color=isOn?'var(--acid)':'var(--muted)';
+  });
+  // Update total to show bundle price or per-item price
+  const pr=calcPrice(selP.size,selV.size);
+  const total=selectedBundle?BUNDLES[selectedBundle].price:pr.total;
+  document.getElementById('price-total').textContent='$'+total;
 }
 document.getElementById('pricing').addEventListener('click',function(e){if(e.target===this)closePricing();});
 
