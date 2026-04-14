@@ -196,12 +196,13 @@ button:active{transform:translateY(1px)}
 .star-particle{position:absolute;animation:starPop .8s cubic-bezier(.15,0,.4,1) forwards;opacity:0}
 @keyframes starPop{0%{transform:translate(0,0) scale(0);opacity:1}15%{opacity:1;transform:translate(calc(var(--sx)*.3),calc(var(--sy)*.3)) scale(1.2)}100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(.6)}}
 
-/* —— INSTRUCTION CAROUSEL ——————————————————————————— */
-.instr-carousel{overflow:hidden;padding:16px 0 14px;position:relative;white-space:nowrap}
-.instr-track{display:inline-block;animation:instrScroll 18s linear infinite}
-.instr-track span{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;color:#aaa;padding:0 18px;text-transform:uppercase}
-.instr-track span::before{content:'◆';margin-right:18px;opacity:.3;font-size:6px;vertical-align:middle}
-@keyframes instrScroll{0%{transform:translateX(0)}100%{transform:translateX(-25%)}}
+/* —— 3-STEP TUTORIAL ——————————————————————————————— */
+.steps{display:flex;align-items:center;justify-content:center;gap:0;padding:14px 16px 12px}
+.step{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;color:#555;text-transform:uppercase;transition:color .3s}
+.step.active{color:var(--acid)}
+.step-num{width:20px;height:20px;border-radius:50%;border:1px solid #333;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:12px;transition:border-color .3s,color .3s,background .3s}
+.step.active .step-num{border-color:var(--acid);color:var(--acid)}
+.step-arrow{color:#333;font-size:14px;padding:0 10px}
 
 /* —— FLOATING ANIMATION ——————————————————————————— */
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
@@ -449,7 +450,7 @@ button:active{transform:translateY(1px)}
     <button class="tab" id="tb-faves" onclick="switchTab('faves')">Faves <span class="tn" id="tn-f">0</span></button>
   </div>
   <div class="panels">
-    <div class="panel on" id="pn-photos"><div class="instr-carousel"><div class="instr-track"><span>HAVE A BROWSE</span><span>CHOOSE YOUR FAVS</span><span>TAP ANY PIC TO FULLSCREEN</span><span>HAVE A BROWSE</span><span>CHOOSE YOUR FAVS</span><span>TAP ANY PIC TO FULLSCREEN</span><span>HAVE A BROWSE</span><span>CHOOSE YOUR FAVS</span><span>TAP ANY PIC TO FULLSCREEN</span><span>HAVE A BROWSE</span><span>CHOOSE YOUR FAVS</span><span>TAP ANY PIC TO FULLSCREEN</span></div></div><div class="pgrid" id="g-photos"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
+    <div class="panel on" id="pn-photos"><div class="steps" id="tutorial-steps"><div class="step active" id="step-1"><div class="step-num">1</div>Browse</div><div class="step-arrow">›</div><div class="step" id="step-2"><div class="step-num">2</div>Select favs</div><div class="step-arrow">›</div><div class="step" id="step-3"><div class="step-num">3</div>Check out</div></div><div class="pgrid" id="g-photos"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
     <div class="panel" id="pn-videos"><div class="vgrid" id="g-videos"><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div></div></div>
     <div class="panel" id="pn-faves"><div class="sec">Your Favourites</div><div id="faves-out"></div></div>
   </div>
@@ -474,16 +475,12 @@ button:active{transform:translateY(1px)}
     <div id="price-nudge" style="display:none;background:rgba(79,195,247,.06);border:1px solid rgba(79,195,247,.2);padding:12px 14px;margin-bottom:18px;font-size:10px;color:var(--ice);letter-spacing:.04em;border-radius:6px;line-height:1.6"></div>
 
     <!-- Grand total -->
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:1px solid var(--border2);margin-bottom:16px">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.08em">TOTAL</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:.04em;color:var(--acid)" id="price-total">$0</div>
-    </div>
-
-    <!-- Floating bundle toggle -->
-    <div style="text-align:center;margin-bottom:12px">
-      <button id="bundle-toggle" onclick="toggleBundles()" style="background:rgba(79,195,247,.08);border:1px solid rgba(79,195,247,.3);color:var(--ice);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;padding:10px 20px;cursor:pointer;border-radius:20px;transition:all .2s;text-transform:uppercase;box-shadow:0 0 12px rgba(79,195,247,.15)">
-        Or choose a bundle ▾
-      </button>
+    <div style="padding:16px 0;border-top:1px solid var(--border2);margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.08em">TOTAL</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:.04em;color:var(--acid)" id="price-total">$0</div>
+      </div>
+      <button id="bundle-toggle" onclick="toggleBundles()" style="background:rgba(79,195,247,.08);border:1px solid rgba(79,195,247,.3);color:var(--ice);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;padding:7px 14px;cursor:pointer;border-radius:16px;transition:all .2s;text-transform:uppercase;box-shadow:0 0 10px rgba(79,195,247,.12);margin-top:10px">Or choose a bundle ▾</button>
     </div>
 
     <!-- Collapsible bundle options -->
@@ -513,14 +510,14 @@ button:active{transform:translateY(1px)}
         <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.08em;color:var(--acid);margin-bottom:10px">YOUR ORDER SUMMARY</div>
         <div id="send-summary" style="font-size:10px;color:#ccc;line-height:1.8;white-space:pre-wrap;letter-spacing:.02em"></div>
       </div>
-      <button class="btn-p" onclick="copySummary()" onmouseenter="showContact()" onmouseleave="hideContact()" ontouchstart="showContact()" style="font-size:17px" id="copy-summary-btn">COPY ORDER TO CLIPBOARD</button>
       <div id="contact-slide" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.25,.46,.45,.94)">
-        <div style="margin-top:16px;text-align:center;padding-bottom:4px">
+        <div style="text-align:center;padding:12px 0 16px">
           <div style="font-size:10px;color:#999;letter-spacing:.08em;margin-bottom:8px">TEXT YOUR ORDER TO JEFFO</div>
           <a href="sms:0432088960" style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.06em;color:var(--acid);text-decoration:none">0432 088 960</a>
           <div style="font-size:9px;color:var(--gold);letter-spacing:.06em;margin-top:10px;line-height:1.6">Paste your order in the message.<br>An invoice will be sent to your email shortly.</div>
         </div>
       </div>
+      <button class="btn-p" onclick="copySummary()" onmouseenter="showContact()" onmouseleave="hideContact()" ontouchstart="showContact()" style="font-size:17px" id="copy-summary-btn">COPY ORDER TO CLIPBOARD</button>
     </div>
 
     <!-- Stripe always visible -->
@@ -779,6 +776,13 @@ function toggleSelectMode(){
   const btn=document.getElementById('select-btn');
   btn.classList.toggle('done-mode',selectMode);
   btn.textContent=selectMode?'DONE':'SELECT';
+  updateSteps(selectMode?2:1);
+}
+function updateSteps(n){
+  [1,2,3].forEach(i=>{
+    const s=document.getElementById('step-'+i);
+    if(s)s.classList.toggle('active',i===n);
+  });
 }
 
 // —— PRESS-DRAG MULTI-SELECT ——————————————————————
@@ -818,7 +822,7 @@ function renderGrid(items,type){
       const mi=t?.closest('.mi');if(mi&&mi.dataset.id)applyDragSel(mi.dataset.id,dragSelType);
     },{passive:true});
     el.addEventListener('mouseover',()=>{if(dragSelecting)applyDragSel(item.id,dragSelType);});
-    el.addEventListener('click',()=>{if(!dragSelecting)lbOpen(type==='photos'?allP:allV,i);});
+    el.addEventListener('click',()=>{if(selectMode){toggle(item.id,type);}else if(!dragSelecting){lbOpen(type==='photos'?allP:allV,i);}});
     g.appendChild(el);
   });
 }
@@ -904,6 +908,7 @@ function calcPrice(numPhotos,numVideos){
 }
 
 function openPricing(){
+  updateSteps(3);
   selectedBundle=null;bundlesOpen=false;
   document.getElementById('bundle-panel').style.maxHeight='0';
   const tb=document.getElementById('bundle-toggle');
@@ -920,7 +925,7 @@ function openPricing(){
   const cs=document.getElementById('contact-slide');if(cs)cs.style.maxHeight='0';contactLocked=false;
   document.getElementById('pricing').classList.add('open');
 }
-function closePricing(){document.getElementById('pricing').classList.remove('open');}
+function closePricing(){document.getElementById('pricing').classList.remove('open');updateSteps(selectMode?2:1);}
 
 function renderPricing(){
   const pr=calcPrice(selP.size,selV.size);
