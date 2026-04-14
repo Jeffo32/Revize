@@ -138,7 +138,7 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
 .lb-fn{font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.4);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%}
 .lb-x{pointer-events:all;background:none;border:none;color:var(--white);font-size:22px;cursor:pointer;opacity:.7;padding:4px;line-height:1}
 .lb-track{position:absolute;inset:0;overflow:hidden}
-.lb-slide{position:absolute;top:0;height:100%;width:100%;display:flex;align-items:center;justify-content:center;padding:44px 12px 72px;overflow:hidden}
+.lb-slide{position:absolute;top:0;height:100%;width:100%;display:flex;align-items:center;justify-content:center;padding:40px 6px 64px;overflow:hidden}
 .lb-slide img{max-width:100%;max-height:100%;object-fit:contain;display:block;pointer-events:none;user-select:none;transform-origin:center center;will-change:transform}
 .lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.07);border:none;color:var(--white);width:40px;height:64px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:20;transition:background .15s}
 .lb-nav:hover{background:rgba(255,255,255,.15);color:var(--acid)}
@@ -386,7 +386,7 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
       <label class="lbl">Select Client</label>
       <div style="display:flex;flex-direction:column;gap:6px">
         <div class="existing-client-row" onclick="loadExistingClient('Tim','1D-2DLKNeMvsdNSwji1tBZa9RVtR5kFIj','1pb3ils63CM0l6CC9pqy6Pt-TONKPes4f')"
-          style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s,background .15s;border-radius:6px" onmouseover="this.style.background='#000';this.style.borderColor='var(--acid)'" onmouseout="this.style.background='var(--surface2)';this.style.borderColor='var(--border2)'"
+          style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s,background .15s;border-radius:6px" onmouseover="this.style.background='#000';this.style.borderColor='var(--acid)'" onmouseout="this.style.background='var(--surface2)';this.style.borderColor='var(--border2)'">
           <div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">TIM</div>
           </div>
@@ -1035,7 +1035,7 @@ function lbPreload(){
 function lbMakeSlide(it, offsetPx){
   const slide=document.createElement('div');
   slide.className='lb-slide';
-  slide.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:44px 12px 72px;overflow:hidden;transform:translateX('+offsetPx+'px);will-change:transform';
+  slide.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:40px 6px 64px;overflow:hidden;transform:translateX('+offsetPx+'px);will-change:transform';
 
   if(it.type==='video'){
     const isR2=it.url&&it.url.includes('r2.dev');
@@ -1049,17 +1049,17 @@ function lbMakeSlide(it, offsetPx){
         vid.controls=true;
         vid.autoplay=true;
         vid.setAttribute('playsinline','');
-        vid.style.cssText='max-width:96%;max-height:85vh;display:block;background:#000;outline:none;border-radius:6px';
+        vid.style.cssText='width:auto;height:auto;max-width:98vw;max-height:88vh;display:block;background:#000;outline:none;border-radius:6px';
         slide.appendChild(vid);
       } else {
         // Drive fallback iframe
         const wrap=document.createElement('div');
-        wrap.style.cssText='max-width:96%;max-height:85vh;position:relative;margin:0 auto';
+        wrap.style.cssText='max-width:98vw;max-height:88vh;position:relative;margin:0 auto';
         const iframe=document.createElement('iframe');
         iframe.id='lb-iframe';
         iframe.setAttribute('allow','autoplay;fullscreen');
         iframe.setAttribute('allowfullscreen','');
-        iframe.style.cssText='width:100%;aspect-ratio:9/16;max-height:85vh;border:none;display:block;background:#000;border-radius:6px';
+        iframe.style.cssText='width:100%;aspect-ratio:9/16;max-height:88vh;border:none;display:block;background:#000;border-radius:6px';
         wrap.appendChild(iframe);
         slide.appendChild(wrap);
       }
@@ -1067,7 +1067,7 @@ function lbMakeSlide(it, offsetPx){
       // Off-screen slide — show thumbnail only
       const img=document.createElement('img');
       img.src=it.thumb||'';
-      img.style.cssText='max-width:90%;max-height:70vh;object-fit:contain;pointer-events:none;user-select:none';
+      img.style.cssText='max-width:98vw;max-height:88vh;object-fit:contain;pointer-events:none;user-select:none';
       slide.appendChild(img);
     }
   } else {
