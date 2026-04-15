@@ -112,8 +112,9 @@ button:active{transform:translateY(1px)}
 .mi:hover img{transform:scale(1.05)}
 /* CSS watermark overlay */
 .wm{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:3}
-.wm::before{content:'WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS';position:absolute;top:-50%;left:-50%;width:200%;height:200%;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.3em;line-height:3;color:rgba(255,255,255,.15);transform:rotate(-30deg);white-space:pre-wrap;word-break:break-all;pointer-events:none}
-.lb-slide .wm::before{font-size:22px;line-height:3.5;color:rgba(255,255,255,.12)}
+.wm::before{content:'WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS';position:absolute;top:-100%;left:-100%;width:400%;height:400%;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.25em;line-height:2.5;color:rgba(255,255,255,.18);transform:rotate(-30deg);white-space:pre-wrap;word-break:break-all;pointer-events:none}
+.lb-wm{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:10}
+.lb-wm::before{content:'WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS';position:absolute;top:-100%;left:-100%;width:400%;height:400%;font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.2em;line-height:2.2;color:rgba(255,255,255,.15);transform:rotate(-30deg);white-space:pre-wrap;word-break:break-all;pointer-events:none}
 .vgrid .mi img{object-fit:contain;background:#000}
 .ov{position:absolute;inset:0;background:rgba(57,255,20,.18);opacity:0;pointer-events:none;transition:opacity .15s}
 .mi.sel .ov{opacity:1}
@@ -562,6 +563,7 @@ button:active{transform:translateY(1px)}
 
 <!-- —— LIGHTBOX ————————————————————————————————— -->
 <div id="lb">
+  <div class="lb-wm"></div>
   <div class="lb-top">
     <div class="lb-fn" id="lb-fn"></div>
     <button class="lb-x" onclick="lbClose()">✕</button>
@@ -1450,7 +1452,6 @@ function lbMakeSlide(it, offsetPx){
     slide.appendChild(img);
     initZoomPan(slide,img);
   }
-  const wm=document.createElement('div');wm.className='wm';slide.appendChild(wm);
   return slide;
 }
 
