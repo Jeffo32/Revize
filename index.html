@@ -16,6 +16,8 @@ html,body{height:100%;background:var(--base);font-family:'DM Mono',monospace;col
 button{transition:transform .15s ease}
 button:hover{transform:translateY(-2px)}
 button:active{transform:translateY(1px)}
+.lb-nav,.lb-nav:hover{transform:translateY(-50%)}
+.lb-nav:active{transform:translateY(-50%) scale(.9)}
 
 /* —— SCREENS ——————————————————————————————— */
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;overflow-y:auto;transition:opacity .45s ease,transform .45s ease}
@@ -316,8 +318,8 @@ button:active{transform:translateY(1px)}
   <div class="revize-tag float float-d3">by Wolfe Productions</div>
   <div class="who-text float float-d4">WHO ARE YOU!?</div>
   <div class="auth-btns">
-    <button class="btn-auth primary float float-d5" onclick="showScreen('s-signup')" onmouseenter="authHover(this)" onmouseleave="authHoverOut()">NEW USER</button>
-    <button class="btn-auth secondary float float-d6" onclick="showScreen('s-pin')" onmouseenter="authHover(this)" onmouseleave="authHoverOut()">EXISTING USER</button>
+    <button class="btn-auth primary float float-d5" onclick="showScreen('s-signup')" onmouseenter="authHover(this)">NEW USER</button>
+    <button class="btn-auth secondary float float-d6" onclick="showScreen('s-pin')" onmouseenter="authHover(this)">EXISTING USER</button>
   </div>
 </div>
 
@@ -380,8 +382,8 @@ button:active{transform:translateY(1px)}
     <div class="tag">Admin</div>
     <!-- NEW / EXISTING toggle -->
     <div style="display:flex;gap:8px;margin-bottom:20px">
-      <button id="btn-new" onclick="adminMode('new')" onmouseenter="adminHover('new')" onmouseleave="adminHoverOut()" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">NEW</button>
-      <button id="btn-existing" onclick="adminMode('existing')" onmouseenter="adminHover('existing')" onmouseleave="adminHoverOut()" style="flex:1;padding:11px;background:var(--acid);color:var(--base);border:none;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">EXISTING</button>
+      <button id="btn-new" onclick="adminMode('new')" onmouseenter="adminHover('new')"  style="flex:1;padding:11px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">NEW</button>
+      <button id="btn-existing" onclick="adminMode('existing')" onmouseenter="adminHover('existing')"  style="flex:1;padding:11px;background:var(--acid);color:var(--base);border:none;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">EXISTING</button>
     </div>
     <!-- Existing clients list -->
     <div id="existing-clients" style="display:block;margin-bottom:14px">
@@ -578,13 +580,6 @@ function authHover(el){
     else{b.style.background='transparent';b.style.color='var(--white)';b.style.border='1px solid var(--border2)';}
   });
 }
-function authHoverOut(){
-  const btns=document.querySelectorAll('.auth-btns .btn-auth');
-  btns.forEach(b=>{
-    if(b.classList.contains('primary')){b.style.background='var(--acid)';b.style.color='var(--base)';b.style.border='none';}
-    else{b.style.background='transparent';b.style.color='var(--white)';b.style.border='1px solid var(--border2)';}
-  });
-}
 function showScreen(id){
   const from=currentScreen;
   if(from&&from!==id){
@@ -729,7 +724,6 @@ function adminHover(which){
   document.getElementById(hovered).style.background='var(--acid)';document.getElementById(hovered).style.color='var(--base)';document.getElementById(hovered).style.border='none';
   document.getElementById(other).style.background='transparent';document.getElementById(other).style.color='var(--muted)';document.getElementById(other).style.border='1px solid var(--border2)';
 }
-function adminHoverOut(){adminMode(_adminMode);}
 function loadExistingClient(name,pf,vf){
   window._activePF=pf;
   window._activeVF=vf;
