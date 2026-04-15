@@ -1147,23 +1147,37 @@ async function stripeCheckout(){
 
 // —— THANK YOU / DOWNLOAD ————————————————————————————
 let paidItems=null;
-function showThankYou(){
+let originalsMap=null;
+function findOriginal(name){
+  if(!originalsMap)return null;
+  const low=name.toLowerCase();
+  if(originalsMap[low])return originalsMap[low];
+  const clean=low.replace(/[\s_-]*(watermarked|wm|preview|draft)[\s_-]*/g,'').replace(/\s+/g,' ').trim();
+  if(originalsMap[clean])return originalsMap[clean];
+  const base=clean.replace(/\.[^.]+$/,'');
+  for(const k of Object.keys(originalsMap)){if(k.replace(/\.[^.]+$/,'')===base)return originalsMap[k];}
+  return null;
+}
+async function showThankYou(){
   try{paidItems=JSON.parse(localStorage.getItem('revize_paid_items'));}catch(e){}
   if(!paidItems){showScreen('s-revize');return;}
   showScreen('s-thankyou');
   const list=document.getElementById('dl-list');
+  try{const r=await fetch('/api/originals');if(r.ok)originalsMap=(await r.json()).map||{};}catch(e){}
   let html='';
   if(paidItems.photos&&paidItems.photos.length){
     html+='<div style="font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:4px">'+paidItems.photos.length+' Photos</div>';
     paidItems.photos.forEach(p=>{
-      html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surface2);border-radius:4px;font-size:10px"><span style="color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">'+p.name+'</span><a href="https://drive.google.com/uc?export=download&id='+p.id+'" target="_blank" style="color:var(--acid);text-decoration:none;font-size:8px;letter-spacing:.1em">DOWNLOAD</a></div>';
+      const orig=findOriginal(p.name);const dlId=orig?orig.id:p.id;const clr=orig?'var(--acid)':'var(--gold)';const lbl=orig?'DOWNLOAD':'DOWNLOAD (WM)';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surface2);border-radius:4px;font-size:10px;margin-bottom:4px"><span style="color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:65%">'+p.name+'</span><a href="https://drive.google.com/uc?export=download&id='+dlId+'" target="_blank" style="color:'+clr+';text-decoration:none;font-size:8px;letter-spacing:.1em">'+lbl+'</a></div>';
     });
   }
   if(paidItems.videos&&paidItems.videos.length){
     html+='<div style="font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin:10px 0 4px">'+paidItems.videos.length+' Videos</div>';
     paidItems.videos.forEach(v=>{
-      const url=v.url||'';
-      html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surface2);border-radius:4px;font-size:10px"><span style="color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">'+v.name+'</span><a href="'+url+'" target="_blank" download style="color:var(--acid);text-decoration:none;font-size:8px;letter-spacing:.1em">DOWNLOAD</a></div>';
+      const orig=findOriginal(v.name);const dlId=orig?orig.id:v.id;const clr=orig?'var(--acid)':'var(--gold)';const lbl=orig?'DOWNLOAD':'DOWNLOAD (WM)';
+      const href=v.url||'/api/stream-video?id='+dlId;
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surface2);border-radius:4px;font-size:10px;margin-bottom:4px"><span style="color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:65%">'+v.name+'</span><a href="'+href+'" target="_blank" download style="color:'+clr+';text-decoration:none;font-size:8px;letter-spacing:.1em">'+lbl+'</a></div>';
     });
   }
   if(!html)html='<div style="color:var(--muted);font-size:11px;padding:16px 0">No files in selection</div>';
@@ -1187,11 +1201,12 @@ async function downloadAll(){
     bar.style.width=Math.round(done/total*100)+'%';
     status.textContent='Downloading '+name+'... ('+done+'/'+total+')';
   }
-  // Fetch photos via proxy to avoid CORS
+  // Fetch photos — use originals if available
   for(const p of photos){
     try{
+      const orig=findOriginal(p.name);const dlId=orig?orig.id:p.id;
       status.textContent='Fetching '+p.name+'...';
-      const res=await fetch('/api/fetch-file?type=drive&id='+p.id);
+      const res=await fetch('/api/fetch-file?type=drive&id='+dlId);
       if(res.ok){const blob=await res.blob();zip.file(p.name,blob);}
     }catch(e){}
     updateProgress(p.name);
