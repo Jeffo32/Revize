@@ -31,6 +31,7 @@ button:active{transform:translateY(1px)}
 .card::before{content:'';position:absolute;inset:-1px;border-radius:10px;padding:1px;background:linear-gradient(90deg,transparent 0%,var(--acid) 50%,transparent 100%);background-size:200% 100%;animation:borderShimmer 3s ease-in-out infinite;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.4;z-index:0}
 .card::after{content:none}
 @keyframes borderShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 .field{margin-bottom:14px}
 .lbl{display:block;font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:#999;margin-bottom:6px}
 .inp{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--white);font-family:'DM Mono',monospace;font-size:16px;padding:11px 12px;outline:none;transition:border-color .2s;border-radius:6px}
@@ -662,12 +663,14 @@ window.addEventListener('DOMContentLoaded',()=>{
     return;
   }
   if(getParam('paid')==='cancel'){
-    // Restore selection from localStorage and show pricing
+    // Restore full gallery + selection from localStorage
     try{
-      const saved=JSON.parse(localStorage.getItem('revize_paid_items'));
+      const saved=JSON.parse(localStorage.getItem('revize_gallery'));
       if(saved){
-        allP=saved.photos||[];allV=saved.videos||[];
-        allP.forEach(p=>selP.add(p.id));allV.forEach(v=>selV.add(v.id));
+        allP=saved.allPhotos||[];allV=saved.allVideos||[];
+        (saved.selP||[]).forEach(id=>selP.add(id));
+        (saved.selV||[]).forEach(id=>selV.add(id));
+        if(saved.bundle)selectedBundle=saved.bundle;
         const name=saved.clientName||'Client';
         document.getElementById('g-title').textContent=name.toUpperCase()+"'S GALLERY";
         document.getElementById('cl-name').value=name;
@@ -677,6 +680,7 @@ window.addEventListener('DOMContentLoaded',()=>{
         document.getElementById('tn-v').textContent=allV.length;
         updateCounts();
         setTimeout(()=>openPricing(),300);
+        localStorage.removeItem('revize_gallery');
         return;
       }
     }catch(e){}
@@ -1055,15 +1059,23 @@ function buildSummary(){
   if(fv.length){lines.push('Videos:');fv.forEach(n=>lines.push('  • '+n));}
   return lines.join('\n');
 }
+function showBundleWarning(msgs){
+  const nudge=document.getElementById('price-nudge');
+  nudge.innerHTML='⚠️ '+msgs.join('<br>⚠️ ')+'<br><span style="font-size:9px;opacity:.7;margin-top:4px;display:inline-block">Close pricing and select the remaining items</span>';
+  nudge.style.display='block';
+  nudge.style.borderColor='rgba(201,168,76,.4)';nudge.style.background='rgba(201,168,76,.08)';nudge.style.color='var(--gold)';
+  nudge.style.animation='none';void nudge.offsetWidth;nudge.style.animation='shake .4s ease';
+}
 function sendSelection(){
   const missing=checkBundleSelection();
-  if(missing){alert('Almost there!\n\n'+missing.join('\n')+'\n\nGo back and select the remaining items.');return;}
+  if(missing){showBundleWarning(missing);return;}
   const pr=calcPrice(selP.size,selV.size);
   const total=selectedBundle?BUNDLES[selectedBundle].price:pr.total;
   if(total===0)return;
   // Save selection for potential restore
   const clientName=document.getElementById('cl-name')?.value.trim()||'Client';
   localStorage.setItem('revize_paid_items',JSON.stringify({photos:allP.filter(p=>selP.has(p.id)),videos:allV.filter(v=>selV.has(v.id)),clientName,bundle:selectedBundle}));
+  localStorage.setItem('revize_gallery',JSON.stringify({allPhotos:allP,allVideos:allV,selP:[...selP],selV:[...selV],clientName,bundle:selectedBundle}));
   // Prompt for email if not already provided
   let email=clientEmailAddr||document.getElementById('cl-email')?.value.trim()||'';
   if(!email){
@@ -1097,7 +1109,7 @@ function copySummary(){
 }
 async function stripeCheckout(){
   const missing=checkBundleSelection();
-  if(missing){alert('Almost there!\n\n'+missing.join('\n')+'\n\nGo back and select the remaining items.');return;}
+  if(missing){showBundleWarning(missing);return;}
   const pr=calcPrice(selP.size,selV.size);
   const total=selectedBundle?BUNDLES[selectedBundle].price:pr.total;
   if(total===0)return;
@@ -1122,10 +1134,9 @@ async function stripeCheckout(){
     });
     const data=await res.json();
     if(data.url){
-      // Save selection to localStorage for post-payment download
-      const selectedPhotos=allP.filter(p=>selP.has(p.id));
-      const selectedVideos=allV.filter(v=>selV.has(v.id));
-      localStorage.setItem('revize_paid_items',JSON.stringify({photos:selectedPhotos,videos:selectedVideos,clientName,bundle:selectedBundle}));
+      // Save full gallery + selection to localStorage
+      localStorage.setItem('revize_paid_items',JSON.stringify({photos:allP.filter(p=>selP.has(p.id)),videos:allV.filter(v=>selV.has(v.id)),clientName,bundle:selectedBundle}));
+      localStorage.setItem('revize_gallery',JSON.stringify({allPhotos:allP,allVideos:allV,selP:[...selP],selV:[...selV],clientName,bundle:selectedBundle}));
       window.location.href=data.url;
     }
     else{alert(data.error||'Failed to create checkout');btn.disabled=false;btn.textContent='CARD';}
