@@ -488,7 +488,7 @@ button:active{transform:translateY(1px)}
         </div>
         <div id="bundle-complete" class="bundle-opt" onclick="pickBundle('complete')" style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;margin-bottom:12px;transition:border-color .15s,background .15s;position:relative">
           <div style="position:absolute;top:-1px;right:14px;background:var(--acid);color:var(--base);font-size:7px;letter-spacing:.18em;text-transform:uppercase;padding:3px 8px;border-radius:0 0 4px 4px">Best Value</div>
-          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">COMPLETE PACKAGE</div><div style="font-size:10px;color:#999;margin-top:3px"><strong style="color:var(--ice)">All photos</strong> + <strong style="color:var(--ice)">all videos</strong> + <strong style="color:var(--ice)">1 month social content</strong></div><div style="font-size:9px;color:var(--gold);margin-top:4px">Payment plan — $400/month × 3</div></div>
+          <div><div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">COMPLETE PACKAGE</div><div style="font-size:10px;color:#999;margin-top:3px"><strong style="color:var(--ice)">All photos</strong> + <strong style="color:var(--ice)">all videos</strong></div><div style="font-size:9px;color:var(--gold);margin-top:4px">Payment plan — $100/week × 12</div></div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--muted)">$1,200</div>
         </div>
       </div>
@@ -1094,7 +1094,7 @@ async function stripeCheckout(){
     const res=await fetch('/api/checkout',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({amount:total,description:desc,clientName,clientEmail:email})
+      body:JSON.stringify({amount:total,description:desc,clientName,clientEmail:email,paymentPlan:!!(selectedBundle&&BUNDLES[selectedBundle].paymentPlan)})
     });
     const data=await res.json();
     if(data.url){
@@ -1204,7 +1204,7 @@ function toggleBundles(){
 const BUNDLES={
   starter:{name:'Starter Pack',price:250,desc:'5 edited photos — retouched & delivered'},
   content:{name:'Content Pack',price:600,desc:'15 photos + 10 video clips'},
-  complete:{name:'Complete Package',price:1200,desc:'All photos + all videos + 1 month social content'}
+  complete:{name:'Complete Package',price:1200,desc:'All photos + all videos',paymentPlan:true}
 };
 function pickBundle(id){
   if(selectedBundle===id){selectedBundle=null;}

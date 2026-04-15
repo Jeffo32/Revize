@@ -11,35 +11,73 @@ export default async function handler(req, res) {
   if (!STRIPE_SECRET) return res.status(500).json({ error: 'Missing Stripe config' });
 
   const stripe = new Stripe(STRIPE_SECRET);
-  const { amount, description, clientName, clientEmail } = req.body || {};
+  const { amount, description, clientName, clientEmail, paymentPlan } = req.body || {};
 
   if (!amount || amount <= 0) return res.status(400).json({ error: 'Invalid amount' });
 
-  try {
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [{
-        price_data: {
-          currency: 'aud',
-          product_data: {
-            name: 'Revize — ' + (description || 'Gallery Selection'),
-            description: 'Photography & Video by Wolfe Productions',
-          },
-          unit_amount: Math.round(amount * 100),
-        },
-        quantity: 1,
-      }],
-      mode: 'payment',
-      customer_email: clientEmail || undefined,
-      metadata: {
-        client_name: clientName || '',
-        description: description || '',
-      },
-      success_url: req.headers.origin + '/?paid=success',
-      cancel_url: req.headers.origin + '/?paid=cancel',
-    });
+  const origin = req.headers.origin || req.headers.referer?.replace(/\/$/, '') || '';
 
-    return res.status(200).json({ url: session.url });
+  try {
+    if (paymentPlan) {
+      // Weekly payment plan: $100/week × 12 weeks
+      const weeklyAmount = 10000; // $100 in cents
+      const totalWeeks = 12;
+
+      // Create a recurring price
+      const price = await stripe.prices.create({
+        currency: 'aud',
+        unit_amount: weeklyAmount,
+        recurring: { interval: 'week' },
+        product_data: {
+          name: 'Revize — ' + (description || 'Complete Package') + ' (Payment Plan)',
+          metadata: { client_name: clientName || '' },
+        },
+      });
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [{ price: price.id, quantity: 1 }],
+        mode: 'subscription',
+        subscription_data: {
+          metadata: {
+            client_name: clientName || '',
+            description: description || '',
+            total_payments: totalWeeks.toString(),
+          },
+        },
+        customer_email: clientEmail || undefined,
+        success_url: origin + '/?paid=success',
+        cancel_url: origin + '/?paid=cancel',
+      });
+
+      return res.status(200).json({ url: session.url });
+    } else {
+      // One-time payment
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [{
+          price_data: {
+            currency: 'aud',
+            product_data: {
+              name: 'Revize — ' + (description || 'Gallery Selection'),
+              description: 'Photography & Video by Wolfe Productions',
+            },
+            unit_amount: Math.round(amount * 100),
+          },
+          quantity: 1,
+        }],
+        mode: 'payment',
+        customer_email: clientEmail || undefined,
+        metadata: {
+          client_name: clientName || '',
+          description: description || '',
+        },
+        success_url: origin + '/?paid=success',
+        cancel_url: origin + '/?paid=cancel',
+      });
+
+      return res.status(200).json({ url: session.url });
+    }
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
