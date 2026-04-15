@@ -34,11 +34,15 @@ export default async function handler(req, res) {
         },
       });
 
+      // Auto-cancel after 12 weeks
+      const cancelAt = Math.floor(Date.now() / 1000) + (totalWeeks * 7 * 24 * 60 * 60);
+
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [{ price: price.id, quantity: 1 }],
         mode: 'subscription',
         subscription_data: {
+          cancel_at: cancelAt,
           metadata: {
             client_name: clientName || '',
             description: description || '',

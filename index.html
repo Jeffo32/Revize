@@ -403,6 +403,19 @@ button:active{transform:translateY(1px)}
       <div class="field"><label class="lbl">Client Name</label><input class="inp" id="a-name" type="text" placeholder="Sarah Johnson"></div>
       <div class="field"><label class="lbl">Drive Folder Link</label><input class="inp" id="a-photos" type="text" placeholder="Paste Google Drive folder link"></div>
       <div class="field" style="margin-bottom:0"><label class="lbl">Your Email</label><input class="inp" id="a-email" type="email" placeholder="jeff@wolfeproductions.com.au"></div>
+      <div style="margin-top:14px">
+        <button onclick="toggleR2Upload()" id="r2-toggle" style="background:none;border:1px solid var(--border2);color:#888;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;padding:7px 14px;cursor:pointer;border-radius:16px;transition:all .2s;text-transform:uppercase">Upload videos to R2 (optional) ▾</button>
+        <div id="r2-section" style="max-height:0;overflow:hidden;transition:max-height .4s ease">
+          <div style="margin-top:12px">
+            <div style="font-size:8px;color:#888;letter-spacing:.08em;margin-bottom:8px">FOR INSTANT VIDEO PLAYBACK (NO DRIVE PLAY BUTTON)</div>
+            <div id="upload-drop" style="border:1px dashed var(--border2);padding:20px;text-align:center;cursor:pointer;margin-bottom:8px;transition:border-color .2s;border-radius:6px" onclick="document.getElementById('vid-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--acid)'" ondragleave="this.style.borderColor='var(--border2)'" ondrop="handleVideoDrop(event)">
+              <div style="font-size:10px;letter-spacing:.1em;color:var(--muted)">Drop videos here or tap to select</div>
+            </div>
+            <input type="file" id="vid-file-input" multiple accept="video/*" style="display:none" onchange="handleVideoFiles(this.files)">
+            <div id="upload-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+          </div>
+        </div>
+      </div>
     </div>
     <button class="btn-p" onclick="genLink()">GENERATE CLIENT LINK →</button>
     <div class="url-box" id="url-box">
@@ -1251,6 +1264,14 @@ function lbFullscreen(){
 }
 
 // —— R2 VIDEO UPLOAD ———————————————————————————————
+let r2Open=false;
+function toggleR2Upload(){
+  r2Open=!r2Open;
+  const panel=document.getElementById('r2-section');
+  const btn=document.getElementById('r2-toggle');
+  if(r2Open){panel.style.maxHeight='400px';btn.style.borderColor='var(--acid)';btn.style.color='var(--acid)';btn.textContent='Upload videos to R2 (optional) ▴';}
+  else{panel.style.maxHeight='0';btn.style.borderColor='var(--border2)';btn.style.color='#888';btn.textContent='Upload videos to R2 (optional) ▾';}
+}
 function handleVideoDrop(e){
   e.preventDefault();
   e.currentTarget.style.borderColor='var(--border2)';
