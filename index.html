@@ -720,7 +720,6 @@ let _adminMode='existing';
 function adminHover(which){
   const other=which==='new'?'btn-existing':'btn-new';
   const hovered=which==='new'?'btn-new':'btn-existing';
-  if((which==='new'&&_adminMode==='new')||(which==='existing'&&_adminMode==='existing'))return;
   document.getElementById(hovered).style.background='var(--acid)';document.getElementById(hovered).style.color='var(--base)';document.getElementById(hovered).style.border='none';
   document.getElementById(other).style.background='transparent';document.getElementById(other).style.color='var(--muted)';document.getElementById(other).style.border='1px solid var(--border2)';
 }
@@ -773,9 +772,9 @@ function enterGallery(){
 }
 
 // —— DRIVE + R2 ————————————————————————————————————
-async function loadDrive(){
+async function loadDrive(folderId){
   try{
-    const res=await fetch('/api/drive');
+    const res=await fetch('/api/drive'+(folderId?'?folder='+encodeURIComponent(folderId):''));
     if(!res.ok)throw new Error();
     const data=await res.json();
     const files=data.files||[];

@@ -31,7 +31,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 
-  const folderId = process.env.DRIVE_FOLDER_ID;
+  const folderId = req.query.folder || process.env.DRIVE_FOLDER_ID;
   const apiKey   = process.env.DRIVE_API_KEY;
 
   if (!folderId || !apiKey) {
