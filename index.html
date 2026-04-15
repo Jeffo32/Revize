@@ -1238,8 +1238,6 @@ function lbOpen(list,idx){
 function lbClose(){
   const vid=document.getElementById('lb-video');
   if(vid){vid.pause();vid.removeAttribute('src');vid.load();}
-  const iframe=document.getElementById('lb-iframe');
-  if(iframe)iframe.src='';
   document.getElementById('lb').classList.remove('open');
   document.body.style.overflow='';
   lbAnimating=false;
@@ -1354,14 +1352,15 @@ function lbMakeSlide(it, offsetPx){
         vid.style.cssText='max-width:100vw;max-height:calc(100vh - 96px);width:auto;height:auto;object-fit:contain;display:block;background:#000;outline:none';
         slide.appendChild(vid);
       } else {
-        // Drive video — use iframe embed (only reliable streaming method)
-        const iframe=document.createElement('iframe');
-        iframe.id='lb-iframe';
-        iframe.src='https://drive.google.com/file/d/'+it.id+'/preview?autoplay=1';
-        iframe.setAttribute('allow','autoplay;fullscreen');
-        iframe.setAttribute('allowfullscreen','');
-        iframe.style.cssText='width:100vw;height:calc(100vh - 96px);border:none;display:block;background:#000';
-        slide.appendChild(iframe);
+        // Drive video — proxy through our API to get streamable URL
+        const vid=document.createElement('video');
+        vid.id='lb-video';
+        vid.src='/api/stream-video?id='+it.id;
+        vid.controls=true;
+        vid.autoplay=true;
+        vid.setAttribute('playsinline','');
+        vid.style.cssText='max-width:100vw;max-height:calc(100vh - 96px);width:auto;height:auto;object-fit:contain;display:block;background:#000;outline:none';
+        slide.appendChild(vid);
       }
     } else {
       const img=document.createElement('img');
