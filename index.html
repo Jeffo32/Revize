@@ -399,9 +399,9 @@ button:active{transform:translateY(1px)}
       </div>
     </div>
     <!-- New client form -->
-    <div id="new-client-form" style="display:none">
+    <div id="new-client-form" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.25,.46,.45,.94)">
       <div class="field"><label class="lbl">Client Name</label><input class="inp" id="a-name" type="text" placeholder="Sarah Johnson"></div>
-      <div class="field"><label class="lbl">Drive Folder ID — Photos</label><input class="inp" id="a-photos" type="text" placeholder="Google Drive folder ID"></div>
+      <div class="field"><label class="lbl">Drive Folder Link</label><input class="inp" id="a-photos" type="text" placeholder="Paste Google Drive folder link"></div>
       <div class="field" style="margin-bottom:0"><label class="lbl">Your Email</label><input class="inp" id="a-email" type="email" placeholder="jeff@wolfeproductions.com.au"></div>
       <div style="height:1px;background:var(--border);margin:16px 0"></div>
       <label class="lbl">Upload Videos to R2</label>
@@ -707,7 +707,8 @@ function signupWith(provider){
 function adminMode(mode){
   _adminMode=mode;
   const isNew=mode==='new';
-  document.getElementById('new-client-form').style.display=isNew?'block':'none';
+  const ncf=document.getElementById('new-client-form');
+  if(isNew){ncf.style.maxHeight='600px';}else{ncf.style.maxHeight='0';}
   document.getElementById('existing-clients').style.display=isNew?'none':'block';
   document.getElementById('btn-new').style.background=isNew?'var(--acid)':'transparent';
   document.getElementById('btn-new').style.color=isNew?'var(--base)':'var(--muted)';
@@ -732,10 +733,20 @@ function loadExistingClient(name,pf,vf){
   showScreen('s-client');
 }
 function getParam(k){return new URLSearchParams(location.search).get(k)||'';}
+function extractDriveFolderId(input){
+  if(!input)return'';
+  // Match /folders/ID or /d/ID patterns
+  const m=input.match(/\/folders\/([a-zA-Z0-9_-]+)/)||input.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if(m)return m[1];
+  // If it looks like a raw ID (no slashes, long alphanumeric), use as-is
+  if(/^[a-zA-Z0-9_-]{10,}$/.test(input.trim()))return input.trim();
+  return input.trim();
+}
 function genLink(){
   const name=document.getElementById('a-name').value.trim();
   if(!name){document.getElementById('a-name').focus();return;}
-  const pf=document.getElementById('a-photos').value.trim();
+  const rawPf=document.getElementById('a-photos').value.trim();
+  const pf=extractDriveFolderId(rawPf);
   const em=document.getElementById('a-email').value.trim();
   const p=new URLSearchParams({client:name,pf:pf||'demo',email:em});
   const url=location.origin+'/?'+p.toString();
