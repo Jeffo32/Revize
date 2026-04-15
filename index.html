@@ -1238,6 +1238,8 @@ function lbOpen(list,idx){
 function lbClose(){
   const vid=document.getElementById('lb-video');
   if(vid){vid.pause();vid.removeAttribute('src');vid.load();}
+  const iframe=document.getElementById('lb-iframe');
+  if(iframe)iframe.src='';
   document.getElementById('lb').classList.remove('open');
   document.body.style.overflow='';
   lbAnimating=false;
@@ -1339,18 +1341,28 @@ function lbMakeSlide(it, offsetPx){
   slide.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:36px 0 60px;overflow:hidden;transform:translateX('+offsetPx+'px);will-change:transform';
 
   if(it.type==='video'){
+    const isR2=it.url&&(it.url.includes('r2.dev')||it.url.includes('r2.cloudflarestorage'));
     const isCurrent=offsetPx===0;
     if(isCurrent){
-      // Single native video player for both R2 and Drive
-      const vid=document.createElement('video');
-      vid.id='lb-video';
-      // R2 videos have .url, Drive videos use direct download link
-      vid.src=it.url||('https://drive.google.com/uc?export=download&id='+it.id);
-      vid.controls=true;
-      vid.autoplay=true;
-      vid.setAttribute('playsinline','');
-      vid.style.cssText='max-width:100vw;max-height:calc(100vh - 96px);width:auto;height:auto;object-fit:contain;display:block;background:#000;outline:none';
-      slide.appendChild(vid);
+      if(isR2){
+        const vid=document.createElement('video');
+        vid.id='lb-video';
+        vid.src=it.url;
+        vid.controls=true;
+        vid.autoplay=true;
+        vid.setAttribute('playsinline','');
+        vid.style.cssText='max-width:100vw;max-height:calc(100vh - 96px);width:auto;height:auto;object-fit:contain;display:block;background:#000;outline:none';
+        slide.appendChild(vid);
+      } else {
+        // Drive video — use iframe embed (only reliable streaming method)
+        const iframe=document.createElement('iframe');
+        iframe.id='lb-iframe';
+        iframe.src='https://drive.google.com/file/d/'+it.id+'/preview?autoplay=1';
+        iframe.setAttribute('allow','autoplay;fullscreen');
+        iframe.setAttribute('allowfullscreen','');
+        iframe.style.cssText='width:100vw;height:calc(100vh - 96px);border:none;display:block;background:#000';
+        slide.appendChild(iframe);
+      }
     } else {
       const img=document.createElement('img');
       img.src=it.thumb||'';
