@@ -316,8 +316,8 @@ button:active{transform:translateY(1px)}
   <div class="revize-tag float float-d3">by Wolfe Productions</div>
   <div class="who-text float float-d4">WHO ARE YOU!?</div>
   <div class="auth-btns">
-    <button class="btn-auth primary float float-d5" onclick="showScreen('s-signup')">NEW USER</button>
-    <button class="btn-auth secondary float float-d6" onclick="showScreen('s-pin')">EXISTING USER</button>
+    <button class="btn-auth primary float float-d5" onclick="showScreen('s-signup')" onmouseenter="authHover(this)" onmouseleave="authHoverOut()">NEW USER</button>
+    <button class="btn-auth secondary float float-d6" onclick="showScreen('s-pin')" onmouseenter="authHover(this)" onmouseleave="authHoverOut()">EXISTING USER</button>
   </div>
 </div>
 
@@ -571,6 +571,20 @@ const JEFFO_EMAIL='wolfeproductions@icloud.com';
 
 // —— SCREENS ——————————————————————————————————
 let currentScreen='';
+function authHover(el){
+  const btns=document.querySelectorAll('.auth-btns .btn-auth');
+  btns.forEach(b=>{
+    if(b===el){b.style.background='var(--acid)';b.style.color='var(--base)';b.style.border='none';}
+    else{b.style.background='transparent';b.style.color='var(--white)';b.style.border='1px solid var(--border2)';}
+  });
+}
+function authHoverOut(){
+  const btns=document.querySelectorAll('.auth-btns .btn-auth');
+  btns.forEach(b=>{
+    if(b.classList.contains('primary')){b.style.background='var(--acid)';b.style.color='var(--base)';b.style.border='none';}
+    else{b.style.background='transparent';b.style.color='var(--white)';b.style.border='1px solid var(--border2)';}
+  });
+}
 function showScreen(id){
   const from=currentScreen;
   if(from&&from!==id){
@@ -961,6 +975,8 @@ function openPricing(){
   document.getElementById('send-btn').disabled=false;
   document.getElementById('send-btn').textContent='CASH';
   document.getElementById('send-btn').style.display='';
+  document.getElementById('stripe-btn').disabled=false;
+  document.getElementById('stripe-btn').textContent='CARD';
   document.getElementById('send-splash').style.display='none';
   const cs=document.getElementById('contact-slide');if(cs)cs.style.maxHeight='0';contactLocked=false;
   document.getElementById('pricing').classList.add('open');
