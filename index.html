@@ -105,7 +105,8 @@ button:active{transform:translateY(1px)}
 #select-btn.done-mode{background:transparent;color:var(--acid);border:1px solid var(--acid)}
 .mi{position:relative;cursor:pointer;overflow:hidden;aspect-ratio:1;background:var(--surface2);-webkit-touch-callout:none;user-select:none;border-radius:4px}
 .vgrid .mi{aspect-ratio:9/16}
-.mi img{width:100%;height:100%;object-fit:cover;display:block}
+.mi img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s ease}
+.mi:hover img{transform:scale(1.05)}
 .vgrid .mi img{object-fit:contain;background:#000}
 .ov{position:absolute;inset:0;background:rgba(57,255,20,.18);opacity:0;pointer-events:none;transition:opacity .15s}
 .mi.sel .ov{opacity:1}
@@ -210,25 +211,21 @@ button:active{transform:translateY(1px)}
 
 /* —— NEON FLICKER ————————————————————————————————— */
 @keyframes neonFlicker{
-  0%,100%{opacity:1;text-shadow:0 0 7px rgba(57,255,20,.8),0 0 20px rgba(57,255,20,.4),0 0 40px rgba(57,255,20,.2)}
-  4%{opacity:.85;text-shadow:0 0 4px rgba(57,255,20,.5)}
-  6%{opacity:1;text-shadow:0 0 7px rgba(57,255,20,.8),0 0 20px rgba(57,255,20,.4)}
-  18%{opacity:.92;text-shadow:0 0 3px rgba(57,255,20,.4)}
-  20%{opacity:1;text-shadow:0 0 7px rgba(57,255,20,.8),0 0 20px rgba(57,255,20,.4),0 0 40px rgba(57,255,20,.2)}
+  0%,100%{opacity:1;text-shadow:0 0 4px rgba(57,255,20,.4),0 0 12px rgba(57,255,20,.15)}
+  4%{opacity:.93;text-shadow:0 0 2px rgba(57,255,20,.3)}
+  6%{opacity:1;text-shadow:0 0 4px rgba(57,255,20,.4),0 0 12px rgba(57,255,20,.15)}
   55%{opacity:1}
-  57%{opacity:.78;text-shadow:0 0 2px rgba(57,255,20,.3)}
-  58%{opacity:1;text-shadow:0 0 7px rgba(57,255,20,.8),0 0 20px rgba(57,255,20,.4)}
+  57%{opacity:.9;text-shadow:0 0 2px rgba(57,255,20,.2)}
+  58%{opacity:1;text-shadow:0 0 4px rgba(57,255,20,.4),0 0 12px rgba(57,255,20,.15)}
 }
 .neon{animation:neonFlicker 3s ease-in-out infinite}
 .revize-logo span,.big-title span,.eyebrow,.tag,.tab.on .tn,.pill .pn{animation:neonFlicker 3s ease-in-out infinite}
 .btn-auth.primary,.btn-p,.cta-btn{animation:neonBtnFlicker 4s ease-in-out infinite}
 @keyframes neonBtnFlicker{
-  0%,100%{box-shadow:0 0 8px rgba(57,255,20,.5),0 0 20px rgba(57,255,20,.2)}
-  4%{box-shadow:0 0 3px rgba(57,255,20,.2)}
-  6%{box-shadow:0 0 8px rgba(57,255,20,.5),0 0 20px rgba(57,255,20,.2)}
-  55%{box-shadow:0 0 8px rgba(57,255,20,.5)}
+  0%,100%{box-shadow:0 0 4px rgba(57,255,20,.2),0 0 10px rgba(57,255,20,.08)}
+  55%{box-shadow:0 0 4px rgba(57,255,20,.2)}
   57%{box-shadow:0 0 2px rgba(57,255,20,.1)}
-  58%{box-shadow:0 0 8px rgba(57,255,20,.5),0 0 20px rgba(57,255,20,.2)}
+  58%{box-shadow:0 0 4px rgba(57,255,20,.2),0 0 10px rgba(57,255,20,.08)}
 }
 @keyframes neonBorderFlicker{
   0%,100%{opacity:1;filter:drop-shadow(0 0 4px rgba(57,255,20,.6))}
@@ -249,8 +246,8 @@ button:active{transform:translateY(1px)}
   78.5%{opacity:.7}
   79.5%{opacity:0}
 }
-.static-overlay{position:fixed;inset:0;pointer-events:none;z-index:999;opacity:0;animation:staticBlink 6s linear infinite;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(57,255,20,.03) 2px,rgba(57,255,20,.03) 4px)}
-.static-overlay::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,rgba(57,255,20,.06) 50%,transparent 100%);height:40px;animation:scanline 4s linear infinite}
+.static-overlay{position:fixed;inset:0;pointer-events:none;z-index:999;opacity:0;animation:staticBlink 10s linear infinite;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(57,255,20,.015) 2px,rgba(57,255,20,.015) 4px)}
+.static-overlay::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,rgba(57,255,20,.03) 50%,transparent 100%);height:40px;animation:scanline 6s linear infinite}
 @keyframes scanline{0%{transform:translateY(-40px)}100%{transform:translateY(100vh)}}
 
 /* —— WHO ARE YOU ——————————————————————————————————— */
@@ -383,8 +380,8 @@ button:active{transform:translateY(1px)}
     <div class="tag">Admin</div>
     <!-- NEW / EXISTING toggle -->
     <div style="display:flex;gap:8px;margin-bottom:20px">
-      <button id="btn-new" onclick="adminMode('new')" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer">NEW</button>
-      <button id="btn-existing" onclick="adminMode('existing')" style="flex:1;padding:11px;background:var(--acid);color:var(--base);border:none;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer">EXISTING</button>
+      <button id="btn-new" onclick="adminMode('new')" onmouseenter="adminHover('new')" onmouseleave="adminHoverOut()" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">NEW</button>
+      <button id="btn-existing" onclick="adminMode('existing')" onmouseenter="adminHover('existing')" onmouseleave="adminHoverOut()" style="flex:1;padding:11px;background:var(--acid);color:var(--base);border:none;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">EXISTING</button>
     </div>
     <!-- Existing clients list -->
     <div id="existing-clients" style="display:block;margin-bottom:14px">
@@ -446,6 +443,7 @@ button:active{transform:translateY(1px)}
     <button class="tab on" id="tb-photos" onclick="switchTab('photos')">Photos <span class="tn" id="tn-p">0</span></button>
     <button class="tab" id="tb-videos" onclick="switchTab('videos')">Videos <span class="tn" id="tn-v">0</span></button>
     <button class="tab" id="tb-faves" onclick="switchTab('faves')">Faves <span class="tn" id="tn-f">0</span></button>
+    <button class="tab" id="tb-sort" onclick="toggleSort()" style="max-width:50px;font-size:12px;color:#888" title="Sort">↑↓</button>
   </div>
   <div class="panels">
     <div class="steps" id="tutorial-steps"><div class="step active" id="step-1"><div class="step-num">1</div>Browse</div><div class="step-arrow">›</div><div class="step" id="step-2"><div class="step-num">2</div>Select favs</div><div class="step-arrow">›</div><div class="step" id="step-3"><div class="step-num">3</div>Check out</div></div>
@@ -501,7 +499,8 @@ button:active{transform:translateY(1px)}
       </div>
     </div>
 
-    <button class="btn-p" id="send-btn" onclick="sendSelection()" style="margin-top:4px;font-size:17px;background:transparent;border:1px solid var(--acid);color:var(--acid)">CASH (PAY & GET FILES LATER)</button>
+    <div style="font-size:9px;letter-spacing:.14em;color:#888;text-transform:uppercase;text-align:center;margin-top:8px;margin-bottom:6px">Get files later</div>
+    <button class="btn-p" id="send-btn" onclick="sendSelection()" style="font-size:19px;background:transparent;border:1px solid var(--acid);color:var(--acid)">CASH</button>
 
     <!-- Send confirmation splash -->
     <div id="send-splash" style="display:none;margin-top:16px">
@@ -524,10 +523,10 @@ button:active{transform:translateY(1px)}
     <!-- Stripe always visible -->
     <div style="display:flex;align-items:center;gap:12px;margin:14px 0 10px">
       <div style="flex:1;height:1px;background:var(--border2)"></div>
-      <div style="font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase">or pay now</div>
+      <div style="font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase">Get files now</div>
       <div style="flex:1;height:1px;background:var(--border2)"></div>
     </div>
-    <button class="btn-p" id="stripe-btn" onclick="stripeCheckout()" style="font-size:19px;background:var(--ice);color:var(--base);border:none;letter-spacing:.1em;margin-bottom:8px">CARD (PAY & GET FILES NOW)</button>
+    <button class="btn-p" id="stripe-btn" onclick="stripeCheckout()" style="font-size:19px;background:var(--ice);color:var(--base);border:none;letter-spacing:.1em;margin-bottom:8px">CARD</button>
   </div>
 </div>
 
@@ -697,6 +696,7 @@ function signupWith(provider){
 
 // —— ADMIN ————————————————————————————————————
 function adminMode(mode){
+  _adminMode=mode;
   const isNew=mode==='new';
   document.getElementById('new-client-form').style.display=isNew?'block':'none';
   document.getElementById('existing-clients').style.display=isNew?'none':'block';
@@ -707,6 +707,15 @@ function adminMode(mode){
   document.getElementById('btn-existing').style.color=isNew?'var(--muted)':'var(--base)';
   document.getElementById('btn-existing').style.border=isNew?'1px solid var(--border2)':'none';
 }
+let _adminMode='existing';
+function adminHover(which){
+  const other=which==='new'?'btn-existing':'btn-new';
+  const hovered=which==='new'?'btn-new':'btn-existing';
+  if((which==='new'&&_adminMode==='new')||(which==='existing'&&_adminMode==='existing'))return;
+  document.getElementById(hovered).style.background='var(--acid)';document.getElementById(hovered).style.color='var(--base)';document.getElementById(hovered).style.border='none';
+  document.getElementById(other).style.background='transparent';document.getElementById(other).style.color='var(--muted)';document.getElementById(other).style.border='1px solid var(--border2)';
+}
+function adminHoverOut(){adminMode(_adminMode);}
 function loadExistingClient(name,pf,vf){
   window._activePF=pf;
   window._activeVF=vf;
@@ -884,6 +893,16 @@ function switchTab(t){
   });
   if(t==='faves')renderFaves();
 }
+let sortAsc=true;
+function toggleSort(){
+  sortAsc=!sortAsc;
+  const btn=document.getElementById('tb-sort');
+  btn.textContent=sortAsc?'↑↓':'↓↑';
+  btn.style.color=sortAsc?'#888':'var(--acid)';
+  const cmp=(a,b)=>sortAsc?a.name.localeCompare(b.name):b.name.localeCompare(a.name);
+  allP.sort(cmp);allV.sort(cmp);
+  renderGrid(allP,'photos');renderGrid(allV,'videos');
+}
 
 // —— PRICING ——————————————————————————————————————
 // —— PRICING CALCULATOR ———————————————————————————
@@ -940,7 +959,7 @@ function openPricing(){
   });
   renderPricing();
   document.getElementById('send-btn').disabled=false;
-  document.getElementById('send-btn').textContent='CASH (PAY & GET FILES LATER)';
+  document.getElementById('send-btn').textContent='CASH';
   document.getElementById('send-btn').style.display='';
   document.getElementById('send-splash').style.display='none';
   const cs=document.getElementById('contact-slide');if(cs)cs.style.maxHeight='0';contactLocked=false;
@@ -1072,9 +1091,9 @@ async function stripeCheckout(){
       localStorage.setItem('revize_paid_items',JSON.stringify({photos:selectedPhotos,videos:selectedVideos,clientName,bundle:selectedBundle}));
       window.location.href=data.url;
     }
-    else{alert(data.error||'Failed to create checkout');btn.disabled=false;btn.textContent='CARD (PAY & GET FILES NOW)';}
+    else{alert(data.error||'Failed to create checkout');btn.disabled=false;btn.textContent='CARD';}
   }catch(e){
-    alert('Error: '+e.message);btn.disabled=false;btn.textContent='CARD (PAY & GET FILES NOW)';
+    alert('Error: '+e.message);btn.disabled=false;btn.textContent='CARD';
   }
 }
 
