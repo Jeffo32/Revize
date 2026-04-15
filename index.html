@@ -110,6 +110,10 @@ button:active{transform:translateY(1px)}
 .vgrid .mi{aspect-ratio:9/16}
 .mi img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s ease}
 .mi:hover img{transform:scale(1.05)}
+/* CSS watermark overlay */
+.wm{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:3}
+.wm::before{content:'WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS   WOLFE PRODUCTIONS';position:absolute;top:-50%;left:-50%;width:200%;height:200%;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.3em;line-height:3;color:rgba(255,255,255,.15);transform:rotate(-30deg);white-space:pre-wrap;word-break:break-all;pointer-events:none}
+.lb-slide .wm::before{font-size:22px;line-height:3.5;color:rgba(255,255,255,.12)}
 .vgrid .mi img{object-fit:contain;background:#000}
 .ov{position:absolute;inset:0;background:rgba(57,255,20,.18);opacity:0;pointer-events:none;transition:opacity .15s}
 .mi.sel .ov{opacity:1}
@@ -869,7 +873,7 @@ function renderGrid(items,type){
   items.forEach((item,i)=>{
     const el=document.createElement('div');
     el.className='mi fi';el.style.animationDelay=i*.04+'s';el.dataset.id=item.id;
-    el.innerHTML='<img src="'+item.thumb+'" loading="lazy"><div class="ov"></div>'+
+    el.innerHTML='<img src="'+item.thumb+'" loading="lazy"><div class="wm"></div><div class="ov"></div>'+
       '<div class="ck"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>'+
       (type==='videos'?'<div class="pb">&#9658; VIDEO</div>':'');
     el.querySelector('.ck').addEventListener('touchstart',e=>{e.stopPropagation();startDragSel(e,item,type);},{passive:false});
@@ -910,8 +914,8 @@ function renderFaves(){
   const c=document.getElementById('faves-out');
   if(!fp.length&&!fv.length){c.innerHTML='<div class="empty">Tap items to add them here</div>';return;}
   let h='';
-  if(fp.length){h+='<div class="sec">'+fp.length+' Photo'+(fp.length>1?'s':'')+'</div><div class="pgrid" style="margin-bottom:16px">';fp.forEach((p,i)=>{h+='<div class="mi sel fi" data-id="'+p.id+'" style="animation-delay:'+i*.04+'s"><img src="'+p.thumb+'" loading="lazy"><div class="ov"></div><div class="ck" onclick="toggle(\''+p.id+'\',\'photo\')"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div></div>';});h+='</div>';}
-  if(fv.length){h+='<div class="sec">'+fv.length+' Video'+(fv.length>1?'s':'')+'</div><div class="vgrid">';fv.forEach((v,i)=>{h+='<div class="mi sel fi" data-id="'+v.id+'" style="animation-delay:'+i*.04+'s;aspect-ratio:9/16"><img src="'+v.thumb+'" loading="lazy"><div class="ov"></div><div class="ck" onclick="toggle(\''+v.id+'\',\'video\')"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div><div class="pb">&#9658; VIDEO</div></div>';});h+='</div>';}
+  if(fp.length){h+='<div class="sec">'+fp.length+' Photo'+(fp.length>1?'s':'')+'</div><div class="pgrid" style="margin-bottom:16px">';fp.forEach((p,i)=>{h+='<div class="mi sel fi" data-id="'+p.id+'" style="animation-delay:'+i*.04+'s"><img src="'+p.thumb+'" loading="lazy"><div class="wm"></div><div class="ov"></div><div class="ck" onclick="toggle(\''+p.id+'\',\'photo\')"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div></div>';});h+='</div>';}
+  if(fv.length){h+='<div class="sec">'+fv.length+' Video'+(fv.length>1?'s':'')+'</div><div class="vgrid">';fv.forEach((v,i)=>{h+='<div class="mi sel fi" data-id="'+v.id+'" style="animation-delay:'+i*.04+'s;aspect-ratio:9/16"><img src="'+v.thumb+'" loading="lazy"><div class="wm"></div><div class="ov"></div><div class="ck" onclick="toggle(\''+v.id+'\',\'video\')"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div><div class="pb">&#9658; VIDEO</div></div>';});h+='</div>';}
   c.innerHTML=h;
 }
 function switchTab(t){
@@ -1446,6 +1450,7 @@ function lbMakeSlide(it, offsetPx){
     slide.appendChild(img);
     initZoomPan(slide,img);
   }
+  const wm=document.createElement('div');wm.className='wm';slide.appendChild(wm);
   return slide;
 }
 
