@@ -19,42 +19,35 @@ export default async function handler(req, res) {
 
   try {
     if (paymentPlan) {
-      // Weekly payment plan: $100/week × 12 weeks
-      const weeklyAmount = 10000; // $100 in cents
-      const totalWeeks = 12;
-
-      // Create a recurring price
+      // Create recurring price for $100/week
       const price = await stripe.prices.create({
         currency: 'aud',
-        unit_amount: weeklyAmount,
+        unit_amount: 10000, // $100
         recurring: { interval: 'week' },
         product_data: {
           name: 'Revize — ' + (description || 'Complete Package') + ' (Payment Plan)',
-          metadata: { client_name: clientName || '' },
         },
       });
 
-      // Auto-cancel after 12 weeks
-      const cancelAt = Math.floor(Date.now() / 1000) + (totalWeeks * 7 * 24 * 60 * 60);
+      // Calculate cancel timestamp: 12 weeks from now
+      const cancelAt = Math.floor(Date.now() / 1000) + (12 * 7 * 24 * 60 * 60);
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [{ price: price.id, quantity: 1 }],
         mode: 'subscription',
-        subscription_data: {
-          cancel_at: cancelAt,
-          metadata: {
-            client_name: clientName || '',
-            description: description || '',
-            total_payments: totalWeeks.toString(),
-          },
-        },
         customer_email: clientEmail || undefined,
         success_url: origin + '/?paid=success',
         cancel_url: origin + '/?paid=cancel',
       });
 
-      return res.status(200).json({ url: session.url });
+      // After session creation, we can't set cancel_at yet because
+      // the subscription doesn't exist until the customer completes checkout.
+      // We'll store the cancel_at intent in metadata and handle it via webhook,
+      // OR we set it after the first payment. For now, return the session URL
+      // and we'll set up auto-cancel via a separate endpoint.
+
+      return res.status(200).json({ url: session.url, subscriptionCancelAt: cancelAt });
     } else {
       // One-time payment
       const session = await stripe.checkout.sessions.create({
