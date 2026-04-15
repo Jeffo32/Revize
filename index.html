@@ -1023,6 +1023,13 @@ function renderPricing(){
     '</strong> to drop to <strong>$'+pr.videoNext.nextRate+'/video</strong> (save $'+(pr.videoNext.currentRate-pr.videoNext.nextRate)+' each)');
   if(nudges.length){nudge.innerHTML='💡 '+nudges.join('<br>💡 ');nudge.style.display='block';}
   else nudge.style.display='none';
+  // Show bundle selection remaining if applicable
+  const missing=checkBundleSelection();
+  if(missing){
+    nudge.innerHTML='⚠️ '+missing.join('<br>⚠️ ');
+    nudge.style.display='block';
+    nudge.style.borderColor='rgba(201,168,76,.3)';nudge.style.background='rgba(201,168,76,.06)';nudge.style.color='var(--gold)';
+  }
 }
 
 function buildSummary(){
@@ -1049,6 +1056,8 @@ function buildSummary(){
   return lines.join('\n');
 }
 function sendSelection(){
+  const missing=checkBundleSelection();
+  if(missing){alert('Almost there!\n\n'+missing.join('\n')+'\n\nGo back and select the remaining items.');return;}
   const pr=calcPrice(selP.size,selV.size);
   const total=selectedBundle?BUNDLES[selectedBundle].price:pr.total;
   if(total===0)return;
@@ -1087,6 +1096,8 @@ function copySummary(){
   });
 }
 async function stripeCheckout(){
+  const missing=checkBundleSelection();
+  if(missing){alert('Almost there!\n\n'+missing.join('\n')+'\n\nGo back and select the remaining items.');return;}
   const pr=calcPrice(selP.size,selV.size);
   const total=selectedBundle?BUNDLES[selectedBundle].price:pr.total;
   if(total===0)return;
@@ -1215,10 +1226,21 @@ function toggleBundles(){
   }
 }
 const BUNDLES={
-  starter:{name:'Starter Pack',price:250,desc:'5 edited photos — retouched & delivered'},
-  content:{name:'Content Pack',price:600,desc:'15 photos + 10 video clips'},
-  complete:{name:'Complete Package',price:1200,desc:'All photos + all videos',paymentPlan:true}
+  starter:{name:'Starter Pack',price:250,desc:'5 edited photos — retouched & delivered',reqPhotos:5,reqVideos:0},
+  content:{name:'Content Pack',price:600,desc:'15 photos + 10 video clips',reqPhotos:15,reqVideos:10},
+  complete:{name:'Complete Package',price:1200,desc:'All photos + all videos',paymentPlan:true,reqPhotos:0,reqVideos:0}
 };
+function checkBundleSelection(){
+  if(!selectedBundle)return null;
+  const b=BUNDLES[selectedBundle];
+  if(b.reqPhotos===0&&b.reqVideos===0)return null; // complete = all, no minimum
+  const msgs=[];
+  const needP=b.reqPhotos-selP.size;
+  const needV=b.reqVideos-selV.size;
+  if(needP>0)msgs.push('Select '+needP+' more photo'+(needP>1?'s':'')+' ('+selP.size+'/'+b.reqPhotos+')');
+  if(needV>0)msgs.push('Select '+needV+' more video'+(needV>1?'s':'')+' ('+selV.size+'/'+b.reqVideos+')');
+  return msgs.length?msgs:null;
+}
 function pickBundle(id){
   if(selectedBundle===id){selectedBundle=null;}
   else{selectedBundle=id;}
