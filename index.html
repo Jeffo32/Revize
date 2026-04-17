@@ -882,12 +882,12 @@ async function loadTeamGalleries(){
   showScreen('s-team');
 }
 function getClientMap(){
-  // Parse existing clients from the hardcoded admin rows
   const map={};
   document.querySelectorAll('.existing-client-row').forEach(row=>{
-    const onclick=row.getAttribute('onclick')||'';
-    const match=onclick.match(/loadExistingClient\('([^']+)','([^']+)','([^']*)'\)/);
-    if(match)map[match[1]]={pf:match[2],vf:match[3]};
+    const name=row.dataset.name;
+    const pf=row.dataset.pf||'';
+    const vf=row.dataset.vf||'';
+    if(name)map[name]={pf,vf};
   });
   return map;
 }
