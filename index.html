@@ -1347,7 +1347,7 @@ async function lookupOrders(){
         const desc=o.description||(o.photoCount+' photos + '+o.videoCount+' videos');
         const url=location.origin+location.pathname+'?session_id='+o.sessionId+(o.photoFolder?'&pf='+encodeURIComponent(o.photoFolder):'');
         html+='<a href="'+url+'" style="display:block;padding:12px;background:var(--surface2);border-radius:6px;margin-bottom:8px;text-decoration:none;border:1px solid var(--border2);transition:border-color .2s">';
-        html+='<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:.08em;color:var(--fg)">'+desc+'</div>';
+        html+='<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:.08em;color:#ccc">'+desc+'</div>';
         html+='<div style="font-size:9px;letter-spacing:.1em;color:var(--muted);margin-top:4px">'+o.date+'</div>';
         html+='</a>';
       });
