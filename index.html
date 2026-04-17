@@ -603,6 +603,9 @@ const DEMO_VIDEOS=Array.from({length:6},(_,i)=>({id:'v'+i,name:'Clip '+String(i+
 let allP=[],allV=[],selP=new Set(),selV=new Set(),lbList=[],lbIdx=0;
 let clientEmailAddr='';
 const JEFFO_EMAIL='wolfeproductions@icloud.com';
+// —— TEAM MODE ——————————————————————————————————
+const TEAM_CODE='WOLFE2026';
+let teamMode=false;
 
 // —— SCREENS ——————————————————————————————————
 let currentScreen='';
@@ -718,6 +721,23 @@ window.addEventListener('DOMContentLoaded',()=>{
   // Check for purchases when email is entered
   const clEmail=document.getElementById('cl-email');
   if(clEmail)clEmail.addEventListener('input',()=>checkPurchased(clEmail.value.trim()));
+  // Team mode — skip splash, hide payment, enable free downloads
+  if(getParam('team')==='true'&&getParam('code')===TEAM_CODE){
+    teamMode=true;
+    document.getElementById('tutorial-steps').style.display='none';
+    document.getElementById('cta-bar').innerHTML='<div class="cta-info"><div class="cl">Your selection</div><div class="cc"><span id="ct-p">0</span> photos · <span id="ct-v">0</span> videos</div></div><button class="cta-btn" onclick="downloadSelected()">DOWNLOAD SELECTED →</button>';
+    // Add Download All button to topbar
+    const topbar=document.querySelector('.topbar');
+    const dlAllBtn=document.createElement('button');
+    dlAllBtn.textContent='↓ ALL';
+    dlAllBtn.style.cssText='background:var(--ice);color:var(--base);border:none;font-family:"Bebas Neue",sans-serif;font-size:14px;letter-spacing:.1em;padding:6px 12px;cursor:pointer;border-radius:4px;margin-left:8px';
+    dlAllBtn.onclick=downloadAllTeam;
+    topbar.querySelector('div:last-child').appendChild(dlAllBtn);
+    // Hide watermarks in team mode
+    document.querySelectorAll('.wm').forEach(w=>w.style.display='none');
+    enterGallery();
+    return;
+  }
   // Client link → straight to client splash; else → Revize splash
   if(location.search.includes('client=')){showScreen('s-client');}
   else{showScreen('s-revize');}
@@ -959,7 +979,7 @@ function renderGrid(items,type){
     const isPurchased=purchasedFiles.has(item.name);
     const el=document.createElement('div');
     el.className='mi fi'+(isPurchased?' purchased':'');el.style.animationDelay=i*.04+'s';el.dataset.id=item.id;
-    el.innerHTML='<img src="'+item.thumb+'" loading="lazy"><div class="wm"></div><div class="ov"></div>'+
+    el.innerHTML='<img src="'+item.thumb+'" loading="lazy">'+(teamMode?'':'<div class="wm"></div>')+'<div class="ov"></div>'+
       '<div class="ck"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>'+
       (isPurchased?'<div class="purchased-tag">PURCHASED</div>':'')+
       (type==='videos'?'<div class="pb">&#9658; VIDEO</div>':'');
@@ -990,8 +1010,10 @@ function updateCounts(){
   document.getElementById('ct-p').textContent=p;
   document.getElementById('ct-v').textContent=v;
   document.getElementById('tn-f').textContent=t;
-  const pr=calcPrice(p,v);
-  document.getElementById('ct-total').textContent='$'+pr.total;
+  if(!teamMode){
+    const pr=calcPrice(p,v);
+    document.getElementById('ct-total').textContent='$'+pr.total;
+  }
   document.getElementById('cta-bar').classList.toggle('show',t>0);
   if(document.getElementById('pn-faves').classList.contains('on'))renderFaves();
   // Update pricing screen if open
@@ -1406,6 +1428,58 @@ async function lookupOrders(){
     container.innerHTML='<div style="color:#ff4444;font-size:11px;padding:12px 0;text-align:center">'+e.message+'</div>';
   }
   btn.disabled=false;btn.textContent='FIND MY ORDERS →';
+}
+
+// —— TEAM DOWNLOAD FUNCTIONS ——————————————————————
+async function teamDownloadFiles(photos,videos,zipName){
+  const zip=new JSZip();
+  const total=photos.length+videos.length;
+  if(!total)return;
+  // Show progress in CTA bar
+  const ctaBtn=document.querySelector('.cta-btn');
+  const origText=ctaBtn?ctaBtn.textContent:'';
+  if(ctaBtn)ctaBtn.disabled=true;
+  let done=0;
+  function updateBtn(){done++;if(ctaBtn)ctaBtn.textContent='DOWNLOADING '+done+'/'+total+'...';}
+  // Load originals map
+  let oMap={};
+  try{const r=await fetch('/api/originals');if(r.ok)oMap=(await r.json()).map||{};}catch(e){}
+  for(const p of photos){
+    try{
+      const orig=findOriginal(p.name);const dlId=orig?orig.id:p.id;
+      const res=await fetch('/api/fetch-file?type=drive&id='+dlId);
+      if(res.ok){const blob=await res.blob();zip.file(p.name,blob);}
+    }catch(e){}
+    updateBtn();
+  }
+  for(const v of videos){
+    try{
+      let res;
+      try{res=await fetch(v.url);if(!res.ok)throw new Error();}
+      catch(e){res=await fetch('/api/fetch-file?type=r2&key='+encodeURIComponent(v.id||v.key));}
+      if(res.ok){const blob=await res.blob();zip.file(v.name,blob);}
+    }catch(e){}
+    updateBtn();
+  }
+  if(ctaBtn)ctaBtn.textContent='ZIPPING...';
+  const blob=await zip.generateAsync({type:'blob'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=zipName+'.zip';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  if(ctaBtn){ctaBtn.textContent='✓ DOWNLOADED';setTimeout(()=>{ctaBtn.textContent=origText;ctaBtn.disabled=false;},2000);}
+}
+function downloadSelected(){
+  const photos=allP.filter(p=>selP.has(p.id));
+  const videos=allV.filter(v=>selV.has(v.id));
+  if(!photos.length&&!videos.length){alert('Select some files first');return;}
+  const name=(window._activeClientName||'gallery').toLowerCase().replace(/\s+/g,'-');
+  teamDownloadFiles(photos,videos,name+'-selection');
+}
+function downloadAllTeam(){
+  const name=(window._activeClientName||'gallery').toLowerCase().replace(/\s+/g,'-');
+  teamDownloadFiles(allP,allV,name+'-all');
 }
 
 let selectedBundle=null;
