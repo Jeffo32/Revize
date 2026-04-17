@@ -110,6 +110,10 @@ button:active{transform:translateY(1px)}
 .vgrid .mi{aspect-ratio:9/16}
 .mi img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s ease}
 .mi:hover img{transform:scale(1.05)}
+.mi.purchased img{opacity:.35;filter:grayscale(1)}
+.mi.purchased:hover img{transform:none}
+.mi.purchased .ck{display:none}
+.purchased-tag{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.15em;color:var(--ice);background:rgba(0,0,0,.7);padding:4px 12px;border-radius:4px;z-index:6;pointer-events:none}
 /* CSS watermark overlay */
 .wm{position:absolute;inset:0;pointer-events:none;z-index:3;background:repeating-linear-gradient(-30deg,transparent,transparent 40px,rgba(255,255,255,.06) 40px,rgba(255,255,255,.06) 41px);display:flex;align-items:center;justify-content:center}
 .wm::after{content:'WOLFE';position:absolute;font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,6vw,40px);letter-spacing:.35em;color:rgba(255,255,255,.2);transform:rotate(-30deg);white-space:nowrap;text-shadow:0 0 20px rgba(0,0,0,.5)}
@@ -849,6 +853,9 @@ function enterGallery(){
   const vf=window._activeVF||getParam('vf');
   if(pf&&pf!=='demo'){loadDrive(pf,vf);}
   else{setTimeout(()=>{allP=DEMO_PHOTOS;allV=DEMO_VIDEOS;renderGrid(allP,'photos');renderGrid(allV,'videos');document.getElementById('tn-p').textContent=allP.length;document.getElementById('tn-v').textContent=allV.length;},500);}
+  // Load purchased files in background to grey them out
+  const email=clientEmailAddr||document.getElementById('cl-email')?.value.trim()||'';
+  if(email)loadPurchasedFiles(email);
 }
 
 // —— DRIVE + R2 ————————————————————————————————————
@@ -921,15 +928,40 @@ function applyDragSel(id,type){
 document.addEventListener('touchend',()=>{dragSelecting=false;},{passive:true});
 document.addEventListener('mouseup',()=>{dragSelecting=false;});
 
+// —— PURCHASED FILES TRACKING ——————————————————————
+let purchasedFiles=new Set();
+async function loadPurchasedFiles(email){
+  if(!email)return;
+  try{
+    const r=await fetch('/api/orders-by-email?email='+encodeURIComponent(email));
+    if(!r.ok)return;
+    const data=await r.json();
+    if(!data.orders)return;
+    for(const o of data.orders){
+      try{
+        const or=await fetch('/api/order?session_id='+encodeURIComponent(o.sessionId));
+        if(!or.ok)continue;
+        const od=await or.json();
+        (od.photos||[]).forEach(n=>purchasedFiles.add(n));
+        (od.videos||[]).forEach(n=>purchasedFiles.add(n));
+      }catch(e){}
+    }
+    // Re-render grids to apply purchased styling
+    if(purchasedFiles.size>0){renderGrid(allP,'photos');renderGrid(allV,'videos');}
+  }catch(e){}
+}
+
 // —— RENDER GRID ——————————————————————————————————
 function renderGrid(items,type){
   const g=document.getElementById('g-'+type);g.innerHTML='';
   if(!items.length){g.innerHTML='<div class="empty">No '+type+' found.</div>';return;}
   items.forEach((item,i)=>{
+    const isPurchased=purchasedFiles.has(item.name);
     const el=document.createElement('div');
-    el.className='mi fi';el.style.animationDelay=i*.04+'s';el.dataset.id=item.id;
+    el.className='mi fi'+(isPurchased?' purchased':'');el.style.animationDelay=i*.04+'s';el.dataset.id=item.id;
     el.innerHTML='<img src="'+item.thumb+'" loading="lazy"><div class="wm"></div><div class="ov"></div>'+
       '<div class="ck"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>'+
+      (isPurchased?'<div class="purchased-tag">PURCHASED</div>':'')+
       (type==='videos'?'<div class="pb">&#9658; VIDEO</div>':'');
     el.querySelector('.ck').addEventListener('touchstart',e=>{e.stopPropagation();startDragSel(e,item,type);},{passive:false});
     el.querySelector('.ck').onclick=e=>{e.stopPropagation();toggle(item.id,type);};
@@ -948,6 +980,7 @@ function renderGrid(items,type){
 function toggle(id,type){
   const s=type==='photos'||type==='photo'?selP:selV;
   const el=document.querySelector('.mi[data-id="'+id+'"]');
+  if(el&&el.classList.contains('purchased'))return;
   s.has(id)?(s.delete(id),el&&el.classList.remove('sel')):(s.add(id),el&&el.classList.add('sel'));
   updateCounts();
 }
