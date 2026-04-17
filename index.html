@@ -442,7 +442,21 @@ button:active{transform:translateY(1px)}
     <div class="field" style="margin-bottom:0"><label class="lbl">Your Email</label><input class="inp" id="cl-email" type="email" placeholder="your@email.com"></div>
     <button class="btn-p" onclick="enterGallery()">VIEW YOUR GALLERY →</button>
   </div>
+  <button class="btn-g float float-d5" style="max-width:360px;margin-top:12px" onclick="showScreen('s-downloads')">MY DOWNLOADS</button>
   <div class="meta">Shot by Wolfe Productions · Lakes Entrance, VIC</div>
+</div>
+
+<!-- —— MY DOWNLOADS LOOKUP ———————————————————————— -->
+<div class="screen hidden" id="s-downloads">
+  <div class="eyebrow float float-d1">Revize</div>
+  <div class="big-title float float-d2">MY<br><span>DOWNLOADS</span></div>
+  <div class="sub float float-d3">Enter the email you used at checkout</div>
+  <div class="card float float-d4">
+    <div class="field" style="margin-bottom:0"><label class="lbl">Email</label><input class="inp" id="dl-email" type="email" placeholder="your@email.com"></div>
+    <button class="btn-p" id="dl-lookup-btn" onclick="lookupOrders()">FIND MY ORDERS →</button>
+    <div id="dl-orders" style="margin-top:14px"></div>
+  </div>
+  <button class="btn-g" style="max-width:360px;margin-top:16px" onclick="showScreen('s-client')">← Back</button>
 </div>
 
 <!-- —— GALLERY ————————————————————————————————— -->
@@ -1283,6 +1297,37 @@ async function downloadAll(){
   URL.revokeObjectURL(a.href);
   btn.textContent='✓ DOWNLOADED';
   status.textContent='Done!';
+}
+
+async function lookupOrders(){
+  const email=document.getElementById('dl-email').value.trim();
+  if(!email){alert('Please enter your email');return;}
+  const btn=document.getElementById('dl-lookup-btn');
+  const container=document.getElementById('dl-orders');
+  btn.disabled=true;btn.textContent='SEARCHING...';
+  container.innerHTML='';
+  try{
+    const r=await fetch('/api/orders-by-email?email='+encodeURIComponent(email));
+    if(!r.ok)throw new Error('Could not look up orders');
+    const data=await r.json();
+    if(!data.orders||!data.orders.length){
+      container.innerHTML='<div style="color:var(--muted);font-size:11px;padding:12px 0;text-align:center">No orders found for this email</div>';
+    } else {
+      let html='';
+      data.orders.forEach(o=>{
+        const desc=o.description||(o.photoCount+' photos + '+o.videoCount+' videos');
+        const url=location.origin+location.pathname+'?session_id='+o.sessionId+(o.photoFolder?'&pf='+encodeURIComponent(o.photoFolder):'');
+        html+='<a href="'+url+'" style="display:block;padding:12px;background:var(--surface2);border-radius:6px;margin-bottom:8px;text-decoration:none;border:1px solid var(--border2);transition:border-color .2s">';
+        html+='<div style="font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:.08em;color:var(--fg)">'+desc+'</div>';
+        html+='<div style="font-size:9px;letter-spacing:.1em;color:var(--muted);margin-top:4px">'+o.date+'</div>';
+        html+='</a>';
+      });
+      container.innerHTML=html;
+    }
+  }catch(e){
+    container.innerHTML='<div style="color:#ff4444;font-size:11px;padding:12px 0;text-align:center">'+e.message+'</div>';
+  }
+  btn.disabled=false;btn.textContent='FIND MY ORDERS →';
 }
 
 let selectedBundle=null;
