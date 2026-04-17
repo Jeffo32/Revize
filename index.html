@@ -755,6 +755,11 @@ function pinKey(k){
   if(pinVal.length===4){setTimeout(checkPin,120);}
 }
 function pinDel(){pinVal=pinVal.slice(0,-1);updatePinDots();document.getElementById('pin-error').style.display='none';}
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('s-pin').classList.contains('hidden'))return;
+  if(e.key>='0'&&e.key<='9')pinKey(e.key);
+  else if(e.key==='Backspace')pinDel();
+});
 function updatePinDots(){
   for(let i=0;i<4;i++)document.getElementById('pd-'+i).classList.toggle('filled',i<pinVal.length);
 }
