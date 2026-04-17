@@ -506,6 +506,17 @@ button:active{transform:translateY(1px)}
   </div>
 </div>
 
+<!-- —— DOWNLOAD PROGRESS SPLASH ———————————————————— -->
+<div id="dl-splash" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px">
+  <div class="eyebrow">Revize</div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,10vw,56px);letter-spacing:.04em;line-height:.88;text-align:center;margin:12px 0 8px">DOWNLOADING<br><span style="color:var(--ice)">YOUR FILES</span></div>
+  <div style="width:100%;max-width:360px;margin-top:24px">
+    <div style="height:6px;background:var(--border2);border-radius:3px;overflow:hidden"><div id="dl-splash-bar" style="height:100%;width:0%;background:var(--ice);transition:width .3s"></div></div>
+    <div id="dl-splash-status" style="font-size:10px;color:var(--muted);letter-spacing:.08em;margin-top:10px;text-align:center">Preparing...</div>
+    <div id="dl-splash-count" style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.06em;text-align:center;margin-top:6px;color:var(--fg)">0 / 0</div>
+  </div>
+</div>
+
 <!-- —— PRICING ————————————————————————————————— -->
 <div id="pricing">
   <div class="pc">
@@ -898,13 +909,15 @@ function enterTeamGallery(clientName,pf){
   // Replace CTA bar for team downloads
   document.getElementById('tutorial-steps').style.display='none';
   document.getElementById('cta-bar').innerHTML='<div class="cta-info"><div class="cl">Your selection</div><div class="cc"><span id="ct-p">0</span> photos · <span id="ct-v">0</span> videos</div></div><button class="cta-btn" onclick="downloadSelected()">DOWNLOAD SELECTED →</button>';
+  // Hide faves tab in team mode
+  document.getElementById('tb-faves').style.display='none';
   // Add Download All button to topbar
   let dlAllBtn=document.getElementById('team-dl-all');
   if(!dlAllBtn){
     const topbar=document.querySelector('.topbar');
     dlAllBtn=document.createElement('button');
     dlAllBtn.id='team-dl-all';
-    dlAllBtn.textContent='↓ ALL';
+    dlAllBtn.textContent='DOWNLOAD ALL';
     dlAllBtn.style.cssText='background:var(--ice);color:var(--base);border:none;font-family:"Bebas Neue",sans-serif;font-size:14px;letter-spacing:.1em;padding:6px 12px;cursor:pointer;border-radius:4px;margin-left:8px';
     dlAllBtn.onclick=downloadAllTeam;
     topbar.querySelector('div:last-child').appendChild(dlAllBtn);
@@ -1561,12 +1574,22 @@ async function teamDownloadFiles(photos,videos,zipName){
   const zip=new JSZip();
   const total=photos.length+videos.length;
   if(!total)return;
-  // Show progress in CTA bar
-  const ctaBtn=document.querySelector('.cta-btn');
-  const origText=ctaBtn?ctaBtn.textContent:'';
-  if(ctaBtn)ctaBtn.disabled=true;
+  // Show progress splash
+  const splash=document.getElementById('dl-splash');
+  const bar=document.getElementById('dl-splash-bar');
+  const status=document.getElementById('dl-splash-status');
+  const count=document.getElementById('dl-splash-count');
+  splash.style.display='flex';
+  bar.style.width='0%';
+  count.textContent='0 / '+total;
+  status.textContent='Preparing...';
   let done=0;
-  function updateBtn(){done++;if(ctaBtn)ctaBtn.textContent='DOWNLOADING '+done+'/'+total+'...';}
+  function updateProgress(name){
+    done++;
+    bar.style.width=Math.round(done/total*100)+'%';
+    count.textContent=done+' / '+total;
+    status.textContent='Downloading '+name+'...';
+  }
   // Load originals map
   let oMap={};
   try{const r=await fetch('/api/originals');if(r.ok)oMap=(await r.json()).map||{};}catch(e){}
@@ -1576,7 +1599,7 @@ async function teamDownloadFiles(photos,videos,zipName){
       const res=await fetch('/api/fetch-file?type=drive&id='+dlId);
       if(res.ok){const blob=await res.blob();zip.file(p.name,blob);}
     }catch(e){}
-    updateBtn();
+    updateProgress(p.name);
   }
   for(const v of videos){
     try{
@@ -1585,16 +1608,19 @@ async function teamDownloadFiles(photos,videos,zipName){
       catch(e){res=await fetch('/api/fetch-file?type=r2&key='+encodeURIComponent(v.id||v.key));}
       if(res.ok){const blob=await res.blob();zip.file(v.name,blob);}
     }catch(e){}
-    updateBtn();
+    updateProgress(v.name);
   }
-  if(ctaBtn)ctaBtn.textContent='ZIPPING...';
+  status.textContent='Creating zip...';
+  bar.style.width='100%';
   const blob=await zip.generateAsync({type:'blob'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   a.download=zipName+'.zip';
   a.click();
   URL.revokeObjectURL(a.href);
-  if(ctaBtn){ctaBtn.textContent='✓ DOWNLOADED';setTimeout(()=>{ctaBtn.textContent=origText;ctaBtn.disabled=false;},2000);}
+  status.textContent='Done!';
+  count.textContent='✓';
+  setTimeout(()=>{splash.style.display='none';},1500);
 }
 function downloadSelected(){
   const photos=allP.filter(p=>selP.has(p.id));
