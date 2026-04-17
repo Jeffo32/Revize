@@ -66,6 +66,13 @@ export default async function handler(req, res) {
           description: description || '',
           ...fileMetadata,
         },
+        subscription_data: {
+          metadata: {
+            client_name: clientName || '',
+            description: description || '',
+            ...fileMetadata,
+          },
+        },
         success_url: origin + '/?paid=success',
         cancel_url: origin + '/?paid=cancel',
       });
@@ -98,6 +105,13 @@ export default async function handler(req, res) {
           client_name: clientName || '',
           description: description || '',
           ...fileMetadata,
+        },
+        payment_intent_data: {
+          metadata: {
+            client_name: clientName || '',
+            description: description || '',
+            ...fileMetadata,
+          },
         },
         success_url: origin + '/?paid=success',
         cancel_url: origin + '/?paid=cancel',
