@@ -265,8 +265,8 @@ button:active{transform:translateY(1px)}
 
 /* —— WHO ARE YOU ——————————————————————————————————— */
 /* —— GLITCH TRANSITION ————————————————————————————— */
-.glitch-out{animation:glitchOut .5s ease-in forwards}
-.glitch-in{animation:glitchIn .5s ease-out forwards}
+.glitch-out{animation:glitchOut .2s ease-in forwards}
+.glitch-in{animation:glitchIn .2s ease-out forwards}
 @keyframes glitchOut{
   0%{opacity:1;transform:translate(0);filter:none}
   10%{opacity:1;transform:translate(-4px,2px) skewX(-2deg);filter:hue-rotate(40deg)}
@@ -294,7 +294,7 @@ button:active{transform:translateY(1px)}
   100%{opacity:1;transform:translate(0);filter:none}
 }
 .glitch-flash{position:fixed;inset:0;z-index:998;pointer-events:none;opacity:0}
-.glitch-flash.fire{animation:gFlash .5s ease-out forwards}
+.glitch-flash.fire{animation:gFlash .2s ease-out forwards}
 @keyframes gFlash{
   0%{opacity:0;background:transparent}
   15%{opacity:.7;background:var(--acid)}
@@ -661,12 +661,12 @@ function glitchTransition(fromId,toId){
   const fromContent=Array.from(fromEl.children);
   fromEl.style.pointerEvents='none';
   // Subtle zoom out on old screen
-  fromEl.style.transition='transform .35s ease-in';
+  fromEl.style.transition='transform .15s ease-in';
   fromEl.style.transform='scale(1.03)';
   // Glitch out each child with stagger
   fromContent.forEach((child,i)=>{
     child.style.transition='none';
-    child.style.animation='glitchOut .35s ease-in '+(i*0.03)+'s forwards';
+    child.style.animation='glitchOut .15s ease-in '+(i*0.015)+'s forwards';
   });
   setTimeout(()=>{
     fromEl.classList.add('hidden');
@@ -683,19 +683,19 @@ function glitchTransition(fromId,toId){
     toEl.style.transform='scale(0.97)';
     toEl.classList.remove('hidden');
     void toEl.offsetWidth;
-    toEl.style.transition='transform .4s ease-out';
+    toEl.style.transition='transform .18s ease-out';
     toEl.style.transform='scale(1)';
     const toContent=Array.from(toEl.children);
     toContent.forEach((child,i)=>{
       child.style.transition='none';
-      child.style.animation='glitchIn .35s ease-out '+(i*0.04)+'s both';
+      child.style.animation='glitchIn .15s ease-out '+(i*0.02)+'s both';
     });
     setTimeout(()=>{
       toContent.forEach(child=>{child.style.animation='';child.style.transition='';});
       toEl.style.transition='';
       toEl.style.transform='';
-    },450);
-  },350);
+    },200);
+  },150);
 }
 
 // —— URL PARAMS ———————————————————————————————
