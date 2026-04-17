@@ -442,7 +442,7 @@ button:active{transform:translateY(1px)}
     <div class="field" style="margin-bottom:0"><label class="lbl">Your Email</label><input class="inp" id="cl-email" type="email" placeholder="your@email.com"></div>
     <button class="btn-p" onclick="enterGallery()">VIEW YOUR GALLERY →</button>
   </div>
-  <button class="float float-d5" onclick="showScreen('s-downloads')" style="max-width:360px;margin-top:12px;width:100%;background:var(--ice);color:var(--base);border:none;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.12em;padding:14px;cursor:pointer;border-radius:6px;transition:opacity .15s;box-shadow:0 0 14px rgba(79,195,247,.3)">PURCHASED</button>
+  <button id="purchased-btn" onclick="goToDownloads()" style="display:none;max-width:360px;margin-top:12px;width:100%;background:var(--ice);color:var(--base);border:none;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.12em;padding:14px;cursor:pointer;border-radius:6px;transition:opacity .3s;box-shadow:0 0 14px rgba(79,195,247,.3);opacity:0">PURCHASED</button>
   <div class="meta">Shot by Wolfe Productions · Lakes Entrance, VIC</div>
 </div>
 
@@ -706,6 +706,9 @@ window.addEventListener('DOMContentLoaded',()=>{
       }
     }catch(e){}
   }
+  // Check for purchases when email is entered
+  const clEmail=document.getElementById('cl-email');
+  if(clEmail)clEmail.addEventListener('input',()=>checkPurchased(clEmail.value.trim()));
   // Client link → straight to client splash; else → Revize splash
   if(location.search.includes('client=')){showScreen('s-client');}
   else{showScreen('s-revize');}
@@ -793,6 +796,32 @@ function previewClient(){
   const n=document.getElementById('a-name').value.trim();
   if(n)document.getElementById('cl-title').innerHTML=n.toUpperCase()+"'S<br><span>GALLERY</span>";
   showScreen('s-client');
+}
+
+// —— PURCHASED BUTTON CHECK ——————————————————————
+let purchasedCheckTimer=null;
+function checkPurchased(email){
+  clearTimeout(purchasedCheckTimer);
+  const btn=document.getElementById('purchased-btn');
+  if(!email||!email.includes('@')){btn.style.display='none';btn.style.opacity='0';return;}
+  purchasedCheckTimer=setTimeout(async()=>{
+    try{
+      const r=await fetch('/api/orders-by-email?email='+encodeURIComponent(email));
+      if(r.ok){
+        const data=await r.json();
+        if(data.orders&&data.orders.length){
+          btn.style.display='block';
+          requestAnimationFrame(()=>requestAnimationFrame(()=>{btn.style.opacity='1';}));
+        } else {btn.style.display='none';btn.style.opacity='0';}
+      }
+    }catch(e){}
+  },500);
+}
+function goToDownloads(){
+  const email=document.getElementById('cl-email').value.trim();
+  document.getElementById('dl-email').value=email;
+  showScreen('s-downloads');
+  if(email)lookupOrders();
 }
 
 // —— CLIENT ENTER ———————————————————————————————
