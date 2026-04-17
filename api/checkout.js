@@ -11,9 +11,33 @@ export default async function handler(req, res) {
   if (!STRIPE_SECRET) return res.status(500).json({ error: 'Missing Stripe config' });
 
   const stripe = new Stripe(STRIPE_SECRET);
-  const { amount, description, clientName, clientEmail, paymentPlan } = req.body || {};
+  const { amount, description, clientName, clientEmail, paymentPlan, selectedPhotos, selectedVideos } = req.body || {};
 
   if (!amount || amount <= 0) return res.status(400).json({ error: 'Invalid amount' });
+
+  // Build metadata with selected file names (Stripe limits: 50 keys, 500 chars per value)
+  function buildFileMetadata(prefix, names) {
+    const meta = {};
+    if (!names || !names.length) return meta;
+    let chunk = '', idx = 1;
+    for (const name of names) {
+      const entry = chunk ? ', ' + name : name;
+      if ((chunk + entry).length > 500) {
+        meta[`${prefix}_${idx}`] = chunk;
+        idx++;
+        chunk = name;
+      } else {
+        chunk += entry;
+      }
+    }
+    if (chunk) meta[`${prefix}_${idx}`] = chunk;
+    return meta;
+  }
+
+  const fileMetadata = {
+    ...buildFileMetadata('photos', selectedPhotos),
+    ...buildFileMetadata('videos', selectedVideos),
+  };
 
   const origin = req.headers.origin || req.headers.referer?.replace(/\/$/, '') || '';
 
@@ -37,6 +61,11 @@ export default async function handler(req, res) {
         line_items: [{ price: price.id, quantity: 1 }],
         mode: 'subscription',
         customer_email: clientEmail || undefined,
+        metadata: {
+          client_name: clientName || '',
+          description: description || '',
+          ...fileMetadata,
+        },
         success_url: origin + '/?paid=success',
         cancel_url: origin + '/?paid=cancel',
       });
@@ -68,6 +97,7 @@ export default async function handler(req, res) {
         metadata: {
           client_name: clientName || '',
           description: description || '',
+          ...fileMetadata,
         },
         success_url: origin + '/?paid=success',
         cancel_url: origin + '/?paid=cancel',

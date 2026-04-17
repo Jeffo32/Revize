@@ -1137,7 +1137,7 @@ async function stripeCheckout(){
     const res=await fetch('/api/checkout',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({amount:total,description:desc,clientName,clientEmail:email,paymentPlan:!!(selectedBundle&&BUNDLES[selectedBundle].paymentPlan)})
+      body:JSON.stringify({amount:total,description:desc,clientName,clientEmail:email,paymentPlan:!!(selectedBundle&&BUNDLES[selectedBundle].paymentPlan),selectedPhotos:allP.filter(p=>selP.has(p.id)).map(p=>p.name),selectedVideos:allV.filter(v=>selV.has(v.id)).map(v=>v.name)})
     });
     const data=await res.json();
     if(data.url){
