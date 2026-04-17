@@ -695,6 +695,8 @@ window.addEventListener('DOMContentLoaded',()=>{
         (saved.selP||[]).forEach(id=>selP.add(id));
         (saved.selV||[]).forEach(id=>selV.add(id));
         if(saved.bundle)selectedBundle=saved.bundle;
+        if(saved.pf)window._activePF=saved.pf;
+        if(saved.clientSlug)window._activeClientName=saved.clientSlug;
         const name=saved.clientName||'Client';
         document.getElementById('g-title').textContent=name.toUpperCase()+"'S GALLERY";
         document.getElementById('cl-name').value=name;
@@ -1187,13 +1189,13 @@ async function stripeCheckout(){
     const res=await fetch('/api/checkout',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({amount:total,description:desc,clientName,clientEmail:email,paymentPlan:!!(selectedBundle&&BUNDLES[selectedBundle].paymentPlan),selectedPhotos:allP.filter(p=>selP.has(p.id)).map(p=>p.name),selectedVideos:allV.filter(v=>selV.has(v.id)).map(v=>v.name),photoFolder:getParam('pf')||''})
+      body:JSON.stringify({amount:total,description:desc,clientName,clientEmail:email,paymentPlan:!!(selectedBundle&&BUNDLES[selectedBundle].paymentPlan),selectedPhotos:allP.filter(p=>selP.has(p.id)).map(p=>p.name),selectedVideos:allV.filter(v=>selV.has(v.id)).map(v=>v.name),photoFolder:window._activePF||getParam('pf')||''})
     });
     const data=await res.json();
     if(data.url){
       // Save full gallery + selection to localStorage
       localStorage.setItem('revize_paid_items',JSON.stringify({photos:allP.filter(p=>selP.has(p.id)),videos:allV.filter(v=>selV.has(v.id)),clientName,bundle:selectedBundle}));
-      localStorage.setItem('revize_gallery',JSON.stringify({allPhotos:allP,allVideos:allV,selP:[...selP],selV:[...selV],clientName,bundle:selectedBundle}));
+      localStorage.setItem('revize_gallery',JSON.stringify({allPhotos:allP,allVideos:allV,selP:[...selP],selV:[...selV],clientName,bundle:selectedBundle,pf:window._activePF||getParam('pf')||'',clientSlug:(window._activeClientName||'').toLowerCase().replace(/\s+/g,'-')}));
       window.location.href=data.url;
     }
     else{alert(data.error||'Failed to create checkout');btn.disabled=false;btn.textContent='CARD';}
@@ -1264,6 +1266,10 @@ async function showThankYou(){
   }
   // Fall back to localStorage
   if(!paidItems){try{paidItems=JSON.parse(localStorage.getItem('revize_paid_items'));}catch(e){}}
+  // Restore folder info from localStorage if not already set
+  if(!window._activePF){
+    try{const g=JSON.parse(localStorage.getItem('revize_gallery')||'null');if(g&&g.pf)window._activePF=g.pf;if(g&&g.clientSlug)window._activeClientName=g.clientSlug;}catch(e){}
+  }
   if(!paidItems){showScreen('s-revize');return;}
   showScreen('s-thankyou');
   const list=document.getElementById('dl-list');
