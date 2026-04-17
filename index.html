@@ -384,6 +384,17 @@ button:active{transform:translateY(1px)}
   <div id="pin-error" style="display:none;font-size:10px;color:#ff4444;letter-spacing:.08em;margin-top:16px;text-align:center">Incorrect PIN — try again</div>
 </div>
 
+<!-- —— TEAM GALLERIES ————————————————————————————— -->
+<div class="screen hidden" id="s-team">
+  <div class="eyebrow float float-d1">Revize</div>
+  <div class="big-title float float-d2" id="team-title">YOUR<br><span>GALLERIES</span></div>
+  <div class="sub float float-d3">Select a gallery to browse & download</div>
+  <div class="card float float-d4" id="team-galleries" style="display:flex;flex-direction:column;gap:8px">
+    <div style="color:var(--muted);font-size:11px;text-align:center;padding:20px 0">Loading galleries...</div>
+  </div>
+  <button class="btn-g" style="max-width:360px;margin-top:16px" onclick="showScreen('s-revize')">← Back</button>
+</div>
+
 <!-- —— ADMIN ——————————————————————————————————— -->
 <div class="screen hidden" id="s-admin">
   <div class="eyebrow float float-d1">Revize</div>
@@ -427,6 +438,11 @@ button:active{transform:translateY(1px)}
           </div>
         </div>
       </div>
+    </div>
+    <!-- Team assignment -->
+    <div id="team-assign" style="display:none;margin-bottom:14px">
+      <label class="lbl">Team Access</label>
+      <div style="display:flex;flex-direction:column;gap:6px" id="team-assign-list"></div>
     </div>
     <button class="btn-p" onclick="genLink()">GENERATE CLIENT LINK →</button>
     <div class="url-box" id="url-box">
@@ -604,8 +620,12 @@ let allP=[],allV=[],selP=new Set(),selV=new Set(),lbList=[],lbIdx=0;
 let clientEmailAddr='';
 const JEFFO_EMAIL='wolfeproductions@icloud.com';
 // —— TEAM MODE ——————————————————————————————————
-const TEAM_CODE='WOLFE2026';
 let teamMode=false;
+let teamMemberId='';
+const TEAM_PINS={
+  '1111':{id:'smm',name:'Social Media Manager'},
+  '2222':{id:'editor',name:'Video Editor'}
+};
 
 // —— SCREENS ——————————————————————————————————
 let currentScreen='';
@@ -721,23 +741,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   // Check for purchases when email is entered
   const clEmail=document.getElementById('cl-email');
   if(clEmail)clEmail.addEventListener('input',()=>checkPurchased(clEmail.value.trim()));
-  // Team mode — skip splash, hide payment, enable free downloads
-  if(getParam('team')==='true'&&getParam('code')===TEAM_CODE){
-    teamMode=true;
-    document.getElementById('tutorial-steps').style.display='none';
-    document.getElementById('cta-bar').innerHTML='<div class="cta-info"><div class="cl">Your selection</div><div class="cc"><span id="ct-p">0</span> photos · <span id="ct-v">0</span> videos</div></div><button class="cta-btn" onclick="downloadSelected()">DOWNLOAD SELECTED →</button>';
-    // Add Download All button to topbar
-    const topbar=document.querySelector('.topbar');
-    const dlAllBtn=document.createElement('button');
-    dlAllBtn.textContent='↓ ALL';
-    dlAllBtn.style.cssText='background:var(--ice);color:var(--base);border:none;font-family:"Bebas Neue",sans-serif;font-size:14px;letter-spacing:.1em;padding:6px 12px;cursor:pointer;border-radius:4px;margin-left:8px';
-    dlAllBtn.onclick=downloadAllTeam;
-    topbar.querySelector('div:last-child').appendChild(dlAllBtn);
-    // Hide watermarks in team mode
-    document.querySelectorAll('.wm').forEach(w=>w.style.display='none');
-    enterGallery();
-    return;
-  }
   // Client link → straight to client splash; else → Revize splash
   if(location.search.includes('client=')){showScreen('s-client');}
   else{showScreen('s-revize');}
@@ -757,6 +760,13 @@ function updatePinDots(){
 }
 function checkPin(){
   if(pinVal==='3232'){document.getElementById('pin-error').style.display='none';pinVal='';updatePinDots();showScreen('s-admin');}
+  else if(TEAM_PINS[pinVal]){
+    document.getElementById('pin-error').style.display='none';
+    teamMemberId=TEAM_PINS[pinVal].id;
+    teamMode=true;
+    pinVal='';updatePinDots();
+    loadTeamGalleries();
+  }
   else{document.getElementById('pin-error').style.display='block';pinVal='';updatePinDots();}
 }
 
@@ -791,6 +801,7 @@ function loadExistingClient(name,pf,vf){
   window._activePF=pf;
   window._activeVF=vf;
   window._activeClientName=name;
+  showTeamAssign(name);
   document.getElementById('cl-title').innerHTML=name.toUpperCase()+"'S<br><span>GALLERY</span>";
   document.getElementById('cl-name').value=name;
   showScreen('s-client');
@@ -825,6 +836,108 @@ function previewClient(){
   const n=document.getElementById('a-name').value.trim();
   if(n)document.getElementById('cl-title').innerHTML=n.toUpperCase()+"'S<br><span>GALLERY</span>";
   showScreen('s-client');
+}
+
+// —— TEAM GALLERIES ——————————————————————————————
+let teamConfig={members:[],assignments:{}};
+async function loadTeamConfig(){
+  try{const r=await fetch('/api/team-config');if(r.ok)teamConfig=await r.json();}catch(e){}
+}
+async function saveTeamConfig(){
+  try{await fetch('/api/team-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(teamConfig)});}catch(e){}
+}
+async function loadTeamGalleries(){
+  await loadTeamConfig();
+  const container=document.getElementById('team-galleries');
+  const assigned=teamConfig.assignments||{};
+  // Find galleries assigned to this team member
+  const myGalleries=[];
+  for(const[clientName,members]of Object.entries(assigned)){
+    if(members.includes(teamMemberId)){
+      myGalleries.push(clientName);
+    }
+  }
+  const memberName=Object.values(TEAM_PINS).find(m=>m.id===teamMemberId)?.name||'Team';
+  document.getElementById('team-title').innerHTML=memberName.toUpperCase().replace(/ /g,'<br>')+"'S<br><span>GALLERIES</span>";
+  if(!myGalleries.length){
+    container.innerHTML='<div style="color:var(--muted);font-size:11px;text-align:center;padding:20px 0">No galleries assigned yet.<br>Ask the admin to assign galleries to you.</div>';
+  } else {
+    // Load existing clients to get folder IDs
+    const clientMap=getClientMap();
+    let html='';
+    myGalleries.forEach(name=>{
+      const client=clientMap[name];
+      if(!client)return;
+      html+='<div onclick="enterTeamGallery(\''+name+'\',\''+client.pf+'\')" style="padding:14px;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s,background .15s;border-radius:6px" onmouseover="this.style.background=\'#000\';this.style.borderColor=\'var(--ice)\'" onmouseout="this.style.background=\'var(--surface2)\';this.style.borderColor=\'var(--border2)\'">';
+      html+='<div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:.06em">'+name.toUpperCase()+'</div>';
+      html+='<div style="font-size:18px;color:var(--ice)">→</div>';
+      html+='</div>';
+    });
+    container.innerHTML=html;
+  }
+  showScreen('s-team');
+}
+function getClientMap(){
+  // Parse existing clients from the hardcoded admin rows
+  const map={};
+  document.querySelectorAll('.existing-client-row').forEach(row=>{
+    const onclick=row.getAttribute('onclick')||'';
+    const match=onclick.match(/loadExistingClient\('([^']+)','([^']+)','([^']*)'\)/);
+    if(match)map[match[1]]={pf:match[2],vf:match[3]};
+  });
+  return map;
+}
+function enterTeamGallery(clientName,pf){
+  window._activePF=pf;
+  window._activeClientName=clientName;
+  document.getElementById('g-title').textContent=clientName.toUpperCase()+"'S GALLERY";
+  // Replace CTA bar for team downloads
+  document.getElementById('tutorial-steps').style.display='none';
+  document.getElementById('cta-bar').innerHTML='<div class="cta-info"><div class="cl">Your selection</div><div class="cc"><span id="ct-p">0</span> photos · <span id="ct-v">0</span> videos</div></div><button class="cta-btn" onclick="downloadSelected()">DOWNLOAD SELECTED →</button>';
+  // Add Download All button to topbar
+  let dlAllBtn=document.getElementById('team-dl-all');
+  if(!dlAllBtn){
+    const topbar=document.querySelector('.topbar');
+    dlAllBtn=document.createElement('button');
+    dlAllBtn.id='team-dl-all';
+    dlAllBtn.textContent='↓ ALL';
+    dlAllBtn.style.cssText='background:var(--ice);color:var(--base);border:none;font-family:"Bebas Neue",sans-serif;font-size:14px;letter-spacing:.1em;padding:6px 12px;cursor:pointer;border-radius:4px;margin-left:8px';
+    dlAllBtn.onclick=downloadAllTeam;
+    topbar.querySelector('div:last-child').appendChild(dlAllBtn);
+  }
+  showScreen('s-gallery');
+  const pg=document.getElementById('g-photos');
+  const vg=document.getElementById('g-videos');
+  pg.innerHTML=Array(18).fill('<div class="skel"></div>').join('');
+  vg.innerHTML=Array(6).fill('<div class="skel" style="aspect-ratio:9/16"></div>').join('');
+  selP.clear();selV.clear();
+  loadDrive(pf);
+}
+// —— ADMIN TEAM ASSIGNMENT ————————————————————————
+async function showTeamAssign(clientName){
+  await loadTeamConfig();
+  const container=document.getElementById('team-assign-list');
+  const panel=document.getElementById('team-assign');
+  panel.style.display='block';
+  const assigned=(teamConfig.assignments||{})[clientName]||[];
+  const members=[
+    {id:'smm',name:'Social Media Manager',pin:'1111'},
+    {id:'editor',name:'Video Editor',pin:'2222'}
+  ];
+  container.innerHTML=members.map(m=>{
+    const checked=assigned.includes(m.id)?'checked':'';
+    return '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;cursor:pointer;transition:border-color .15s"><input type="checkbox" data-member="'+m.id+'" data-client="'+clientName+'" onchange="toggleTeamAssign(this)" '+checked+' style="accent-color:var(--ice);width:18px;height:18px;cursor:pointer"><div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:.06em">'+m.name.toUpperCase()+'</div><div style="font-size:9px;color:var(--muted);letter-spacing:.06em">PIN: '+m.pin+'</div></div></label>';
+  }).join('');
+}
+async function toggleTeamAssign(el){
+  const memberId=el.dataset.member;
+  const clientName=el.dataset.client;
+  if(!teamConfig.assignments)teamConfig.assignments={};
+  if(!teamConfig.assignments[clientName])teamConfig.assignments[clientName]=[];
+  const arr=teamConfig.assignments[clientName];
+  if(el.checked&&!arr.includes(memberId))arr.push(memberId);
+  else if(!el.checked)teamConfig.assignments[clientName]=arr.filter(id=>id!==memberId);
+  await saveTeamConfig();
 }
 
 // —— PURCHASED BUTTON CHECK ——————————————————————
