@@ -573,7 +573,7 @@ button:active{transform:translateY(1px)}
     </div>
     <button class="btn-p" id="dl-all-btn" onclick="downloadAll()" style="font-size:19px">DOWNLOAD ALL CONTENT</button>
   </div>
-  <button class="btn-g float float-d5" style="max-width:360px;margin-top:12px" onclick="showScreen('s-downloads')">← Back</button>
+  <button class="btn-g float float-d5" style="max-width:360px;margin-top:12px" onclick="goToDownloads()">← Back</button>
   <div class="meta float float-d6">Wolfe Productions · Lakes Entrance, VIC</div>
 </div>
 
@@ -819,10 +819,14 @@ function checkPurchased(email){
   },500);
 }
 function goToDownloads(){
-  const email=document.getElementById('cl-email').value.trim();
+  const email=document.getElementById('cl-email').value.trim()||clientEmailAddr||'';
   document.getElementById('dl-email').value=email;
   showScreen('s-downloads');
-  if(email)lookupOrders();
+  if(email){
+    document.getElementById('dl-email').parentElement.style.display='none';
+    document.getElementById('dl-lookup-btn').style.display='none';
+    lookupOrders();
+  }
 }
 
 // —— CLIENT ENTER ———————————————————————————————
