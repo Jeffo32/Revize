@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   if (!STRIPE_SECRET) return res.status(500).json({ error: 'Missing Stripe config' });
 
   const stripe = new Stripe(STRIPE_SECRET);
-  const { amount, description, clientName, clientEmail, paymentPlan, selectedPhotos, selectedVideos } = req.body || {};
+  const { amount, description, clientName, clientEmail, paymentPlan, selectedPhotos, selectedVideos, photoFolder } = req.body || {};
 
   if (!amount || amount <= 0) return res.status(400).json({ error: 'Invalid amount' });
 
@@ -64,6 +64,7 @@ export default async function handler(req, res) {
         metadata: {
           client_name: clientName || '',
           description: description || '',
+          photo_folder: photoFolder || '',
           ...fileMetadata,
         },
         subscription_data: {
@@ -73,7 +74,7 @@ export default async function handler(req, res) {
             ...fileMetadata,
           },
         },
-        success_url: origin + '/?paid=success',
+        success_url: origin + '/?paid=success&session_id={CHECKOUT_SESSION_ID}',
         cancel_url: origin + '/?paid=cancel',
       });
 
@@ -104,6 +105,7 @@ export default async function handler(req, res) {
         metadata: {
           client_name: clientName || '',
           description: description || '',
+          photo_folder: photoFolder || '',
           ...fileMetadata,
         },
         payment_intent_data: {
@@ -113,7 +115,7 @@ export default async function handler(req, res) {
             ...fileMetadata,
           },
         },
-        success_url: origin + '/?paid=success',
+        success_url: origin + '/?paid=success&session_id={CHECKOUT_SESSION_ID}',
         cancel_url: origin + '/?paid=cancel',
       });
 

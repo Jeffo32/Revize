@@ -664,8 +664,8 @@ window.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('cl-title').innerHTML=client.toUpperCase().replace(' ','<br>')+"'S<br><span>GALLERY</span>";
     document.getElementById('cl-name').value=client;
   }
-  // Check for payment success/cancel
-  if(getParam('paid')==='success'){
+  // Check for payment success/cancel or returning via session link
+  if(getParam('paid')==='success'||getParam('session_id')){
     showThankYou();
     return;
   }
@@ -1137,7 +1137,7 @@ async function stripeCheckout(){
     const res=await fetch('/api/checkout',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({amount:total,description:desc,clientName,clientEmail:email,paymentPlan:!!(selectedBundle&&BUNDLES[selectedBundle].paymentPlan),selectedPhotos:allP.filter(p=>selP.has(p.id)).map(p=>p.name),selectedVideos:allV.filter(v=>selV.has(v.id)).map(v=>v.name)})
+      body:JSON.stringify({amount:total,description:desc,clientName,clientEmail:email,paymentPlan:!!(selectedBundle&&BUNDLES[selectedBundle].paymentPlan),selectedPhotos:allP.filter(p=>selP.has(p.id)).map(p=>p.name),selectedVideos:allV.filter(v=>selV.has(v.id)).map(v=>v.name),photoFolder:getParam('pf')||''})
     });
     const data=await res.json();
     if(data.url){
@@ -1166,7 +1166,51 @@ function findOriginal(name){
   return null;
 }
 async function showThankYou(){
-  try{paidItems=JSON.parse(localStorage.getItem('revize_paid_items'));}catch(e){}
+  const sessionId=getParam('session_id');
+  // Try loading from API first (works across devices/browsers)
+  if(sessionId){
+    try{
+      const r=await fetch('/api/order?session_id='+encodeURIComponent(sessionId));
+      if(r.ok){
+        const order=await r.json();
+        // Load gallery data to match file names to IDs for downloads
+        let galleryPhotos=[],galleryVideos=[];
+        try{
+          const pf=getParam('pf')||order.photoFolder||'';
+          const clientSlug=(order.clientName||'shared').toLowerCase().replace(/\s+/g,'-');
+          // Try localStorage gallery first, then fetch from API
+          const cached=JSON.parse(localStorage.getItem('revize_gallery')||'null');
+          if(cached){galleryPhotos=cached.allPhotos||[];galleryVideos=cached.allVideos||[];}
+          else{
+            const dr=await fetch('/api/drive'+(pf?'?folder='+encodeURIComponent(pf):''));
+            if(dr.ok){
+              const dd=await dr.json();
+              galleryPhotos=(dd.files||[]).filter(f=>f.mimeType&&f.mimeType.startsWith('image/')).map(f=>({id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',type:'photo'}));
+            }
+            const vr=await fetch('/api/r2-list?client='+encodeURIComponent(clientSlug));
+            if(vr.ok){
+              const vd=await vr.json();
+              galleryVideos=(vd.videos||[]).map(v=>({id:v.key,name:v.name,url:v.url,type:'video'}));
+            }
+          }
+        }catch(e){}
+        // Match order file names to gallery items with IDs
+        paidItems={
+          photos:order.photos.map(name=>{
+            const match=galleryPhotos.find(p=>p.name===name);
+            return match||{id:'',name};
+          }),
+          videos:order.videos.map(name=>{
+            const match=galleryVideos.find(v=>v.name===name);
+            return match||{id:'',name};
+          }),
+          clientName:order.clientName
+        };
+      }
+    }catch(e){}
+  }
+  // Fall back to localStorage
+  if(!paidItems){try{paidItems=JSON.parse(localStorage.getItem('revize_paid_items'));}catch(e){}}
   if(!paidItems){showScreen('s-revize');return;}
   showScreen('s-thankyou');
   const list=document.getElementById('dl-list');
@@ -1239,7 +1283,6 @@ async function downloadAll(){
   URL.revokeObjectURL(a.href);
   btn.textContent='✓ DOWNLOADED';
   status.textContent='Done!';
-  localStorage.removeItem('revize_paid_items');
 }
 
 let selectedBundle=null;
