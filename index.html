@@ -675,7 +675,9 @@ function glitchTransition(fromId,toId){
 function getParam(k){return new URLSearchParams(location.search).get(k)||'';}
 window.addEventListener('DOMContentLoaded',()=>{
   const client=getParam('client'),pf=getParam('pf');
+  if(pf)window._activePF=pf;
   if(client){
+    window._activeClientName=client;
     document.getElementById('cl-title').innerHTML=client.toUpperCase().replace(' ','<br>')+"'S<br><span>GALLERY</span>";
     document.getElementById('cl-name').value=client;
   }
@@ -1222,6 +1224,8 @@ async function showThankYou(){
       if(r.ok){
         const order=await r.json();
         if(order.clientEmail)clientEmailAddr=order.clientEmail;
+        if(order.photoFolder)window._activePF=order.photoFolder;
+        if(order.clientName)window._activeClientName=order.clientName;
         // Load gallery data to match file names to IDs for downloads
         let galleryPhotos=[],galleryVideos=[];
         try{
