@@ -507,7 +507,7 @@ button:active{transform:translateY(1px)}
 </div>
 
 <!-- —— DOWNLOAD PROGRESS SPLASH ———————————————————— -->
-<div id="dl-splash" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.92);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px">
+<div id="dl-splash" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.92);flex-direction:column;align-items:center;justify-content:center;padding:24px 20px">
   <div class="eyebrow">Revize</div>
   <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,10vw,56px);letter-spacing:.04em;line-height:.88;text-align:center;margin:12px 0 8px">DOWNLOADING<br><span style="color:var(--ice)">YOUR FILES</span></div>
   <div style="width:100%;max-width:360px;margin-top:24px">
@@ -1591,8 +1591,7 @@ async function teamDownloadFiles(photos,videos,zipName){
     status.textContent='Downloading '+name+'...';
   }
   // Load originals map
-  let oMap={};
-  try{const r=await fetch('/api/originals');if(r.ok)oMap=(await r.json()).map||{};}catch(e){}
+  try{const r=await fetch('/api/originals');if(r.ok)originalsMap=(await r.json()).map||{};}catch(e){}
   for(const p of photos){
     try{
       const orig=findOriginal(p.name);const dlId=orig?orig.id:p.id;
