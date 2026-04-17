@@ -1221,6 +1221,7 @@ async function showThankYou(){
       const r=await fetch('/api/order?session_id='+encodeURIComponent(sessionId));
       if(r.ok){
         const order=await r.json();
+        if(order.clientEmail)clientEmailAddr=order.clientEmail;
         // Load gallery data to match file names to IDs for downloads
         let galleryPhotos=[],galleryVideos=[];
         try{

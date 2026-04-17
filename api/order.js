@@ -36,6 +36,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       clientName: meta.client_name || '',
+      clientEmail: session.customer_details?.email || session.customer_email || '',
       description: meta.description || '',
       photoFolder: meta.photo_folder || '',
       photos,
