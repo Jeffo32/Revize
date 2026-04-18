@@ -815,6 +815,10 @@ function loadExistingClient(name,pf,vf){
   window._activePF=pf;
   window._activeVF=vf;
   window._activeClientName=name;
+  if(teamMode){
+    enterTeamGallery(name,pf);
+    return;
+  }
   document.getElementById('cl-title').innerHTML=name.toUpperCase()+"'S<br><span>GALLERY</span>";
   document.getElementById('cl-name').value=name;
   showScreen('s-client');
@@ -1753,6 +1757,10 @@ function lbOpen(list,idx){
   lbList=list;lbIdx=idx;
   document.getElementById('lb').classList.add('open');
   document.body.style.overflow='hidden';
+  const lbWm=document.querySelector('.lb-wm');
+  if(lbWm)lbWm.style.display=teamMode?'none':'';
+  const lbSb=document.getElementById('lb-sb');
+  if(lbSb&&teamMode)lbSb.style.display='none';
   lbBuildTrack();
   lbPreload();
 }
