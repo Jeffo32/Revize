@@ -762,7 +762,7 @@ function updatePinDots(){
   for(let i=0;i<4;i++)document.getElementById('pd-'+i).classList.toggle('filled',i<pinVal.length);
 }
 function checkPin(){
-  if(pinVal==='3232'){document.getElementById('pin-error').style.display='none';pinVal='';updatePinDots();showScreen('s-admin');renderGalleryList();}
+  if(pinVal==='3232'){document.getElementById('pin-error').style.display='none';pinVal='';updatePinDots();adminGalleryMode=true;showScreen('s-admin');renderGalleryList();}
   else if(TEAM_PINS[pinVal]){
     document.getElementById('pin-error').style.display='none';
     teamMemberId=TEAM_PINS[pinVal].id;
@@ -811,11 +811,12 @@ function adminHover(which){
   document.getElementById(hovered).style.background='var(--acid)';document.getElementById(hovered).style.color='var(--base)';document.getElementById(hovered).style.border='none';
   document.getElementById(other).style.background='transparent';document.getElementById(other).style.color='var(--muted)';document.getElementById(other).style.border='1px solid var(--border2)';
 }
+let adminGalleryMode=false;
 function loadExistingClient(name,pf,vf){
   window._activePF=pf;
   window._activeVF=vf;
   window._activeClientName=name;
-  if(teamMode){
+  if(teamMode||adminGalleryMode){
     enterTeamGallery(name,pf);
     return;
   }
@@ -928,7 +929,7 @@ function enterTeamGallery(clientName,pf){
     backBtn.id='team-back';
     backBtn.textContent='←';
     backBtn.style.cssText='background:none;border:1px solid var(--border2);color:var(--muted);font-size:16px;padding:4px 10px;cursor:pointer;border-radius:4px;margin-right:8px';
-    backBtn.onclick=()=>{const dl=document.getElementById('team-dl-all');if(dl)dl.style.display='none';loadTeamGalleries();};
+    backBtn.onclick=()=>{const dl=document.getElementById('team-dl-all');if(dl)dl.style.display='none';if(adminGalleryMode&&!teamMode){showScreen('s-admin');renderGalleryList();}else{loadTeamGalleries();}};
     topbar.insertBefore(backBtn,topbar.firstChild);
   }
   backBtn.style.display='block';
