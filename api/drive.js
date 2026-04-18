@@ -2,7 +2,7 @@ async function fetchFiles(folderId, apiKey) {
   let allFiles = [];
   let pageToken = '';
   do {
-    const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType),nextPageToken&pageSize=200&key=${apiKey}` + (pageToken ? `&pageToken=${pageToken}` : '');
+    const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,imageMediaMetadata(width,height),videoMediaMetadata(width,height)),nextPageToken&pageSize=200&key=${apiKey}` + (pageToken ? `&pageToken=${pageToken}` : '');
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Drive API ${res.status}`);
     const data = await res.json();

@@ -99,16 +99,16 @@ button:active{transform:translateY(1px)}
 .panel.on{display:block}
 .sec{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .sec::after{content:'';flex:1;height:1px;background:var(--border)}
-.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
-.vgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
+.pgrid{columns:3;column-gap:3px}
+.vgrid{columns:2;column-gap:5px}
 #select-btn{background:var(--acid);color:var(--base);border:none;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.1em;padding:8px 18px;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s;border-radius:6px;animation:selectFloat 2.5s ease-in-out infinite}
 @keyframes selectFloat{0%,100%{transform:translateY(0);box-shadow:0 0 4px rgba(57,255,20,.3)}50%{transform:translateY(-2px);box-shadow:0 0 14px rgba(57,255,20,.5),0 0 24px rgba(57,255,20,.15)}}
 #select-btn:hover{box-shadow:0 0 18px rgba(57,255,20,.5)}
 #select-btn:active{transform:scale(.93) translateY(2px);box-shadow:0 0 10px rgba(57,255,20,.5),inset 0 2px 4px rgba(0,0,0,.3)}
 #select-btn.done-mode{background:transparent;color:var(--acid);border:1px solid var(--acid)}
-.mi{position:relative;cursor:pointer;overflow:hidden;aspect-ratio:1;background:var(--surface2);-webkit-touch-callout:none;user-select:none;border-radius:4px}
-.vgrid .mi{aspect-ratio:9/16}
-.mi img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s ease}
+.mi{position:relative;cursor:pointer;overflow:hidden;background:var(--surface2);-webkit-touch-callout:none;user-select:none;border-radius:4px;break-inside:avoid;margin-bottom:3px}
+.vgrid .mi{margin-bottom:5px}
+.mi img{width:100%;height:auto;display:block;transition:transform .2s ease}
 .mi:hover img{transform:scale(1.05)}
 .mi.purchased img{opacity:.35;filter:grayscale(1)}
 .mi.purchased:hover img{transform:none}
@@ -120,7 +120,7 @@ button:active{transform:translateY(1px)}
 .lb-wm{position:fixed;inset:0;pointer-events:none;z-index:10;background:repeating-linear-gradient(-30deg,transparent,transparent 60px,rgba(255,255,255,.04) 60px,rgba(255,255,255,.04) 61px)}
 .lb-wm::before{content:'WOLFE PRODUCTIONS';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-family:'Bebas Neue',sans-serif;font-size:clamp(30px,8vw,70px);letter-spacing:.3em;color:rgba(255,255,255,.15);white-space:nowrap;pointer-events:none;text-shadow:0 0 30px rgba(0,0,0,.5)}
 .lb-wm::after{content:'WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE   WOLFE';position:fixed;top:-50%;left:-50%;width:300%;height:300%;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.4em;line-height:4;color:rgba(255,255,255,.07);transform:rotate(-30deg);white-space:pre-wrap;word-break:break-all;pointer-events:none}
-.vgrid .mi img{object-fit:contain;background:#000}
+.vgrid .mi img{background:#000}
 .ov{position:absolute;inset:0;background:rgba(57,255,20,.18);opacity:0;pointer-events:none;transition:opacity .15s}
 .mi.sel .ov{opacity:1}
 .ck{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;z-index:5;cursor:pointer;transition:background .15s,border-color .15s;opacity:0;pointer-events:none}
@@ -195,7 +195,8 @@ button:active{transform:translateY(1px)}
 .vid-wrap iframe{width:100%;aspect-ratio:16/9;border:none;display:block;background:#000}
 .vid-ctrl{background:rgba(0,0,0,.8);padding:10px 14px;display:flex;align-items:center;gap:10px}
 /* skeleton */
-.skel{background:var(--surface2);aspect-ratio:1;position:relative;overflow:hidden}
+.skel{background:var(--surface2);position:relative;overflow:hidden;break-inside:avoid;margin-bottom:3px;border-radius:4px}
+.vgrid .skel{margin-bottom:5px}
 .skel::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.04),transparent);animation:sh 1.4s infinite}
 @keyframes sh{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 @keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -766,8 +767,8 @@ window.addEventListener('DOMContentLoaded',()=>{
     showScreen('s-gallery');
     const pg=document.getElementById('g-photos');
     const vg=document.getElementById('g-videos');
-    pg.innerHTML=Array(18).fill('<div class="skel"></div>').join('');
-    vg.innerHTML=Array(6).fill('<div class="skel" style="aspect-ratio:9/16"></div>').join('');
+    pg.innerHTML=[1,.75,1.3,.9,1.1,.7,1,.8,1.2,.95,1.4,.65,1,.85,1.15,.7,1.3,.9].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
+    vg.innerHTML=[.56,.75,.56,1.3,.56,.75].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
     loadDrive(getParam('pf'));
     return;
   }
@@ -979,8 +980,8 @@ function enterTeamGallery(clientName,pf){
   showScreen('s-gallery');
   const pg=document.getElementById('g-photos');
   const vg=document.getElementById('g-videos');
-  pg.innerHTML=Array(18).fill('<div class="skel"></div>').join('');
-  vg.innerHTML=Array(6).fill('<div class="skel" style="aspect-ratio:9/16"></div>').join('');
+  pg.innerHTML=[1,.75,1.3,.9,1.1,.7,1,.8,1.2,.95,1.4,.65,1,.85,1.15,.7,1.3,.9].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
+  vg.innerHTML=[.56,.75,.56,1.3,.56,.75].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
   selP.clear();selV.clear();
   loadDrive(pf);
 }
@@ -1059,8 +1060,8 @@ function openPortfolio(name,pf){
   backBtn.onclick=()=>{viewOnly=false;showScreen('s-admin');renderGalleryList();document.getElementById('select-btn').style.display='';document.querySelector('.pill').style.display='';document.getElementById('cta-bar').style.display='';};
   const pg=document.getElementById('g-photos');
   const vg=document.getElementById('g-videos');
-  pg.innerHTML=Array(18).fill('<div class="skel"></div>').join('');
-  vg.innerHTML=Array(6).fill('<div class="skel" style="aspect-ratio:9/16"></div>').join('');
+  pg.innerHTML=[1,.75,1.3,.9,1.1,.7,1,.8,1.2,.95,1.4,.65,1,.85,1.15,.7,1.3,.9].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
+  vg.innerHTML=[.56,.75,.56,1.3,.56,.75].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
   loadDrive(pf);
 }
 function copyPortfolioLink(name,pf,btn){
@@ -1173,8 +1174,8 @@ function enterGallery(){
   // Show plenty of skeleton placeholders while loading
   const pg=document.getElementById('g-photos');
   const vg=document.getElementById('g-videos');
-  pg.innerHTML=Array(18).fill('<div class="skel"></div>').join('');
-  vg.innerHTML=Array(6).fill('<div class="skel" style="aspect-ratio:9/16"></div>').join('');
+  pg.innerHTML=[1,.75,1.3,.9,1.1,.7,1,.8,1.2,.95,1.4,.65,1,.85,1.15,.7,1.3,.9].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
+  vg.innerHTML=[.56,.75,.56,1.3,.56,.75].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
   // Use folder IDs from existing client selection, URL params, or demo
   const pf=window._activePF||getParam('pf');
   const vf=window._activeVF||getParam('vf');
@@ -1192,9 +1193,17 @@ async function loadDrive(folderId){
     if(!res.ok)throw new Error();
     const data=await res.json();
     const files=data.files||[];
-    allP=files.filter(f=>f.mimeType&&f.mimeType.startsWith('image/')).map(f=>({id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',full:'https://lh3.googleusercontent.com/d/'+f.id+'=w1600',type:'photo'}));
+    allP=files.filter(f=>f.mimeType&&f.mimeType.startsWith('image/')).map(f=>{
+      const meta=f.imageMediaMetadata||{};
+      const w=meta.width||4,h=meta.height||3;
+      return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',full:'https://lh3.googleusercontent.com/d/'+f.id+'=w1600',type:'photo',ar:w/h};
+    });
     // Drive videos (fallback iframe)
-    const driveVids=files.filter(f=>f.mimeType&&f.mimeType.startsWith('video/')).map(f=>({id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',type:'video'}));
+    const driveVids=files.filter(f=>f.mimeType&&f.mimeType.startsWith('video/')).map(f=>{
+      const meta=f.videoMediaMetadata||{};
+      const w=meta.width||16,h=meta.height||9;
+      return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',type:'video',ar:w/h};
+    });
     // R2 videos (native player) — load from /api/r2-list
     let r2Vids=[];
     try{
@@ -1286,6 +1295,7 @@ function renderGrid(items,type){
     const isPurchased=purchasedFiles.has(item.name);
     const el=document.createElement('div');
     el.className='mi fi'+(isPurchased?' purchased':'');el.style.animationDelay=i*.04+'s';el.dataset.id=item.id;
+    if(item.ar)el.style.aspectRatio=item.ar;
     el.innerHTML='<img src="'+item.thumb+'" loading="lazy">'+((teamMode||adminGalleryMode)?'':'<div class="wm"></div>')+'<div class="ov"></div>'+
       (viewOnly?'':'<div class="ck"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>')+
       (isPurchased?'<div class="purchased-tag">PURCHASED</div>':'')+
