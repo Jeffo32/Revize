@@ -629,6 +629,7 @@ let clientEmailAddr='';
 const JEFFO_EMAIL='wolfeproductions@icloud.com';
 // —— TEAM MODE ——————————————————————————————————
 let teamMode=false;
+let viewOnly=false;
 let teamMemberId='';
 const TEAM_PINS={
   '1111':{id:'smm',name:'Social Media Manager'},
@@ -749,6 +750,26 @@ window.addEventListener('DOMContentLoaded',()=>{
   // Check for purchases when email is entered
   const clEmail=document.getElementById('cl-email');
   if(clEmail)clEmail.addEventListener('input',()=>checkPurchased(clEmail.value.trim()));
+  // View-only mode — clean browsable gallery, no select/checkout
+  if(getParam('view')==='true'&&getParam('pf')){
+    viewOnly=true;
+    const name=getParam('client')||'Portfolio';
+    window._activePF=getParam('pf');
+    window._activeClientName=name;
+    document.getElementById('g-title').textContent=name.toUpperCase();
+    document.getElementById('select-btn').style.display='none';
+    document.querySelector('.pill').style.display='none';
+    document.getElementById('tb-faves').style.display='none';
+    document.getElementById('tutorial-steps').style.display='none';
+    document.getElementById('cta-bar').style.display='none';
+    showScreen('s-gallery');
+    const pg=document.getElementById('g-photos');
+    const vg=document.getElementById('g-videos');
+    pg.innerHTML=Array(18).fill('<div class="skel"></div>').join('');
+    vg.innerHTML=Array(6).fill('<div class="skel" style="aspect-ratio:9/16"></div>').join('');
+    loadDrive(getParam('pf'));
+    return;
+  }
   // Client link → straight to client splash; else → Revize splash
   if(location.search.includes('client=')){showScreen('s-client');}
   else{showScreen('s-revize');}
@@ -1217,7 +1238,7 @@ function renderGrid(items,type){
     const el=document.createElement('div');
     el.className='mi fi'+(isPurchased?' purchased':'');el.style.animationDelay=i*.04+'s';el.dataset.id=item.id;
     el.innerHTML='<img src="'+item.thumb+'" loading="lazy">'+((teamMode||adminGalleryMode)?'':'<div class="wm"></div>')+'<div class="ov"></div>'+
-      '<div class="ck"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>'+
+      (viewOnly?'':'<div class="ck"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>')+
       (isPurchased?'<div class="purchased-tag">PURCHASED</div>':'')+
       (type==='videos'?'<div class="pb">&#9658; VIDEO</div>':'');
     el.querySelector('.ck').addEventListener('touchstart',e=>{e.stopPropagation();startDragSel(e,item,type);},{passive:false});
@@ -1228,7 +1249,7 @@ function renderGrid(items,type){
       const mi=t?.closest('.mi');if(mi&&mi.dataset.id)applyDragSel(mi.dataset.id,dragSelType);
     },{passive:true});
     el.addEventListener('mouseover',()=>{if(dragSelecting)applyDragSel(item.id,dragSelType);});
-    el.addEventListener('click',()=>{if(selectMode){toggle(item.id,type);}else if(!dragSelecting){lbOpen(type==='photos'?allP:allV,i);}});
+    el.addEventListener('click',()=>{if(viewOnly){lbOpen(type==='photos'?allP:allV,i);}else if(selectMode){toggle(item.id,type);}else if(!dragSelecting){lbOpen(type==='photos'?allP:allV,i);}});
     g.appendChild(el);
   });
 }
@@ -1792,7 +1813,7 @@ function lbOpen(list,idx){
   const lbWm=document.querySelector('.lb-wm');
   if(lbWm)lbWm.style.display=(teamMode||adminGalleryMode)?'none':'';
   const lbSb=document.getElementById('lb-sb');
-  if(lbSb&&(teamMode||adminGalleryMode))lbSb.style.display='none';
+  if(lbSb&&(teamMode||adminGalleryMode||viewOnly))lbSb.style.display='none';
   lbBuildTrack();
   lbPreload();
 }
