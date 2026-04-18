@@ -493,6 +493,17 @@ button:active{transform:translateY(1px)}
   </div>
 </div>
 
+<!-- —— DELETE CONFIRM SPLASH —————————————————————— -->
+<div id="delete-splash" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.92);flex-direction:column;align-items:center;justify-content:center;padding:24px 20px">
+  <div class="eyebrow">Revize</div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,10vw,56px);letter-spacing:.04em;line-height:.88;text-align:center;margin:12px 0 8px">DELETE<br><span style="color:#ff4444">GALLERY?</span></div>
+  <div id="delete-splash-name" style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.08em;color:var(--fg);margin:16px 0 24px"></div>
+  <div style="display:flex;gap:12px;width:100%;max-width:320px">
+    <button onclick="cancelDelete()" style="flex:1;padding:14px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.1em;cursor:pointer;border-radius:6px">CANCEL</button>
+    <button onclick="confirmDelete()" style="flex:1;padding:14px;background:#ff4444;border:none;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.1em;cursor:pointer;border-radius:6px">DELETE</button>
+  </div>
+</div>
+
 <!-- —— DOWNLOAD PROGRESS SPLASH ———————————————————— -->
 <div id="dl-splash" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.92);flex-direction:column;align-items:center;justify-content:center;padding:24px 20px">
   <div class="eyebrow">Revize</div>
@@ -1013,13 +1024,25 @@ async function saveGallery(){
   document.getElementById('a-photos').value='';
   document.querySelectorAll('#a-team-checks input').forEach(cb=>cb.checked=false);
 }
-async function deleteGallery(name,btnEl){
-  if(!confirm('Delete gallery "'+name+'"?'))return;
-  if(btnEl)btnEl.textContent='...';
+let pendingDeleteName='';
+function deleteGallery(name){
+  pendingDeleteName=name;
+  document.getElementById('delete-splash-name').textContent=name.toUpperCase();
+  document.getElementById('delete-splash').style.display='flex';
+}
+function cancelDelete(){
+  pendingDeleteName='';
+  document.getElementById('delete-splash').style.display='none';
+}
+async function confirmDelete(){
+  const name=pendingDeleteName;
+  document.getElementById('delete-splash').style.display='none';
+  if(!name)return;
   try{
     const r=await fetch('/api/team-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deleteGallery:name})});
     if(r.ok)teamConfig=await r.json();
   }catch(e){}
+  pendingDeleteName='';
   renderGalleryList();
 }
 async function toggleTeamAssign(el){
@@ -1185,7 +1208,7 @@ function renderGrid(items,type){
     const isPurchased=purchasedFiles.has(item.name);
     const el=document.createElement('div');
     el.className='mi fi'+(isPurchased?' purchased':'');el.style.animationDelay=i*.04+'s';el.dataset.id=item.id;
-    el.innerHTML='<img src="'+item.thumb+'" loading="lazy">'+(teamMode?'':'<div class="wm"></div>')+'<div class="ov"></div>'+
+    el.innerHTML='<img src="'+item.thumb+'" loading="lazy">'+((teamMode||adminGalleryMode)?'':'<div class="wm"></div>')+'<div class="ov"></div>'+
       '<div class="ck"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>'+
       (isPurchased?'<div class="purchased-tag">PURCHASED</div>':'')+
       (type==='videos'?'<div class="pb">&#9658; VIDEO</div>':'');
@@ -1759,9 +1782,9 @@ function lbOpen(list,idx){
   document.getElementById('lb').classList.add('open');
   document.body.style.overflow='hidden';
   const lbWm=document.querySelector('.lb-wm');
-  if(lbWm)lbWm.style.display=teamMode?'none':'';
+  if(lbWm)lbWm.style.display=(teamMode||adminGalleryMode)?'none':'';
   const lbSb=document.getElementById('lb-sb');
-  if(lbSb&&teamMode)lbSb.style.display='none';
+  if(lbSb&&(teamMode||adminGalleryMode))lbSb.style.display='none';
   lbBuildTrack();
   lbPreload();
 }
