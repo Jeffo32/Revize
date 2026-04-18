@@ -1247,7 +1247,7 @@ function updateCounts(){
   document.getElementById('ct-p').textContent=p;
   document.getElementById('ct-v').textContent=v;
   document.getElementById('tn-f').textContent=t;
-  if(!teamMode){
+  if(!teamMode&&!adminGalleryMode){
     const pr=calcPrice(p,v);
     document.getElementById('ct-total').textContent='$'+pr.total;
   }
