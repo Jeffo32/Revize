@@ -916,6 +916,18 @@ function enterTeamGallery(clientName,pf){
   document.getElementById('cta-bar').innerHTML='<div class="cta-info"><div class="cl">Your selection</div><div class="cc"><span id="ct-p">0</span> photos · <span id="ct-v">0</span> videos</div></div><button class="cta-btn" onclick="downloadSelected()">DOWNLOAD SELECTED →</button>';
   // Hide faves tab in team mode
   document.getElementById('tb-faves').style.display='none';
+  // Add back button to topbar
+  let backBtn=document.getElementById('team-back');
+  if(!backBtn){
+    const topbar=document.querySelector('.topbar .tb-l');
+    backBtn=document.createElement('button');
+    backBtn.id='team-back';
+    backBtn.textContent='←';
+    backBtn.style.cssText='background:none;border:1px solid var(--border2);color:var(--muted);font-size:16px;padding:4px 10px;cursor:pointer;border-radius:4px;margin-right:8px';
+    backBtn.onclick=()=>{const dl=document.getElementById('team-dl-all');if(dl)dl.style.display='none';loadTeamGalleries();};
+    topbar.insertBefore(backBtn,topbar.firstChild);
+  }
+  backBtn.style.display='block';
   // Add Download All button fixed bottom-right
   let dlAllBtn=document.getElementById('team-dl-all');
   if(!dlAllBtn){
@@ -987,11 +999,10 @@ async function saveGallery(){
     const r=await fetch('/api/team-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({addGallery:{name,pf,category,created:new Date().toISOString().slice(0,10),team}})});
     if(r.ok)teamConfig=await r.json();
   }catch(e){}
-  btn.disabled=false;btn.textContent='SAVE GALLERY →';
-  // Show client link
-  const url=location.origin+'/?client='+encodeURIComponent(name)+'&pf='+encodeURIComponent(pf);
-  document.getElementById('url-text').textContent=url;
-  document.getElementById('url-box').classList.add('show');
+  btn.disabled=false;btn.textContent='✓ SAVED';
+  setTimeout(()=>{btn.textContent='SAVE GALLERY →';},1500);
+  // Switch to galleries view
+  adminMode('existing');
   // Clear form
   document.getElementById('a-name').value='';
   document.getElementById('a-photos').value='';
