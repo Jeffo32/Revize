@@ -1027,6 +1027,8 @@ async function renderGalleryList(){
   container.innerHTML=html;
 }
 function openPortfolio(name,pf){
+  console.log('openPortfolio called:',name,pf);
+  if(!pf){alert('Error: no folder ID');return;}
   viewOnly=true;
   window._activePF=pf;
   window._activeClientName=name;
