@@ -398,55 +398,42 @@ button:active{transform:translateY(1px)}
 <!-- —— ADMIN ——————————————————————————————————— -->
 <div class="screen hidden" id="s-admin">
   <div class="eyebrow float float-d1">Revize</div>
-  <div class="big-title float float-d2">CLIENT<br><span>SETUP</span></div>
-  <div class="sub float float-d3">Manage client galleries</div>
+  <div class="big-title float float-d2">GALLERY<br><span>MANAGER</span></div>
+  <div class="sub float float-d3">Add, assign & manage galleries</div>
   <div class="card float float-d4">
     <div class="tag">Admin</div>
     <!-- NEW / EXISTING toggle -->
     <div style="display:flex;gap:8px;margin-bottom:20px">
-      <button id="btn-new" onclick="adminMode('new')" onmouseenter="adminHover('new')"  style="flex:1;padding:11px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">NEW</button>
-      <button id="btn-existing" onclick="adminMode('existing')" onmouseenter="adminHover('existing')"  style="flex:1;padding:11px;background:var(--acid);color:var(--base);border:none;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">EXISTING</button>
+      <button id="btn-new" onclick="adminMode('new')" onmouseenter="adminHover('new')" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">+ NEW</button>
+      <button id="btn-existing" onclick="adminMode('existing')" onmouseenter="adminHover('existing')" style="flex:1;padding:11px;background:var(--acid);color:var(--base);border:none;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">GALLERIES</button>
     </div>
-    <!-- Existing clients list -->
+    <!-- Existing galleries list -->
     <div id="existing-clients" style="display:block;margin-bottom:14px">
-      <label class="lbl">Select Client</label>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <div class="existing-client-row" data-name="Tim" data-pf="1dCj59tTTWVSRIIChQfA6_bQ4S_e7xAE4" data-vf="" style="border-radius:6px;overflow:hidden;border:1px solid var(--border2);transition:border-color .15s">
-          <div onclick="toggleClientPanel(this.parentElement)" style="padding:12px 14px;background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .15s" onmouseover="this.style.background='#000'" onmouseout="this.style.background='var(--surface2)'">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em">TIM</div>
-            <div style="font-size:14px;color:var(--muted)" class="client-arrow">▾</div>
-          </div>
-          <div class="client-expand" style="max-height:0;overflow:hidden;transition:max-height .3s ease">
-            <div style="padding:12px 14px;background:rgba(255,255,255,.02);display:flex;flex-direction:column;gap:8px">
-              <div class="client-team-assign" style="display:flex;flex-direction:column;gap:6px"></div>
-              <button class="btn-p" onclick="loadExistingClient('Tim','1dCj59tTTWVSRIIChQfA6_bQ4S_e7xAE4','')" style="font-size:15px;margin-top:4px">OPEN GALLERY →</button>
-            </div>
-          </div>
-        </div>
+      <div id="gallery-list" style="display:flex;flex-direction:column;gap:10px">
+        <div style="color:var(--muted);font-size:11px;text-align:center;padding:20px 0">Loading...</div>
       </div>
     </div>
-    <!-- New client form -->
+    <!-- New gallery form -->
     <div id="new-client-form" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.25,.46,.45,.94)">
-      <div class="field"><label class="lbl">Client Name</label><input class="inp" id="a-name" type="text" placeholder="Sarah Johnson"></div>
-      <div class="field"><label class="lbl">Drive Folder Link</label><input class="inp" id="a-photos" type="text" placeholder="Paste Google Drive folder link"></div>
-      <div class="field" style="margin-bottom:0"><label class="lbl">Your Email</label><input class="inp" id="a-email" type="email" placeholder="jeff@wolfeproductions.com.au"></div>
-      <div style="margin-top:14px">
-        <button onclick="toggleR2Upload()" id="r2-toggle" style="background:none;border:1px solid var(--border2);color:#888;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;padding:7px 14px;cursor:pointer;border-radius:16px;transition:all .2s;text-transform:uppercase">Upload videos to R2 (optional) ▾</button>
-        <div id="r2-section" style="max-height:0;overflow:hidden;transition:max-height .4s ease">
-          <div style="margin-top:12px">
-            <div style="font-size:8px;color:#888;letter-spacing:.08em;margin-bottom:8px">FOR INSTANT VIDEO PLAYBACK (NO DRIVE PLAY BUTTON)</div>
-            <div id="upload-drop" style="border:1px dashed var(--border2);padding:20px;text-align:center;cursor:pointer;margin-bottom:8px;transition:border-color .2s;border-radius:6px" onclick="document.getElementById('vid-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--acid)'" ondragleave="this.style.borderColor='var(--border2)'" ondrop="handleVideoDrop(event)">
-              <div style="font-size:10px;letter-spacing:.1em;color:var(--muted)">Drop videos here or tap to select</div>
-            </div>
-            <input type="file" id="vid-file-input" multiple accept="video/*" style="display:none" onchange="handleVideoFiles(this.files)">
-            <div id="upload-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
-          </div>
-        </div>
+      <div class="field"><label class="lbl">Gallery Name</label><input class="inp" id="a-name" type="text" placeholder="e.g. Tim, March Shoot"></div>
+      <div class="field"><label class="lbl">Google Drive Folder Link</label><input class="inp" id="a-photos" type="text" placeholder="Paste Google Drive folder link"></div>
+      <div class="field">
+        <label class="lbl">Category</label>
+        <select class="inp" id="a-category" style="appearance:none;-webkit-appearance:none;background:var(--surface2) url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22><path d=%221 1 5 6 9 1%22 stroke=%22%23888%22 fill=%22none%22 stroke-width=%221.5%22/></svg>') no-repeat right 14px center">
+          <option value="belvu">BELVU</option>
+          <option value="mosaic">MOSAIC</option>
+          <option value="wolfe">WOLFE PRODUCTIONS</option>
+          <option value="client" selected>CLIENT WORK</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="lbl">Assign To</label>
+        <div id="a-team-checks" style="display:flex;flex-direction:column;gap:6px"></div>
       </div>
     </div>
-    <button class="btn-p" onclick="genLink()">GENERATE CLIENT LINK →</button>
+    <button class="btn-p" id="admin-save-btn" onclick="saveGallery()">SAVE GALLERY →</button>
     <div class="url-box" id="url-box">
-      <div class="url-label">Share with client <button class="copy-btn" onclick="copyUrl()">COPY</button></div>
+      <div class="url-label">Client link <button class="copy-btn" onclick="copyUrl()">COPY</button></div>
       <div class="url-text" id="url-text"></div>
     </div>
   </div>
@@ -775,7 +762,7 @@ function updatePinDots(){
   for(let i=0;i<4;i++)document.getElementById('pd-'+i).classList.toggle('filled',i<pinVal.length);
 }
 function checkPin(){
-  if(pinVal==='3232'){document.getElementById('pin-error').style.display='none';pinVal='';updatePinDots();showScreen('s-admin');}
+  if(pinVal==='3232'){document.getElementById('pin-error').style.display='none';pinVal='';updatePinDots();showScreen('s-admin');renderGalleryList();}
   else if(TEAM_PINS[pinVal]){
     document.getElementById('pin-error').style.display='none';
     teamMemberId=TEAM_PINS[pinVal].id;
@@ -797,8 +784,19 @@ function adminMode(mode){
   _adminMode=mode;
   const isNew=mode==='new';
   const ncf=document.getElementById('new-client-form');
-  if(isNew){ncf.style.maxHeight='600px';}else{ncf.style.maxHeight='0';}
+  if(isNew){
+    ncf.style.maxHeight='800px';
+    document.getElementById('admin-save-btn').textContent='SAVE GALLERY →';
+    document.getElementById('url-box').classList.remove('show');
+    // Populate team checkboxes
+    const tc=document.getElementById('a-team-checks');
+    tc.innerHTML=Object.entries(TEAM_PINS).map(([pin,m])=>'<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;cursor:pointer"><input type="checkbox" data-member="'+m.id+'" style="accent-color:var(--ice);width:18px;height:18px;cursor:pointer"><div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:.06em">'+m.name.toUpperCase()+'</div></div></label>').join('');
+  } else {
+    ncf.style.maxHeight='0';
+    renderGalleryList();
+  }
   document.getElementById('existing-clients').style.display=isNew?'none':'block';
+  document.getElementById('admin-save-btn').style.display=isNew?'block':'none';
   document.getElementById('btn-new').style.background=isNew?'var(--acid)':'transparent';
   document.getElementById('btn-new').style.color=isNew?'var(--base)':'var(--muted)';
   document.getElementById('btn-new').style.border=isNew?'none':'1px solid var(--border2)';
@@ -877,16 +875,26 @@ async function loadTeamGalleries(){
   if(!myGalleries.length){
     container.innerHTML='<div style="color:var(--muted);font-size:11px;text-align:center;padding:20px 0">No galleries assigned yet.<br>Ask the admin to assign galleries to you.</div>';
   } else {
-    // Load existing clients to get folder IDs
     const clientMap=getClientMap();
-    let html='';
+    // Group by category
+    const groups={};
     myGalleries.forEach(name=>{
       const client=clientMap[name];
       if(!client)return;
-      html+='<div onclick="enterTeamGallery(\''+name+'\',\''+client.pf+'\')" style="padding:14px;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s,background .15s;border-radius:6px" onmouseover="this.style.background=\'#000\';this.style.borderColor=\'var(--ice)\'" onmouseout="this.style.background=\'var(--surface2)\';this.style.borderColor=\'var(--border2)\'">';
-      html+='<div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:.06em">'+name.toUpperCase()+'</div>';
-      html+='<div style="font-size:18px;color:var(--ice)">→</div>';
-      html+='</div>';
+      const cat=client.category||'client';
+      if(!groups[cat])groups[cat]=[];
+      groups[cat].push({name,pf:client.pf});
+    });
+    let html='';
+    CAT_ORDER.forEach(cat=>{
+      if(!groups[cat]||!groups[cat].length)return;
+      html+='<div style="font-size:8px;letter-spacing:.22em;color:var(--ice);text-transform:uppercase;margin:6px 0 4px">'+CAT_NAMES[cat]+'</div>';
+      groups[cat].forEach(g=>{
+        html+='<div onclick="enterTeamGallery(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\')" style="padding:14px;background:var(--surface2);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s,background .15s;border-radius:6px;margin-bottom:4px" onmouseover="this.style.background=\'#000\';this.style.borderColor=\'var(--ice)\'" onmouseout="this.style.background=\'var(--surface2)\';this.style.borderColor=\'var(--border2)\'">';
+        html+='<div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:.06em">'+g.name.toUpperCase()+'</div>';
+        html+='<div style="font-size:18px;color:var(--ice)">→</div>';
+        html+='</div>';
+      });
     });
     container.innerHTML=html;
   }
@@ -894,11 +902,8 @@ async function loadTeamGalleries(){
 }
 function getClientMap(){
   const map={};
-  document.querySelectorAll('.existing-client-row').forEach(row=>{
-    const name=row.dataset.name;
-    const pf=row.dataset.pf||'';
-    const vf=row.dataset.vf||'';
-    if(name)map[name]={pf,vf};
+  (teamConfig.galleries||[]).forEach(g=>{
+    map[g.name]={pf:g.pf,vf:'',category:g.category};
   });
   return map;
 }
@@ -911,17 +916,17 @@ function enterTeamGallery(clientName,pf){
   document.getElementById('cta-bar').innerHTML='<div class="cta-info"><div class="cl">Your selection</div><div class="cc"><span id="ct-p">0</span> photos · <span id="ct-v">0</span> videos</div></div><button class="cta-btn" onclick="downloadSelected()">DOWNLOAD SELECTED →</button>';
   // Hide faves tab in team mode
   document.getElementById('tb-faves').style.display='none';
-  // Add Download All button to topbar
+  // Add Download All button fixed bottom-right
   let dlAllBtn=document.getElementById('team-dl-all');
   if(!dlAllBtn){
-    const topbar=document.querySelector('.topbar');
     dlAllBtn=document.createElement('button');
     dlAllBtn.id='team-dl-all';
     dlAllBtn.textContent='DOWNLOAD ALL';
-    dlAllBtn.style.cssText='background:var(--ice);color:var(--base);border:none;font-family:"Bebas Neue",sans-serif;font-size:14px;letter-spacing:.1em;padding:6px 12px;cursor:pointer;border-radius:4px;margin-left:8px';
+    dlAllBtn.style.cssText='position:fixed;bottom:70px;right:16px;background:var(--ice);color:var(--base);border:none;font-family:"Bebas Neue",sans-serif;font-size:15px;letter-spacing:.1em;padding:10px 18px;cursor:pointer;border-radius:6px;z-index:101;box-shadow:0 2px 12px rgba(79,195,247,.3)';
     dlAllBtn.onclick=downloadAllTeam;
-    topbar.querySelector('div:last-child').appendChild(dlAllBtn);
+    document.getElementById('s-gallery').appendChild(dlAllBtn);
   }
+  dlAllBtn.style.display='block';
   showScreen('s-gallery');
   const pg=document.getElementById('g-photos');
   const vg=document.getElementById('g-videos');
@@ -930,30 +935,76 @@ function enterTeamGallery(clientName,pf){
   selP.clear();selV.clear();
   loadDrive(pf);
 }
-// —— ADMIN TEAM ASSIGNMENT ————————————————————————
-async function toggleClientPanel(row){
-  const expand=row.querySelector('.client-expand');
-  const arrow=row.querySelector('.client-arrow');
-  const isOpen=expand.style.maxHeight!=='0px'&&expand.style.maxHeight!=='';
-  // Close all other panels
-  document.querySelectorAll('.client-expand').forEach(e=>{e.style.maxHeight='0';});
-  document.querySelectorAll('.client-arrow').forEach(a=>{a.textContent='▾';});
-  if(isOpen){expand.style.maxHeight='0';arrow.textContent='▾';return;}
-  // Load team assignments for this client
-  const clientName=row.dataset.name;
+// —— GALLERY LIST & MANAGEMENT ————————————————————
+const CAT_ORDER=['belvu','mosaic','wolfe','client'];
+const CAT_NAMES={belvu:'BELVU',mosaic:'MOSAIC',wolfe:'WOLFE PRODUCTIONS',client:'CLIENT WORK'};
+async function renderGalleryList(){
   await loadTeamConfig();
-  const container=row.querySelector('.client-team-assign');
-  const assigned=(teamConfig.assignments||{})[clientName]||[];
-  const members=[
-    {id:'smm',name:'Social Media Manager',pin:'1111'},
-    {id:'editor',name:'Video Editor',pin:'2222'}
-  ];
-  container.innerHTML='<div style="font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:2px">Team Access</div>'+members.map(m=>{
-    const checked=assigned.includes(m.id)?'checked':'';
-    return '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;cursor:pointer;transition:border-color .15s"><input type="checkbox" data-member="'+m.id+'" data-client="'+clientName+'" onchange="toggleTeamAssign(this)" '+checked+' style="accent-color:var(--ice);width:18px;height:18px;cursor:pointer"><div><div style="font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:.06em">'+m.name.toUpperCase()+'</div><div style="font-size:9px;color:var(--muted);letter-spacing:.06em">PIN: '+m.pin+'</div></div></label>';
-  }).join('');
-  expand.style.maxHeight=expand.scrollHeight+'px';
-  arrow.textContent='▴';
+  const container=document.getElementById('gallery-list');
+  const galleries=teamConfig.galleries||[];
+  if(!galleries.length){
+    container.innerHTML='<div style="color:var(--muted);font-size:11px;text-align:center;padding:20px 0">No galleries yet. Click + NEW to add one.</div>';
+    return;
+  }
+  // Group by category
+  const groups={};
+  galleries.forEach(g=>{
+    const cat=g.category||'client';
+    if(!groups[cat])groups[cat]=[];
+    groups[cat].push(g);
+  });
+  let html='';
+  CAT_ORDER.forEach(cat=>{
+    if(!groups[cat]||!groups[cat].length)return;
+    html+='<div style="font-size:8px;letter-spacing:.22em;color:var(--ice);text-transform:uppercase;margin:4px 0 2px">'+CAT_NAMES[cat]+'</div>';
+    groups[cat].forEach(g=>{
+      const assigned=(teamConfig.assignments||{})[g.name]||[];
+      const teamTags=assigned.map(id=>{const m=Object.values(TEAM_PINS).find(x=>x.id===id);return m?m.name.split(' ')[0]:id;}).join(', ');
+      html+='<div style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:8px">';
+      html+='<div style="flex:1;min-width:0"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:17px;letter-spacing:.06em">'+g.name.toUpperCase()+'</div>';
+      if(teamTags)html+='<div style="font-size:8px;color:var(--muted);letter-spacing:.06em;margin-top:2px">'+teamTags+'</div>';
+      html+='</div>';
+      html+='<div style="display:flex;gap:6px;flex-shrink:0">';
+      html+='<button onclick="loadExistingClient(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">OPEN</button>';
+      html+='<button onclick="deleteGallery(\''+g.name.replace(/'/g,"\\'")+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">✕</button>';
+      html+='</div></div>';
+    });
+  });
+  container.innerHTML=html;
+}
+async function saveGallery(){
+  const name=document.getElementById('a-name').value.trim();
+  const rawPf=document.getElementById('a-photos').value.trim();
+  const pf=extractDriveFolderId(rawPf);
+  const category=document.getElementById('a-category').value;
+  if(!name){document.getElementById('a-name').focus();return;}
+  if(!pf){document.getElementById('a-photos').focus();return;}
+  const team=[];
+  document.querySelectorAll('#a-team-checks input:checked').forEach(cb=>team.push(cb.dataset.member));
+  const btn=document.getElementById('admin-save-btn');
+  btn.disabled=true;btn.textContent='SAVING...';
+  try{
+    const r=await fetch('/api/team-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({addGallery:{name,pf,category,created:new Date().toISOString().slice(0,10),team}})});
+    if(r.ok)teamConfig=await r.json();
+  }catch(e){}
+  btn.disabled=false;btn.textContent='SAVE GALLERY →';
+  // Show client link
+  const url=location.origin+'/?client='+encodeURIComponent(name)+'&pf='+encodeURIComponent(pf);
+  document.getElementById('url-text').textContent=url;
+  document.getElementById('url-box').classList.add('show');
+  // Clear form
+  document.getElementById('a-name').value='';
+  document.getElementById('a-photos').value='';
+  document.querySelectorAll('#a-team-checks input').forEach(cb=>cb.checked=false);
+}
+async function deleteGallery(name,btnEl){
+  if(!confirm('Delete gallery "'+name+'"?'))return;
+  if(btnEl)btnEl.textContent='...';
+  try{
+    const r=await fetch('/api/team-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deleteGallery:name})});
+    if(r.ok)teamConfig=await r.json();
+  }catch(e){}
+  renderGalleryList();
 }
 async function toggleTeamAssign(el){
   const memberId=el.dataset.member;

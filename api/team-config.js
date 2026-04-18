@@ -20,13 +20,25 @@ async function readConfig(r2, bucket) {
   try {
     const res = await r2.send(new GetObjectCommand({ Bucket: bucket, Key: CONFIG_KEY }));
     const body = await res.Body.transformToString();
-    return JSON.parse(body);
+    const config = JSON.parse(body);
+    if (!config.galleries) config.galleries = [];
+    if (!config.assignments) config.assignments = {};
+    return config;
   } catch (e) {
     if (e.name === 'NoSuchKey' || e.$metadata?.httpStatusCode === 404) {
-      return { members: [], assignments: {} };
+      return { members: [], assignments: {}, galleries: [] };
     }
     throw e;
   }
+}
+
+async function writeConfig(r2, bucket, config) {
+  await r2.send(new PutObjectCommand({
+    Bucket: bucket,
+    Key: CONFIG_KEY,
+    Body: JSON.stringify(config),
+    ContentType: 'application/json',
+  }));
 }
 
 export default async function handler(req, res) {
@@ -44,16 +56,29 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const { members, assignments } = req.body || {};
+      const { members, assignments, galleries, addGallery, deleteGallery } = req.body || {};
       const config = await readConfig(r2, bucket);
+
       if (members) config.members = members;
-      if (assignments) config.assignments = assignments;
-      await r2.send(new PutObjectCommand({
-        Bucket: bucket,
-        Key: CONFIG_KEY,
-        Body: JSON.stringify(config),
-        ContentType: 'application/json',
-      }));
+      if (assignments) config.assignments = { ...config.assignments, ...assignments };
+      if (galleries) config.galleries = galleries;
+
+      // Add a single gallery
+      if (addGallery) {
+        config.galleries = config.galleries.filter(g => g.name !== addGallery.name);
+        config.galleries.push(addGallery);
+        if (addGallery.team) {
+          config.assignments[addGallery.name] = addGallery.team;
+        }
+      }
+
+      // Delete a gallery
+      if (deleteGallery) {
+        config.galleries = config.galleries.filter(g => g.name !== deleteGallery);
+        delete config.assignments[deleteGallery];
+      }
+
+      await writeConfig(r2, bucket, config);
       return res.status(200).json(config);
     }
 
