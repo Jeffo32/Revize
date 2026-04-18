@@ -1027,8 +1027,6 @@ async function renderGalleryList(){
   container.innerHTML=html;
 }
 function openPortfolio(name,pf){
-  console.log('openPortfolio called:',name,pf);
-  if(!pf){alert('Error: no folder ID');return;}
   viewOnly=true;
   window._activePF=pf;
   window._activeClientName=name;
@@ -1292,8 +1290,9 @@ function renderGrid(items,type){
       (viewOnly?'':'<div class="ck"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>')+
       (isPurchased?'<div class="purchased-tag">PURCHASED</div>':'')+
       (type==='videos'?'<div class="pb">&#9658; VIDEO</div>':'');
-    el.querySelector('.ck').addEventListener('touchstart',e=>{e.stopPropagation();startDragSel(e,item,type);},{passive:false});
-    el.querySelector('.ck').onclick=e=>{e.stopPropagation();toggle(item.id,type);};
+    const ck=el.querySelector('.ck');
+    if(ck){ck.addEventListener('touchstart',e=>{e.stopPropagation();startDragSel(e,item,type);},{passive:false});
+    ck.onclick=e=>{e.stopPropagation();toggle(item.id,type);};}
     el.addEventListener('touchmove',e=>{
       if(!dragSelecting)return;
       const t=document.elementFromPoint(e.touches[0].clientX,e.touches[0].clientY);
