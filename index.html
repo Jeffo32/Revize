@@ -1030,12 +1030,21 @@ function openPortfolio(name,pf){
   viewOnly=true;
   window._activePF=pf;
   window._activeClientName=name;
+  // Hide all screens first
+  document.querySelectorAll('.screen').forEach(s=>{ s.classList.add('hidden');s.style.opacity='0'; });
+  const gallery=document.getElementById('s-gallery');
+  gallery.classList.remove('hidden');
+  gallery.style.opacity='1';
+  gallery.style.transform='none';
+  currentScreen='s-gallery';
   document.getElementById('g-title').textContent=name.toUpperCase();
   document.getElementById('select-btn').style.display='none';
   document.querySelector('.pill').style.display='none';
   document.getElementById('tb-faves').style.display='none';
   document.getElementById('tutorial-steps').style.display='none';
   document.getElementById('cta-bar').style.display='none';
+  // Ensure photos tab is active
+  switchTab('photos');
   // Add back button
   let backBtn=document.getElementById('team-back');
   if(!backBtn){
@@ -1048,7 +1057,6 @@ function openPortfolio(name,pf){
   }
   backBtn.style.display='block';
   backBtn.onclick=()=>{viewOnly=false;showScreen('s-admin');renderGalleryList();document.getElementById('select-btn').style.display='';document.querySelector('.pill').style.display='';document.getElementById('cta-bar').style.display='';};
-  showScreen('s-gallery');
   const pg=document.getElementById('g-photos');
   const vg=document.getElementById('g-videos');
   pg.innerHTML=Array(18).fill('<div class="skel"></div>').join('');
