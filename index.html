@@ -424,6 +424,7 @@ button:active{transform:translateY(1px)}
           <option value="mosaic">MOSAIC</option>
           <option value="wolfe">WOLFE PRODUCTIONS</option>
           <option value="client" selected>CLIENT WORK</option>
+          <option value="portfolio">PORTFOLIO</option>
         </select>
       </div>
       <div class="field">
@@ -984,8 +985,8 @@ function enterTeamGallery(clientName,pf){
   loadDrive(pf);
 }
 // —— GALLERY LIST & MANAGEMENT ————————————————————
-const CAT_ORDER=['belvu','mosaic','wolfe','client'];
-const CAT_NAMES={belvu:'BELVU',mosaic:'MOSAIC',wolfe:'WOLFE PRODUCTIONS',client:'CLIENT WORK'};
+const CAT_ORDER=['belvu','mosaic','wolfe','client','portfolio'];
+const CAT_NAMES={belvu:'BELVU',mosaic:'MOSAIC',wolfe:'WOLFE PRODUCTIONS',client:'CLIENT WORK',portfolio:'PORTFOLIO'};
 async function renderGalleryList(){
   await loadTeamConfig();
   const container=document.getElementById('gallery-list');
@@ -1013,12 +1014,52 @@ async function renderGalleryList(){
       if(teamTags)html+='<div style="font-size:8px;color:var(--muted);letter-spacing:.06em;margin-top:2px">'+teamTags+'</div>';
       html+='</div>';
       html+='<div style="display:flex;gap:6px;flex-shrink:0">';
-      html+='<button onclick="loadExistingClient(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">OPEN</button>';
+      if(g.category==='portfolio'){
+        html+='<button onclick="openPortfolio(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">VIEW</button>';
+        html+='<button onclick="copyPortfolioLink(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">LINK</button>';
+      } else {
+        html+='<button onclick="loadExistingClient(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">OPEN</button>';
+      }
       html+='<button onclick="deleteGallery(\''+g.name.replace(/'/g,"\\'")+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">✕</button>';
       html+='</div></div>';
     });
   });
   container.innerHTML=html;
+}
+function openPortfolio(name,pf){
+  viewOnly=true;
+  window._activePF=pf;
+  window._activeClientName=name;
+  document.getElementById('g-title').textContent=name.toUpperCase();
+  document.getElementById('select-btn').style.display='none';
+  document.querySelector('.pill').style.display='none';
+  document.getElementById('tb-faves').style.display='none';
+  document.getElementById('tutorial-steps').style.display='none';
+  document.getElementById('cta-bar').style.display='none';
+  // Add back button
+  let backBtn=document.getElementById('team-back');
+  if(!backBtn){
+    const topbar=document.querySelector('.topbar .tb-l');
+    backBtn=document.createElement('button');
+    backBtn.id='team-back';
+    backBtn.textContent='←';
+    backBtn.style.cssText='background:none;border:1px solid var(--border2);color:var(--muted);font-size:16px;padding:4px 10px;cursor:pointer;border-radius:4px;margin-right:8px';
+    topbar.insertBefore(backBtn,topbar.firstChild);
+  }
+  backBtn.style.display='block';
+  backBtn.onclick=()=>{viewOnly=false;showScreen('s-admin');renderGalleryList();document.getElementById('select-btn').style.display='';document.querySelector('.pill').style.display='';document.getElementById('cta-bar').style.display='';};
+  showScreen('s-gallery');
+  const pg=document.getElementById('g-photos');
+  const vg=document.getElementById('g-videos');
+  pg.innerHTML=Array(18).fill('<div class="skel"></div>').join('');
+  vg.innerHTML=Array(6).fill('<div class="skel" style="aspect-ratio:9/16"></div>').join('');
+  loadDrive(pf);
+}
+function copyPortfolioLink(name,pf,btn){
+  const url=location.origin+'/?client='+encodeURIComponent(name)+'&pf='+encodeURIComponent(pf)+'&view=true';
+  navigator.clipboard.writeText(url);
+  btn.textContent='✓';
+  setTimeout(()=>{btn.textContent='LINK';},1500);
 }
 async function saveGallery(){
   const name=document.getElementById('a-name').value.trim();
