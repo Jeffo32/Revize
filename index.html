@@ -1034,7 +1034,8 @@ async function renderGalleryList(){
     if(!groups[cat]||!groups[cat].length)return;
     html+='<div style="font-size:8px;letter-spacing:.22em;color:var(--ice);text-transform:uppercase;margin:4px 0 2px">'+CAT_NAMES[cat]+'</div>';
     groups[cat].forEach(g=>{
-      const assigned=(teamConfig.assignments||{})[g.name]||[];
+      const rawAssigned=(teamConfig.assignments||{})[g.name];
+      const assigned=Array.isArray(rawAssigned)?rawAssigned:[];
       const teamTags=assigned.map(id=>{const m=Object.values(TEAM_PINS).find(x=>x.id===id);return m?m.name.split(' ')[0]:id;}).join(', ');
       html+='<div style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:8px">';
       html+='<div style="flex:1;min-width:0"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:17px;letter-spacing:.06em">'+g.name.toUpperCase()+'</div>';
