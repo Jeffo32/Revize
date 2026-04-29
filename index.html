@@ -891,8 +891,26 @@ function previewClient(){
 
 // —— TEAM GALLERIES ——————————————————————————————
 let teamConfig={members:[],assignments:{}};
+function normalizeGallery(g){
+  if(!g||typeof g!=='object'||!g.name)return null;
+  const team=typeof g.team==='string'?[g.team]:(Array.isArray(g.team)?g.team:[]);
+  return{
+    name:g.name,
+    pf:g.pf||g.folder||'',
+    category:((g.category||'other')+'').toLowerCase(),
+    created:g.created||'',
+    team
+  };
+}
 async function loadTeamConfig(){
-  try{const r=await fetch('/api/team-config');if(r.ok)teamConfig=await r.json();}catch(e){}
+  try{
+    const r=await fetch('/api/team-config');
+    if(r.ok){
+      const cfg=await r.json();
+      cfg.galleries=(cfg.galleries||[]).map(normalizeGallery).filter(Boolean);
+      teamConfig=cfg;
+    }
+  }catch(e){}
 }
 async function saveTeamConfig(){
   try{await fetch('/api/team-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(teamConfig)});}catch(e){}
@@ -940,8 +958,12 @@ async function loadTeamGalleries(){
 }
 function getClientMap(){
   const map={};
-  (teamConfig.galleries||[]).forEach(g=>{
-    map[g.name]={pf:g.pf,vf:'',category:g.category};
+  (teamConfig.galleries||[]).forEach(raw=>{
+    try{
+      const g=normalizeGallery(raw);
+      if(!g)return;
+      map[g.name]={pf:g.pf,vf:'',category:g.category};
+    }catch(e){}
   });
   return map;
 }
@@ -998,10 +1020,14 @@ async function renderGalleryList(){
   }
   // Group by category
   const groups={};
-  galleries.forEach(g=>{
-    const cat=g.category||'client';
-    if(!groups[cat])groups[cat]=[];
-    groups[cat].push(g);
+  galleries.forEach(raw=>{
+    try{
+      const g=normalizeGallery(raw);
+      if(!g)return;
+      const cat=g.category||'client';
+      if(!groups[cat])groups[cat]=[];
+      groups[cat].push(g);
+    }catch(e){}
   });
   let html='';
   CAT_ORDER.forEach(cat=>{

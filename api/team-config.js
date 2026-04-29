@@ -16,6 +16,40 @@ function getR2() {
 
 const CONFIG_KEY = '_config/team.json';
 
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+// Migrate a legacy gallery record to the canonical schema.
+// Returns { record, changed } or null if the record can't be salvaged.
+function migrateGallery(g) {
+  if (!g || typeof g !== 'object' || !g.name) return null;
+  const pf = g.pf || g.folder || '';
+  const team = typeof g.team === 'string'
+    ? [g.team]
+    : (Array.isArray(g.team) ? g.team : []);
+  const category = ((g.category || 'other') + '').toLowerCase();
+  const created = g.created || '';
+  const changed =
+    !g.pf || 'folder' in g ||
+    typeof g.team === 'string' || !Array.isArray(g.team) ||
+    !g.category || g.category !== category ||
+    !('created' in g);
+  return { record: { name: g.name, pf, category, created, team }, changed };
+}
+
+function migrateGalleries(list) {
+  let changed = false;
+  const out = [];
+  for (const g of list || []) {
+    const r = migrateGallery(g);
+    if (!r) { changed = true; continue; }
+    if (r.changed) changed = true;
+    out.push(r.record);
+  }
+  return { galleries: out, changed };
+}
+
 async function readConfig(r2, bucket) {
   try {
     const res = await r2.send(new GetObjectCommand({ Bucket: bucket, Key: CONFIG_KEY }));
@@ -23,10 +57,12 @@ async function readConfig(r2, bucket) {
     const config = JSON.parse(body);
     if (!config.galleries) config.galleries = [];
     if (!config.assignments) config.assignments = {};
-    return config;
+    const { galleries, changed } = migrateGalleries(config.galleries);
+    config.galleries = galleries;
+    return { config, migrated: changed };
   } catch (e) {
     if (e.name === 'NoSuchKey' || e.$metadata?.httpStatusCode === 404) {
-      return { members: [], assignments: {}, galleries: [] };
+      return { config: { members: [], assignments: {}, galleries: [] }, migrated: false };
     }
     throw e;
   }
@@ -51,24 +87,50 @@ export default async function handler(req, res) {
     const { client: r2, bucket } = getR2();
 
     if (req.method === 'GET') {
-      const config = await readConfig(r2, bucket);
+      const { config, migrated } = await readConfig(r2, bucket);
+      // Self-heal the store on read: persist any normalized records so
+      // future reads don't need to re-migrate.
+      if (migrated) {
+        try { await writeConfig(r2, bucket, config); } catch (e) {}
+      }
       return res.status(200).json(config);
     }
 
     if (req.method === 'POST') {
       const { members, assignments, galleries, addGallery, deleteGallery } = req.body || {};
-      const config = await readConfig(r2, bucket);
+      const { config } = await readConfig(r2, bucket);
 
       if (members) config.members = members;
       if (assignments) config.assignments = { ...config.assignments, ...assignments };
-      if (galleries) config.galleries = galleries;
+      if (galleries) {
+        config.galleries = migrateGalleries(galleries).galleries;
+      }
 
-      // Add a single gallery
+      // Add a single gallery — validate + normalize incoming payload so
+      // external tooling can't recreate the legacy bad shape.
       if (addGallery) {
-        config.galleries = config.galleries.filter(g => g.name !== addGallery.name);
-        config.galleries.push(addGallery);
-        if (addGallery.team) {
-          config.assignments[addGallery.name] = addGallery.team;
+        if (!addGallery || typeof addGallery !== 'object') {
+          return res.status(400).json({ error: 'addGallery must be an object' });
+        }
+        const name = addGallery.name;
+        const pf = addGallery.pf || addGallery.folder;
+        if (!name || !pf) {
+          return res.status(400).json({ error: 'addGallery requires name and pf' });
+        }
+        const team = typeof addGallery.team === 'string'
+          ? [addGallery.team]
+          : (Array.isArray(addGallery.team) ? addGallery.team : []);
+        const normalized = {
+          name,
+          pf,
+          category: ((addGallery.category || 'other') + '').toLowerCase(),
+          created: addGallery.created || today(),
+          team,
+        };
+        config.galleries = config.galleries.filter(g => g.name !== normalized.name);
+        config.galleries.push(normalized);
+        if (team.length) {
+          config.assignments[normalized.name] = team;
         }
       }
 
