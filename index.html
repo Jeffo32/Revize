@@ -95,9 +95,27 @@ button:active{transform:translateY(1px)}
 
 /* —— GALLERY ——————————————————————————————————— */
 #s-gallery{padding:0;justify-content:flex-start;align-items:stretch}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(23,22,24,.96);border-bottom:1px solid var(--border);flex-shrink:0}
-.tb-l .ey{font-family:var(--font-mono);font-size:9px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase}
-.tb-l .ti{font-family:var(--font-display);font-weight:600;font-size:20px;letter-spacing:-0.02em;line-height:1.1;color:var(--bone)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(23,22,24,.96);border-bottom:1px solid var(--border);flex-shrink:0;gap:12px}
+.tb-l{display:flex;flex-direction:column;justify-content:center;line-height:1}
+.tb-l .ey{font-family:var(--font-display);font-weight:700;font-size:30px;letter-spacing:-0.03em;color:var(--bone);text-transform:uppercase;line-height:.9}
+.tb-l .ti{font-family:var(--font-display);font-weight:500;font-size:13px;letter-spacing:.04em;line-height:1.1;color:var(--muted);text-transform:uppercase;margin-top:4px}
+.side-toggle{background:transparent;border:1px solid var(--border2);color:var(--bone);width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:0;flex-shrink:0;transition:border-color .15s,color .15s}
+.side-toggle:hover{border-color:var(--ochre);color:var(--ochre)}
+.side-toggle svg{width:18px;height:18px}
+#side-drawer{position:fixed;top:0;left:0;height:100%;width:280px;max-width:80vw;background:var(--surface);border-right:1px solid var(--border);z-index:200;transform:translateX(-100%);transition:transform .25s ease;overflow-y:auto;display:flex;flex-direction:column}
+#side-drawer.open{transform:translateX(0)}
+#side-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;opacity:0;pointer-events:none;transition:opacity .25s}
+#side-backdrop.open{opacity:1;pointer-events:auto}
+.sd-head{padding:18px 18px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sd-head .sd-t{font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:-0.03em;color:var(--bone)}
+.sd-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:0;line-height:1}
+.sd-close:hover{color:var(--ochre)}
+.sd-body{padding:14px 14px 24px;flex:1}
+.sd-cat{font-family:var(--font-mono);font-size:9px;letter-spacing:.25em;color:var(--muted);text-transform:uppercase;margin:14px 4px 6px}
+.sd-cat:first-child{margin-top:0}
+.sd-item{display:block;width:100%;text-align:left;padding:10px 12px;background:transparent;border:1px solid var(--border);color:var(--bone);font-family:var(--font-display);font-weight:500;font-size:13px;letter-spacing:-0.01em;cursor:pointer;margin-bottom:4px;border-radius:0;transition:border-color .15s,color .15s,background .15s}
+.sd-item:hover{border-color:var(--ochre);color:var(--ochre)}
+.sd-item.active{border-color:var(--ice);color:var(--ice)}
 .pill{display:flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--border2);padding:6px 12px;border-radius:0}
 .pill .pn{font-family:var(--font-display);font-weight:600;font-size:16px;color:var(--bone);line-height:1;letter-spacing:-0.02em}
 .pill .pl{font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
@@ -411,11 +429,17 @@ button:active{transform:translateY(1px)}
 <!-- —— GALLERY ————————————————————————————————— -->
 <div class="screen hidden" id="s-gallery">
   <div class="topbar">
-    <div class="tb-l"><div class="ey">Revize</div><div class="ti" id="g-title">YOUR GALLERY</div></div>
-    <div style="display:flex;align-items:center;gap:8px">
+    <button class="side-toggle" id="side-toggle-btn" onclick="toggleSideDrawer()" style="display:none" aria-label="Galleries"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button>
+    <div class="tb-l"><div class="ey">REVIZE</div><div class="ti" id="g-title">YOUR GALLERY</div></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
       <button id="select-btn" onclick="toggleSelectMode()">SELECT</button>
       <div class="pill"><div class="pn" id="fav-n">0</div><div class="pl">selected</div></div>
     </div>
+  </div>
+  <div id="side-backdrop" onclick="toggleSideDrawer()"></div>
+  <div id="side-drawer">
+    <div class="sd-head"><div class="sd-t">GALLERIES</div><button class="sd-close" onclick="toggleSideDrawer()">×</button></div>
+    <div class="sd-body" id="sd-body"></div>
   </div>
   <div class="tabs">
     <button class="tab on" id="tb-photos" onclick="switchTab('photos')">Photos <span class="tn" id="tn-p">0</span></button>
@@ -949,6 +973,9 @@ function enterTeamGallery(clientName,pf){
     document.getElementById('s-gallery').appendChild(dlAllBtn);
   }
   dlAllBtn.style.display='block';
+  document.getElementById('side-toggle-btn').style.display='flex';
+  renderSideDrawer();
+  closeSideDrawer();
   showScreen('s-gallery');
   const pg=document.getElementById('g-photos');
   const vg=document.getElementById('g-videos');
@@ -956,6 +983,51 @@ function enterTeamGallery(clientName,pf){
   vg.innerHTML=[.56,.75,.56,1.3,.56,.75].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
   selP.clear();selV.clear();
   loadDrive(pf);
+}
+// —— SIDE DRAWER ————————————————————————————
+function toggleSideDrawer(){
+  const d=document.getElementById('side-drawer');
+  const b=document.getElementById('side-backdrop');
+  const open=!d.classList.contains('open');
+  d.classList.toggle('open',open);
+  b.classList.toggle('open',open);
+  if(open)renderSideDrawer();
+}
+function closeSideDrawer(){
+  document.getElementById('side-drawer').classList.remove('open');
+  document.getElementById('side-backdrop').classList.remove('open');
+}
+function renderSideDrawer(){
+  const body=document.getElementById('sd-body');
+  if(!body)return;
+  const galleries=(teamConfig.galleries||[]).slice();
+  if(!galleries.length){body.innerHTML='<div style="color:var(--muted);font-size:11px;padding:8px 4px">No galleries</div>';return;}
+  // Filter by team assignments when in team mode (not admin)
+  let visible=galleries;
+  if(teamMode&&!adminGalleryMode){
+    if(typeof teamMemberId!=='undefined'&&teamMemberId){
+      const assigns=teamConfig.assignments||{};
+      visible=galleries.filter(g=>(assigns[g.name]||[]).includes(teamMemberId));
+    }
+  }
+  const groups={};
+  visible.forEach(g=>{const c=(g.category||'other').toLowerCase();(groups[c]=groups[c]||[]).push(g);});
+  const order=['belvu','mosaic','wolfe','client','portfolio','other'];
+  const names={belvu:'BELVU',mosaic:'MOSAIC',wolfe:'WOLFE PRODUCTIONS',client:'CLIENT WORK',portfolio:'PORTFOLIO',other:'OTHER'};
+  let html='';
+  const activeName=window._activeClientName||'';
+  order.forEach(cat=>{
+    const list=groups[cat];if(!list||!list.length)return;
+    html+='<div class="sd-cat">'+names[cat]+'</div>';
+    list.sort((a,b)=>a.name.localeCompare(b.name)).forEach(g=>{
+      const isActive=g.name===activeName?' active':'';
+      const isPortfolio=g.category==='portfolio';
+      const fn=isPortfolio?'openPortfolio':'loadExistingClient';
+      const args=isPortfolio?"'"+g.name.replace(/'/g,"\\'")+"','"+g.pf+"'":"'"+g.name.replace(/'/g,"\\'")+"','"+g.pf+"',''";
+      html+='<button class="sd-item'+isActive+'" onclick="closeSideDrawer();'+fn+'('+args+')">'+g.name+'</button>';
+    });
+  });
+  body.innerHTML=html||'<div style="color:var(--muted);font-size:11px;padding:8px 4px">No galleries assigned</div>';
 }
 // —— GALLERY LIST & MANAGEMENT ————————————————————
 const CAT_ORDER=['belvu','mosaic','wolfe','client','portfolio'];
