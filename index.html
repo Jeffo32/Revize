@@ -49,7 +49,7 @@ button:active{transform:translateY(1px)}
 .lbl{display:block;font-family:var(--font-mono);font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 .inp{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--white);font-family:var(--font-body);font-size:16px;padding:12px 14px;outline:none;transition:border-color .2s;border-radius:0}
 .inp:focus{border-color:var(--bone)}
-.btn-p{width:100%;background:var(--bone);color:var(--base);border:none;font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:.04em;padding:16px;cursor:pointer;margin-top:8px;transition:opacity .15s,transform .1s;border-radius:0;text-transform:uppercase}
+.btn-p{width:100%;background:var(--ice);color:#fff;border:none;font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:.04em;padding:16px;cursor:pointer;margin-top:8px;transition:opacity .15s,transform .1s;border-radius:0;text-transform:uppercase}
 .btn-p:hover{opacity:.92}
 .btn-p:active{transform:translateY(1px);opacity:.88}
 .btn-g{width:100%;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:var(--font-mono);font-size:10px;letter-spacing:.25em;padding:14px;cursor:pointer;margin-top:8px;transition:border-color .2s,color .2s;border-radius:0;text-transform:uppercase}
@@ -70,7 +70,7 @@ button:active{transform:translateY(1px)}
 .revize-tag{font-family:var(--font-mono);font-size:10px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase;text-align:center;margin-bottom:18px}
 .auth-btns{width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px}
 .btn-auth{width:100%;padding:18px;border:none;font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:.04em;cursor:pointer;transition:opacity .15s,transform .1s;border-radius:0;text-transform:uppercase}
-.btn-auth.primary{background:var(--bone);color:var(--base)}
+.btn-auth.primary{background:var(--ice);color:#fff}
 .btn-auth.secondary{background:transparent;border:1px solid var(--border2);color:var(--white)}
 .btn-auth:hover{opacity:.92}
 .btn-auth:active{transform:translateY(1px)}
@@ -113,10 +113,10 @@ button:active{transform:translateY(1px)}
 .sec::after{content:'';flex:1;height:1px;background:var(--border2)}
 .pgrid{columns:3;column-gap:3px}
 .vgrid{columns:2;column-gap:5px}
-#select-btn{background:var(--bone);color:var(--base);border:none;font-family:var(--font-display);font-weight:600;font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:10px 18px;cursor:pointer;transition:opacity .15s;border-radius:0}
+#select-btn{background:var(--ice);color:#fff;border:none;font-family:var(--font-display);font-weight:600;font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:10px 18px;cursor:pointer;transition:opacity .15s;border-radius:0}
 #select-btn:hover{opacity:.92}
 #select-btn:active{transform:translateY(1px)}
-#select-btn.done-mode{background:transparent;color:var(--bone);border:1px solid var(--bone)}
+#select-btn.done-mode{background:transparent;color:var(--ice);border:1px solid var(--ice)}
 .mi{position:relative;cursor:pointer;overflow:hidden;background:var(--surface2);-webkit-touch-callout:none;user-select:none;border-radius:4px;break-inside:avoid;margin-bottom:3px}
 .vgrid .mi{margin-bottom:5px}
 .mi img{width:100%;height:auto;display:block;transition:transform .2s ease}
@@ -146,7 +146,7 @@ button:active{transform:translateY(1px)}
 .cta-info .cc{font-family:var(--font-display);font-weight:500;font-size:16px;letter-spacing:-0.01em;color:var(--bone);margin-top:3px}
 .cta-info .cc span{color:var(--bone);font-weight:600}
 .cta-info{flex:1}
-.cta-btn{background:var(--bone);color:var(--base);border:none;font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:14px 22px;cursor:pointer;flex-shrink:0;border-radius:0;transition:opacity .15s,transform .1s}
+.cta-btn{background:var(--ice);color:#fff;border:none;font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:14px 22px;cursor:pointer;flex-shrink:0;border-radius:0;transition:opacity .15s,transform .1s}
 .cta-btn:hover{opacity:.92}
 .cta-btn:active{transform:translateY(1px)}
 
@@ -172,10 +172,10 @@ button:active{transform:translateY(1px)}
 .lb-nav:active{transform:translateY(-50%) scale(.95)}
 .lb-pv{left:0}.lb-nx{right:0}
 .lb-bot{position:absolute;bottom:0;left:0;right:0;padding:20px;display:flex;align-items:center;justify-content:center;background:linear-gradient(to top,rgba(23,22,24,.9),transparent);z-index:20}
-.lb-sb{background:var(--bone);color:var(--base);border:1px solid var(--bone);font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:14px 28px;cursor:pointer;transition:opacity .15s,transform .1s;border-radius:0}
+.lb-sb{background:var(--ice);color:#fff;border:1px solid var(--ice);font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:14px 28px;cursor:pointer;transition:opacity .15s,transform .1s;border-radius:0}
 .lb-sb:hover{opacity:.92}
 .lb-sb:active{transform:translateY(1px)}
-.lb-sb.on{background:transparent;color:var(--bone);border-color:var(--bone)}
+.lb-sb.on{background:transparent;color:var(--ice);border-color:var(--ice)}
 .lb-sb.pop{animation:bubblePop .45s cubic-bezier(.2,.8,.3,1.4) forwards}
 @keyframes bubblePop{
   0%{transform:scale(1)}
@@ -330,8 +330,8 @@ button:active{transform:translateY(1px)}
 
 <!-- —— ADMIN ——————————————————————————————————— -->
 <div class="screen hidden" id="s-admin">
-  <div class="eyebrow float float-d1">Revize</div>
-  <div class="big-title float float-d2">GALLERY<br><span>MANAGER</span></div>
+  <div class="eyebrow float float-d1">Admin</div>
+  <div class="big-title float float-d2">RE<span>VIZE</span></div>
   <div class="sub float float-d3">Add, assign & manage galleries</div>
   <div class="card float float-d4">
     <div class="tag">Admin</div>
