@@ -88,8 +88,9 @@ button:active{transform:translateY(1px)}
 .pin-dot{width:10px;height:10px;border-radius:50%;border:1px solid var(--border2);transition:background .15s,border-color .15s}
 .pin-dot.filled{background:var(--bone);border-color:var(--bone)}
 .pin-numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:280px;margin:0 auto}
-.pin-key{padding:18px;background:var(--surface);border:1px solid var(--border);color:var(--bone);font-family:var(--font-display);font-weight:500;font-size:22px;letter-spacing:-0.02em;cursor:pointer;text-align:center;transition:transform .08s,background .08s,border-color .08s;user-select:none;border-radius:0}
-.pin-key:active{background:var(--surface2);border-color:var(--bone);transform:translateY(1px)}
+.pin-key{padding:18px;background:var(--surface);border:1px solid var(--border);color:var(--bone);font-family:var(--font-display);font-weight:500;font-size:22px;letter-spacing:-0.02em;cursor:pointer;text-align:center;transition:transform .18s cubic-bezier(.34,1.56,.64,1),background .15s,border-color .15s,color .15s;user-select:none;border-radius:0}
+.pin-key:hover{background:var(--ochre);border-color:var(--ochre);color:#fff}
+.pin-key:active,.pin-key.pressed{background:var(--ochre);border-color:var(--ochre);color:#fff;transform:scale(.88)}
 .pin-key.del{font-size:18px;color:var(--muted)}
 
 /* —— GALLERY ——————————————————————————————————— */
@@ -174,6 +175,13 @@ button:active{transform:translateY(1px)}
 .lb-bot{position:absolute;bottom:0;left:0;right:0;padding:20px;display:flex;align-items:center;justify-content:center;background:linear-gradient(to top,rgba(23,22,24,.9),transparent);z-index:20}
 .lb-sb{background:var(--ice);color:#fff;border:1px solid var(--ice);font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:14px 28px;cursor:pointer;transition:opacity .15s,transform .1s;border-radius:0}
 .lb-sb:hover{background:var(--ochre);color:#fff;border-color:var(--ochre)}
+.gal-act{border:none;font-family:'Inter Tight',system-ui,sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px;transition:background .15s,color .15s,border-color .15s}
+.gal-act.fill{background:var(--ice);color:#fff}
+.gal-act.fill:hover{background:var(--ochre);color:#fff}
+.gal-act.ghost{background:transparent;color:var(--ice);border:1px solid var(--ice)}
+.gal-act.ghost:hover{color:var(--ochre);border-color:var(--ochre)}
+.gal-act.danger{background:transparent;color:#ff4444;border:1px solid #ff4444}
+.gal-act.danger:hover{background:#ff4444;color:#fff}
 .lb-sb:active{transform:translateY(1px)}
 .lb-sb.on{background:transparent;color:var(--ice);border-color:var(--ice)}
 .lb-sb.pop{animation:bubblePop .45s cubic-bezier(.2,.8,.3,1.4) forwards}
@@ -718,10 +726,20 @@ function pinKey(k){
   if(pinVal.length===4){setTimeout(checkPin,120);}
 }
 function pinDel(){pinVal=pinVal.slice(0,-1);updatePinDots();document.getElementById('pin-error').style.display='none';}
+function flashPinKey(label){
+  const btns=document.querySelectorAll('#s-pin .pin-key');
+  for(const b of btns){
+    if(b.textContent.trim()===label){
+      b.classList.add('pressed');
+      setTimeout(()=>b.classList.remove('pressed'),140);
+      break;
+    }
+  }
+}
 document.addEventListener('keydown',e=>{
   if(document.getElementById('s-pin').classList.contains('hidden'))return;
-  if(e.key>='0'&&e.key<='9')pinKey(e.key);
-  else if(e.key==='Backspace')pinDel();
+  if(e.key>='0'&&e.key<='9'){flashPinKey(e.key);pinKey(e.key);}
+  else if(e.key==='Backspace'){flashPinKey('⌫');pinDel();}
 });
 function updatePinDots(){
   for(let i=0;i<4;i++)document.getElementById('pd-'+i).classList.toggle('filled',i<pinVal.length);
@@ -975,12 +993,12 @@ async function renderGalleryList(){
       html+='</div>';
       html+='<div style="display:flex;gap:6px;flex-shrink:0">';
       if(g.category==='portfolio'){
-        html+='<button onclick="openPortfolio(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Inter Tight\',system-ui,sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">VIEW</button>';
-        html+='<button onclick="copyPortfolioLink(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Inter Tight\',system-ui,sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">LINK</button>';
+        html+='<button class="gal-act fill" onclick="openPortfolio(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\')">VIEW</button>';
+        html+='<button class="gal-act ghost" onclick="copyPortfolioLink(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\',this)">LINK</button>';
       } else {
-        html+='<button onclick="loadExistingClient(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Inter Tight\',system-ui,sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">OPEN</button>';
+        html+='<button class="gal-act fill" onclick="loadExistingClient(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\',\'\')">OPEN</button>';
       }
-      html+='<button onclick="deleteGallery(\''+g.name.replace(/'/g,"\\'")+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Inter Tight\',system-ui,sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">✕</button>';
+      html+='<button class="gal-act danger" onclick="deleteGallery(\''+g.name.replace(/'/g,"\\'")+'\',this)">✕</button>';
       html+='</div></div>';
     });
   });
