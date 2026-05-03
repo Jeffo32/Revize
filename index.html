@@ -1349,8 +1349,12 @@ function enterGallery(){
 // —— DRIVE + R2 ————————————————————————————————————
 async function loadDrive(folderId){
   try{
-    const res=await fetch('/api/drive'+(folderId?'?folder='+encodeURIComponent(folderId):''));
-    if(!res.ok)throw new Error();
+    if(!folderId||folderId==='demo')throw new Error('No Drive folder set for this gallery');
+    const res=await fetch('/api/drive?folder='+encodeURIComponent(folderId));
+    if(!res.ok){
+      let detail='';try{const j=await res.json();detail=j.error||'';}catch(_){}
+      throw new Error('Drive API '+res.status+(detail?': '+detail:''));
+    }
     const data=await res.json();
     const files=data.files||[];
     allP=files.filter(f=>f.mimeType&&f.mimeType.startsWith('image/')).map(f=>{
@@ -1380,10 +1384,17 @@ async function loadDrive(folderId){
     document.getElementById('tn-p').textContent=allP.length;
     document.getElementById('tn-v').textContent=allV.length;
   }catch(e){
-    allP=DEMO_PHOTOS;allV=DEMO_VIDEOS;
+    console.error('[loadDrive] failed:',e);
+    allP=[];allV=[];
     renderGrid(allP,'photos');renderGrid(allV,'videos');
-    document.getElementById('tn-p').textContent=allP.length;
-    document.getElementById('tn-v').textContent=allV.length;
+    document.getElementById('tn-p').textContent=0;
+    document.getElementById('tn-v').textContent=0;
+    const msg=(e&&e.message)||'Unknown error';
+    const banner=document.createElement('div');
+    banner.style.cssText='position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:9999;background:#2a0a0a;border:1px solid #ff4444;color:#ff8888;font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:12px 18px;max-width:90vw;text-align:center';
+    banner.innerHTML='⚠ Could not load Drive folder<br><span style="color:#fff;text-transform:none;letter-spacing:.04em;font-size:11px">'+msg.replace(/</g,'&lt;')+'</span><br><span style="color:#aaa;text-transform:none;letter-spacing:0;font-size:10px">Check folder is shared "Anyone with the link" and folder ID is correct</span>';
+    document.body.appendChild(banner);
+    setTimeout(()=>banner.remove(),9000);
   }
 }
 
