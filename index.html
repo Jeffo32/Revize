@@ -1358,11 +1358,14 @@ async function loadDrive(folderId){
       const w=meta.width||4,h=meta.height||3;
       return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',full:'https://lh3.googleusercontent.com/d/'+f.id+'=w1600',type:'photo',ar:w/h};
     });
-    // Drive videos (fallback iframe)
+    // lh3.googleusercontent.com/d/ doesn't serve video thumbnails, only thumbnailLink does (fallback covers freshly-uploaded videos before Drive generates one).
     const driveVids=files.filter(f=>f.mimeType&&f.mimeType.startsWith('video/')).map(f=>{
       const meta=f.videoMediaMetadata||{};
       const w=meta.width||16,h=meta.height||9;
-      return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',type:'video',ar:w/h};
+      const thumb=f.thumbnailLink
+        ?f.thumbnailLink.replace(/=s\d+(-c)?$/,'=s400')
+        :'https://drive.google.com/thumbnail?id='+f.id+'&sz=w400';
+      return {id:f.id,name:f.name,thumb,type:'video',ar:w/h};
     });
     // R2 videos (native player) — load from /api/r2-list
     let r2Vids=[];
