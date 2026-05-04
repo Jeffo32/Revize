@@ -43,6 +43,21 @@ export default async function handler(req, res) {
 
   try {
     const allFiles = await fetchAllRecursive(folderId, apiKey);
+    const videos = allFiles.filter(f => f.mimeType && f.mimeType.startsWith('video/'));
+    if (videos.length) {
+      console.log('drive api videos', {
+        folderId,
+        count: videos.length,
+        withThumb: videos.filter(v => v.thumbnailLink).length,
+        sample: videos.slice(0, 5).map(v => ({
+          id: v.id,
+          name: v.name,
+          mimeType: v.mimeType,
+          hasThumb: !!v.thumbnailLink,
+          thumbHost: v.thumbnailLink ? new URL(v.thumbnailLink).host : null,
+        })),
+      });
+    }
     return res.status(200).json({ files: allFiles });
   } catch (e) {
     console.error('drive api error', { folderId, message: e.message, stack: e.stack });
