@@ -2,9 +2,12 @@ async function fetchFiles(folderId, apiKey) {
   let allFiles = [];
   let pageToken = '';
   do {
-    const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,imageMediaMetadata(width,height),videoMediaMetadata(width,height)),nextPageToken&pageSize=200&key=${apiKey}` + (pageToken ? `&pageToken=${pageToken}` : '');
+    const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,thumbnailLink,imageMediaMetadata(width,height),videoMediaMetadata(width,height)),nextPageToken&pageSize=200&supportsAllDrives=true&includeItemsFromAllDrives=true&key=${apiKey}` + (pageToken ? `&pageToken=${pageToken}` : '');
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`Drive API ${res.status}`);
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`Drive API ${res.status} for folder ${folderId}: ${body.slice(0, 500)}`);
+    }
     const data = await res.json();
     allFiles = allFiles.concat(data.files || []);
     pageToken = data.nextPageToken || '';
@@ -42,6 +45,7 @@ export default async function handler(req, res) {
     const allFiles = await fetchAllRecursive(folderId, apiKey);
     return res.status(200).json({ files: allFiles });
   } catch (e) {
+    console.error('drive api error', { folderId, message: e.message, stack: e.stack });
     return res.status(500).json({ error: e.message });
   }
 }
