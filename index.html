@@ -1459,7 +1459,7 @@ function renderGrid(items,type){
     const el=document.createElement('div');
     el.className='mi fi'+(isPurchased?' purchased':'');el.style.animationDelay=i*.04+'s';el.dataset.id=item.id;
     if(item.ar)el.style.aspectRatio=item.ar;
-    el.innerHTML='<img src="'+item.thumb+'" loading="lazy">'+((teamMode||adminGalleryMode)?'':'<div class="wm"></div>')+'<div class="ov"></div>'+
+    el.innerHTML='<img src="'+item.thumb+'" loading="lazy" onerror="this.style.display=\'none\'">'+((teamMode||adminGalleryMode)?'':'<div class="wm"></div>')+'<div class="ov"></div>'+
       (viewOnly?'':'<div class="ck"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>')+
       (isPurchased?'<div class="purchased-tag">PURCHASED</div>':'')+
       (type==='videos'?'<div class="pb">&#9658; VIDEO</div>':'');
