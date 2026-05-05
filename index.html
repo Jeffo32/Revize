@@ -116,65 +116,6 @@ button:active{transform:translateY(1px)}
 .sd-item{display:block;width:100%;text-align:left;padding:10px 12px;background:transparent;border:1px solid var(--border);color:var(--bone);font-family:var(--font-display);font-weight:500;font-size:13px;letter-spacing:-0.01em;cursor:pointer;margin-bottom:4px;border-radius:0;transition:border-color .15s,color .15s,background .15s}
 .sd-item:hover{border-color:var(--ochre);color:var(--ochre)}
 .sd-item.active{border-color:var(--ice);color:var(--ice)}
-/* —— HUB LAYOUT (admin) —— */
-#s-admin{display:flex;flex-direction:row;align-items:stretch;justify-content:flex-start;padding:0;min-height:100vh;width:100%}
-.hub-side{width:260px;flex-shrink:0;padding:36px 24px 24px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--base)}
-.hub-brand{margin-bottom:36px}
-.hub-mark{font-family:var(--font-display);font-weight:700;font-size:36px;letter-spacing:-0.04em;line-height:.95;color:var(--bone)}
-.hub-mark span{color:var(--bone);font-weight:600}
-.hub-tagline{font-family:var(--font-display);font-weight:500;font-size:13px;letter-spacing:.02em;color:var(--muted);margin-top:6px;text-transform:uppercase}
-.hub-section-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;padding:0 4px}
-.hub-domains{display:flex;flex-direction:column;gap:2px;flex:1}
-.hub-domain{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:transparent;border:none;color:var(--muted);font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:0;transition:background .15s,color .15s}
-.hub-domain:hover{color:var(--ochre)}
-.hub-domain.on{background:rgba(207,191,170,.06);color:var(--bone)}
-.hub-domain .dn{display:flex;align-items:center;gap:10px}
-.hub-domain .dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
-.hub-domain.on .dot{background:var(--ochre)}
-.hub-domain .ct{color:var(--muted);font-size:10px}
-.hub-side-foot{padding:16px 4px 0;border-top:1px solid var(--border);font-family:var(--font-mono);font-size:9px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;line-height:1.6}
-.hub-main{flex:1;padding:32px 36px 24px;display:flex;flex-direction:column;min-width:0;overflow-x:hidden}
-.hub-toolbar{display:flex;gap:8px;margin-bottom:24px;align-items:stretch;flex-wrap:wrap}
-.hub-search-wrap{position:relative;flex:1;min-width:220px}
-.hub-search-ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--muted);pointer-events:none}
-.hub-search{width:100%;background:var(--surface);border:1px solid var(--border);padding:11px 14px 11px 38px;color:var(--bone);font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;border-radius:0;outline:none;transition:border-color .15s}
-.hub-search:focus{border-color:var(--ochre)}
-.hub-add{background:var(--ochre);color:#fff;border:none;font-family:var(--font-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;padding:11px 22px;cursor:pointer;border-radius:0;transition:opacity .15s,transform .1s;font-weight:700}
-.hub-add:hover{opacity:.88}
-.hub-add:active{transform:translateY(1px)}
-.hub-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:28px;overflow-x:auto;scrollbar-width:none}
-.hub-tabs::-webkit-scrollbar{display:none}
-.hub-tab{padding:14px 18px 12px;background:transparent;border:none;color:var(--muted);font-family:var(--font-mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s}
-.hub-tab:hover{color:var(--ochre)}
-.hub-tab.on{color:var(--bone);border-bottom-color:var(--bone)}
-.hub-tab .tct{color:var(--muted);margin-left:6px;font-size:10px}
-.hub-tab.on .tct{color:var(--bone)}
-.hub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;align-content:start}
-.hub-card{padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:0;display:flex;flex-direction:column;gap:14px;transition:border-color .15s,transform .15s;position:relative;min-height:160px}
-.hub-card:hover{border-color:var(--border2)}
-.hub-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.hub-card .nm{font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:-0.02em;line-height:1.05;color:var(--bone)}
-.hub-card .badge{font-family:var(--font-mono);font-size:9px;letter-spacing:.22em;color:var(--ice);border:1px solid var(--ice);padding:4px 8px;text-transform:uppercase;flex-shrink:0}
-.hub-card .meta{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:9px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
-.hub-card .meta .dot{width:5px;height:5px;border-radius:50%;background:var(--ochre)}
-.hub-card .desc{font-family:var(--font-body);font-size:13px;line-height:1.5;color:var(--muted);flex:1}
-.hub-card-actions{display:flex;gap:6px;margin-top:auto;padding-top:6px}
-.hub-foot{margin-top:32px;padding:18px 0 0;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:9px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
-/* Add sheet overlay */
-#add-sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none}
-#add-sheet-bg.open{display:block}
-#add-sheet{position:fixed;top:0;right:0;height:100%;width:420px;max-width:92vw;background:var(--surface);border-left:1px solid var(--border);z-index:301;transform:translateX(100%);transition:transform .25s ease;overflow-y:auto;display:flex;flex-direction:column}
-#add-sheet.open{transform:translateX(0)}
-.as-head{padding:22px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.as-title{font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:-0.02em;color:var(--bone)}
-.as-body{padding:20px 24px 32px;flex:1}
-.as-body .field{margin-bottom:14px}
-@media (max-width:840px){
-  .hub-side{position:fixed;top:0;left:0;height:100%;z-index:50;transform:translateX(-100%);transition:transform .25s ease;width:240px}
-  .hub-side.open{transform:translateX(0)}
-  .hub-main{padding:64px 18px 24px}
-  #hub-side-toggle{display:flex !important}
-}
 .pill{display:flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--border2);padding:6px 12px;border-radius:0}
 .pill .pn{font-family:var(--font-display);font-weight:600;font-size:16px;color:var(--bone);line-height:1;letter-spacing:-0.02em}
 .pill .pl{font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
@@ -415,42 +356,24 @@ button:active{transform:translateY(1px)}
 
 <!-- —— ADMIN ——————————————————————————————————— -->
 <div class="screen hidden" id="s-admin">
-  <button id="hub-side-toggle" class="side-toggle" onclick="toggleHubSide()" aria-label="Menu" style="position:fixed;top:16px;left:16px;z-index:60;display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button>
-  <aside class="hub-side" id="hub-side">
-    <div class="hub-brand">
-      <div class="hub-mark">RE<span>VIZE</span></div>
-      <div class="hub-tagline">Gallery Hub</div>
+  <div class="eyebrow float float-d1">Admin</div>
+  <div class="big-title float float-d2">RE<span>VIZE</span></div>
+  <div class="sub float float-d3">Add, assign & manage galleries</div>
+  <div class="card float float-d4">
+    <div class="tag">Admin</div>
+    <!-- NEW / EXISTING toggle -->
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      <button id="btn-new" onclick="adminMode('new')" onmouseenter="adminHover('new')" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Inter Tight',system-ui,sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">+ NEW</button>
+      <button id="btn-existing" onclick="adminMode('existing')" onmouseenter="adminHover('existing')" style="flex:1;padding:11px;background:var(--acid);color:var(--base);border:none;font-family:'Inter Tight',system-ui,sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">GALLERIES</button>
     </div>
-    <div class="hub-section-label">Domains</div>
-    <div class="hub-domains" id="hub-domains"></div>
-    <div class="hub-side-foot">
-      <div id="hub-foot-count">0 galleries</div>
-      <div id="hub-foot-sync">synced just now</div>
-    </div>
-  </aside>
-  <main class="hub-main">
-    <div class="hub-toolbar">
-      <div class="hub-search-wrap">
-        <svg class="hub-search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="hub-search" class="hub-search" type="text" placeholder="search" oninput="renderGalleryList()">
+    <!-- Existing galleries list -->
+    <div id="existing-clients" style="display:block;margin-bottom:14px">
+      <div id="gallery-list" style="display:flex;flex-direction:column;gap:10px">
+        <div style="color:var(--muted);font-size:11px;text-align:center;padding:20px 0">Loading...</div>
       </div>
-      <button class="hub-add" onclick="openAddSheet()">+ ADD GALLERY</button>
     </div>
-    <div class="hub-tabs" id="hub-tabs"></div>
-    <div class="hub-grid" id="gallery-list"></div>
-    <div class="hub-foot">
-      <div>WOLFE CO · 2026</div>
-      <div>REVIZE · CLIENT GALLERY HUB</div>
-    </div>
-  </main>
-  <!-- Add sheet (overlay) -->
-  <div id="add-sheet-bg" onclick="closeAddSheet()"></div>
-  <div id="add-sheet">
-    <div class="as-head">
-      <div class="as-title">NEW GALLERY</div>
-      <button class="sd-close" onclick="closeAddSheet()">×</button>
-    </div>
-    <div class="as-body" id="new-client-form">
+    <!-- New gallery form -->
+    <div id="new-client-form" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.25,.46,.45,.94)">
       <div class="field"><label class="lbl">Gallery Name</label><input class="inp" id="a-name" type="text" placeholder="e.g. Tim, March Shoot"></div>
       <div class="field"><label class="lbl">Google Drive Folder Link</label><input class="inp" id="a-photos" type="text" placeholder="Paste Google Drive folder link"></div>
       <div class="field">
@@ -467,15 +390,13 @@ button:active{transform:translateY(1px)}
         <label class="lbl">Assign To</label>
         <div id="a-team-checks" style="display:flex;flex-direction:column;gap:6px"></div>
       </div>
-      <button class="btn-p" id="admin-save-btn" onclick="saveGallery()" style="width:100%">SAVE GALLERY →</button>
-      <div class="url-box" id="url-box">
-        <div class="url-label">Client link <button class="copy-btn" onclick="copyUrl()">COPY</button></div>
-        <div class="url-text" id="url-text"></div>
-      </div>
+    </div>
+    <button class="btn-p" id="admin-save-btn" onclick="saveGallery()">SAVE GALLERY →</button>
+    <div class="url-box" id="url-box">
+      <div class="url-label">Client link <button class="copy-btn" onclick="copyUrl()">COPY</button></div>
+      <div class="url-text" id="url-text"></div>
     </div>
   </div>
-  <button id="btn-new" onclick="adminMode('new')" style="display:none"></button>
-  <button id="btn-existing" onclick="adminMode('existing')" style="display:none"></button>
 </div>
 
 <!-- —— CLIENT SPLASH ———————————————————————————— -->
@@ -868,14 +789,27 @@ function signupWith(provider){
 // —— ADMIN ————————————————————————————————————
 function adminMode(mode){
   _adminMode=mode;
-  if(mode==='new'){
-    const sb=document.getElementById('admin-save-btn');if(sb)sb.textContent='SAVE GALLERY →';
-    const ub=document.getElementById('url-box');if(ub)ub.classList.remove('show');
+  const isNew=mode==='new';
+  const ncf=document.getElementById('new-client-form');
+  if(isNew){
+    ncf.style.maxHeight='800px';
+    document.getElementById('admin-save-btn').textContent='SAVE GALLERY →';
+    document.getElementById('url-box').classList.remove('show');
+    // Populate team checkboxes
     const tc=document.getElementById('a-team-checks');
-    if(tc)tc.innerHTML=Object.entries(TEAM_PINS).map(([pin,m])=>'<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;cursor:pointer"><input type="checkbox" data-member="'+m.id+'" style="accent-color:var(--ice);width:18px;height:18px;cursor:pointer"><div><div style="font-family:\'Inter Tight\',system-ui,sans-serif;font-size:15px;letter-spacing:.06em">'+m.name.toUpperCase()+'</div></div></label>').join('');
+    tc.innerHTML=Object.entries(TEAM_PINS).map(([pin,m])=>'<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;cursor:pointer"><input type="checkbox" data-member="'+m.id+'" style="accent-color:var(--ice);width:18px;height:18px;cursor:pointer"><div><div style="font-family:\'Inter Tight\',system-ui,sans-serif;font-size:15px;letter-spacing:.06em">'+m.name.toUpperCase()+'</div></div></label>').join('');
   } else {
+    ncf.style.maxHeight='0';
     renderGalleryList();
   }
+  document.getElementById('existing-clients').style.display=isNew?'none':'block';
+  document.getElementById('admin-save-btn').style.display=isNew?'block':'none';
+  document.getElementById('btn-new').style.background=isNew?'var(--acid)':'transparent';
+  document.getElementById('btn-new').style.color=isNew?'var(--base)':'var(--muted)';
+  document.getElementById('btn-new').style.border=isNew?'none':'1px solid var(--border2)';
+  document.getElementById('btn-existing').style.background=isNew?'transparent':'var(--acid)';
+  document.getElementById('btn-existing').style.color=isNew?'var(--muted)':'var(--base)';
+  document.getElementById('btn-existing').style.border=isNew?'1px solid var(--border2)':'none';
 }
 let _adminMode='existing';
 function adminHover(which){
@@ -1098,93 +1032,49 @@ function renderSideDrawer(){
 // —— GALLERY LIST & MANAGEMENT ————————————————————
 const CAT_ORDER=['belvu','mosaic','wolfe','client','portfolio'];
 const CAT_NAMES={belvu:'BELVU',mosaic:'MOSAIC',wolfe:'WOLFE PRODUCTIONS',client:'CLIENT WORK',portfolio:'PORTFOLIO'};
-let _hubDomain='all';
-let _hubTab='all';
-function setHubDomain(c){_hubDomain=c;renderGalleryList();}
-function setHubTab(t){_hubTab=t;renderGalleryList();}
-function openAddSheet(){
-  adminMode('new');
-  document.getElementById('add-sheet').classList.add('open');
-  document.getElementById('add-sheet-bg').classList.add('open');
-  setTimeout(()=>{const n=document.getElementById('a-name');if(n)n.focus();},250);
-}
-function closeAddSheet(){
-  document.getElementById('add-sheet').classList.remove('open');
-  document.getElementById('add-sheet-bg').classList.remove('open');
-}
-function toggleHubSide(){document.getElementById('hub-side').classList.toggle('open');}
 async function renderGalleryList(){
   await loadTeamConfig();
-  const grid=document.getElementById('gallery-list');
-  const sideEl=document.getElementById('hub-domains');
-  const tabsEl=document.getElementById('hub-tabs');
-  const all=(teamConfig.galleries||[]).map(g=>{try{return normalizeGallery(g);}catch(e){return null;}}).filter(Boolean);
-  // Counts per category
-  const catCounts={belvu:0,mosaic:0,wolfe:0,client:0,portfolio:0};
-  all.forEach(g=>{const c=(g.category||'client').toLowerCase();if(c in catCounts)catCounts[c]++;});
-  // Sidebar domains
-  if(sideEl){
-    const domains=[
-      {k:'all',label:'ALL',n:all.length},
-      {k:'belvu',label:'BELVU',n:catCounts.belvu},
-      {k:'mosaic',label:'MOSAIC',n:catCounts.mosaic},
-      {k:'wolfe',label:'WOLFE',n:catCounts.wolfe},
-      {k:'client',label:'CLIENT',n:catCounts.client},
-      {k:'portfolio',label:'PORTFOLIO',n:catCounts.portfolio},
-    ];
-    sideEl.innerHTML=domains.map(d=>'<button class="hub-domain'+(d.k===_hubDomain?' on':'')+'" onclick="setHubDomain(\''+d.k+'\')"><span class="dn"><span class="dot"></span>'+d.label+'</span><span class="ct">'+d.n+'</span></button>').join('');
+  const container=document.getElementById('gallery-list');
+  const galleries=teamConfig.galleries||[];
+  if(!galleries.length){
+    container.innerHTML='<div style="color:var(--muted);font-size:11px;text-align:center;padding:20px 0">No galleries yet. Click + NEW to add one.</div>';
+    return;
   }
-  // Filter by domain
-  let visible=_hubDomain==='all'?all:all.filter(g=>(g.category||'').toLowerCase()===_hubDomain);
-  // Search
-  const q=(document.getElementById('hub-search')?.value||'').trim().toLowerCase();
-  if(q)visible=visible.filter(g=>g.name.toLowerCase().includes(q));
-  // Tabs (all / portfolio / client / per-domain status); using categories as tabs in domain=all, otherwise just ALL + assigned
-  const totalAll=visible.length;
-  const tabAll={k:'all',label:'ALL',n:totalAll};
-  const portfolioCount=visible.filter(g=>(g.category||'')==='portfolio').length;
-  const assignedCount=visible.filter(g=>{const a=(teamConfig.assignments||{})[g.name];return Array.isArray(a)&&a.length;}).length;
-  const unassignedCount=visible.filter(g=>{const a=(teamConfig.assignments||{})[g.name];return !Array.isArray(a)||!a.length;}).length;
-  const tabs=[tabAll,{k:'assigned',label:'ASSIGNED',n:assignedCount},{k:'unassigned',label:'UNASSIGNED',n:unassignedCount},{k:'portfolio',label:'PORTFOLIO',n:portfolioCount}];
-  if(tabsEl){
-    tabsEl.innerHTML=tabs.map(t=>'<button class="hub-tab'+(t.k===_hubTab?' on':'')+'" onclick="setHubTab(\''+t.k+'\')">'+t.label+'<span class="tct">'+t.n+'</span></button>').join('');
-  }
-  // Apply tab filter
-  if(_hubTab==='assigned')visible=visible.filter(g=>{const a=(teamConfig.assignments||{})[g.name];return Array.isArray(a)&&a.length;});
-  else if(_hubTab==='unassigned')visible=visible.filter(g=>{const a=(teamConfig.assignments||{})[g.name];return !Array.isArray(a)||!a.length;});
-  else if(_hubTab==='portfolio')visible=visible.filter(g=>(g.category||'')==='portfolio');
-  // Foot count
-  const fc=document.getElementById('hub-foot-count');if(fc)fc.textContent=all.length+' galler'+(all.length===1?'y':'ies');
-  // Empty state
-  if(!all.length){grid.innerHTML='<div style="color:var(--muted);font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;padding:40px 0;text-transform:uppercase">No galleries yet. Click + ADD GALLERY to create one.</div>';return;}
-  if(!visible.length){grid.innerHTML='<div style="color:var(--muted);font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;padding:40px 0;text-transform:uppercase">Nothing matches that filter.</div>';return;}
-  // Sort by name
-  visible.sort((a,b)=>a.name.localeCompare(b.name));
-  // Cards
-  let html='';
-  visible.forEach(g=>{
-    const cat=(g.category||'client').toLowerCase();
-    const catLabel=CAT_NAMES[cat]||cat.toUpperCase();
-    const rawAssigned=(teamConfig.assignments||{})[g.name];
-    const assigned=Array.isArray(rawAssigned)?rawAssigned:[];
-    const teamTags=assigned.map(id=>{const m=Object.values(TEAM_PINS).find(x=>x.id===id);return m?m.name.split(' ')[0]:id;}).join(', ');
-    const safeName=g.name.replace(/'/g,"\\'");
-    const created=g.created||'';
-    html+='<div class="hub-card">';
-    html+='<div class="hub-card-top"><div class="nm">'+g.name+'</div><div class="badge">'+catLabel+'</div></div>';
-    html+='<div class="meta"><span class="dot"></span><span>'+(assigned.length?'ASSIGNED':'UNASSIGNED')+'</span>'+(created?'<span>·</span><span>'+created+'</span>':'')+'</div>';
-    html+='<div class="desc">'+(teamTags?'Team: '+teamTags:'No team assigned yet.')+'</div>';
-    html+='<div class="hub-card-actions">';
-    if(cat==='portfolio'){
-      html+='<button class="gal-act fill" onclick="openPortfolio(\''+safeName+'\',\''+g.pf+'\')">VIEW</button>';
-      html+='<button class="gal-act ghost" onclick="copyPortfolioLink(\''+safeName+'\',\''+g.pf+'\',this)">LINK</button>';
-    } else {
-      html+='<button class="gal-act fill" onclick="loadExistingClient(\''+safeName+'\',\''+g.pf+'\',\'\')">OPEN</button>';
-    }
-    html+='<button class="gal-act danger" onclick="deleteGallery(\''+safeName+'\',this)" style="margin-left:auto">✕</button>';
-    html+='</div></div>';
+  // Group by category
+  const groups={};
+  galleries.forEach(raw=>{
+    try{
+      const g=normalizeGallery(raw);
+      if(!g)return;
+      const cat=g.category||'client';
+      if(!groups[cat])groups[cat]=[];
+      groups[cat].push(g);
+    }catch(e){}
   });
-  grid.innerHTML=html;
+  let html='';
+  CAT_ORDER.forEach(cat=>{
+    if(!groups[cat]||!groups[cat].length)return;
+    html+='<div style="font-size:8px;letter-spacing:.22em;color:var(--ice);text-transform:uppercase;margin:4px 0 2px">'+CAT_NAMES[cat]+'</div>';
+    groups[cat].forEach(g=>{
+      const rawAssigned=(teamConfig.assignments||{})[g.name];
+      const assigned=Array.isArray(rawAssigned)?rawAssigned:[];
+      const teamTags=assigned.map(id=>{const m=Object.values(TEAM_PINS).find(x=>x.id===id);return m?m.name.split(' ')[0]:id;}).join(', ');
+      html+='<div style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:8px">';
+      html+='<div style="flex:1;min-width:0"><div style="font-family:\'Inter Tight\',system-ui,sans-serif;font-size:17px;letter-spacing:.06em">'+g.name.toUpperCase()+'</div>';
+      if(teamTags)html+='<div style="font-size:8px;color:var(--muted);letter-spacing:.06em;margin-top:2px">'+teamTags+'</div>';
+      html+='</div>';
+      html+='<div style="display:flex;gap:6px;flex-shrink:0">';
+      if(g.category==='portfolio'){
+        html+='<button class="gal-act fill" onclick="openPortfolio(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\')">VIEW</button>';
+        html+='<button class="gal-act ghost" onclick="copyPortfolioLink(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\',this)">LINK</button>';
+      } else {
+        html+='<button class="gal-act fill" onclick="loadExistingClient(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\',\'\')">OPEN</button>';
+      }
+      html+='<button class="gal-act danger" onclick="deleteGallery(\''+g.name.replace(/'/g,"\\'")+'\',this)">✕</button>';
+      html+='</div></div>';
+    });
+  });
+  container.innerHTML=html;
 }
 function openPortfolio(name,pf){
   viewOnly=true;
@@ -1248,7 +1138,6 @@ async function saveGallery(){
   setTimeout(()=>{btn.textContent='SAVE GALLERY →';},1500);
   // Switch to galleries view
   adminMode('existing');
-  closeAddSheet();
   // Clear form
   document.getElementById('a-name').value='';
   document.getElementById('a-photos').value='';
