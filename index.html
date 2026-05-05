@@ -1332,7 +1332,11 @@ async function loadDrive(folderId,r2Prefix){
       const r2Res=await fetch('/api/r2-list?client='+encodeURIComponent(r2Key));
       if(r2Res.ok){
         const r2Data=await r2Res.json();
-        r2Vids=(r2Data.videos||[]).map(v=>({id:v.key,name:v.name,thumb:v.url,url:v.url,type:'video'}));
+        r2Vids=(r2Data.videos||[]).map(v=>{
+          // Encode spaces and special chars in path while preserving slashes
+          const encUrl=v.url?v.url.split('/').map((p,i)=>i<3?p:encodeURIComponent(p)).join('/'):'';
+          return {id:v.key,name:v.name,thumb:encUrl,url:encUrl,type:'video',ar:9/16};
+        });
       }
     }catch(e){}
     // R2 first, then Drive
