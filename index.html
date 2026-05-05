@@ -90,14 +90,20 @@ button:active{transform:translateY(1px)}
 .pill .pn{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--acid);line-height:1}
 .pill .pl{font-size:9px;letter-spacing:.08em;color:var(--muted)}
 .tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface);padding:0 max(0px,calc((100vw - 1400px) / 2 + 24px))}
-.gside{display:none;flex-direction:column;width:220px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);padding:22px 12px 24px;overflow-y:auto;box-sizing:border-box;height:100vh}
-.gside .gs-brand{display:block;background:none;border:none;color:var(--acid);font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.14em;text-transform:uppercase;text-align:left;padding:0 6px 18px;margin:0 0 12px;border-bottom:1px solid var(--border);cursor:pointer;width:100%;text-shadow:0 0 12px rgba(57,255,20,.45);transition:opacity .15s}
+.gside{display:none;flex-direction:column;width:260px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);padding:24px 16px 18px;overflow-y:auto;box-sizing:border-box;height:100vh}
+.gside .gs-brand{display:block;background:none;border:none;color:var(--acid);font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:.14em;text-transform:uppercase;text-align:left;padding:0 8px 20px;margin:0 0 14px;border-bottom:1px solid var(--border);cursor:pointer;width:100%;text-shadow:0 0 14px rgba(57,255,20,.5);transition:opacity .15s}
 .gside .gs-brand:hover{opacity:.75}
-.gside .gs-cat{font-size:8px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin:14px 6px 4px}
+.gside .gs-cat{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.22em;color:var(--acid);text-transform:uppercase;margin:18px 8px 6px;text-shadow:0 0 8px rgba(57,255,20,.35)}
 .gside .gs-cat:first-child{margin-top:0}
-.gside .gs-item{display:block;width:100%;text-align:left;padding:8px 10px;background:transparent;border:none;color:#bbb;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.06em;cursor:pointer;border-radius:4px;transition:background .15s,color .15s;margin-bottom:1px}
+.gside .gs-item{display:block;width:100%;text-align:left;padding:10px 12px;background:transparent;border:none;color:#ddd;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em;cursor:pointer;border-radius:4px;transition:background .15s,color .15s;margin-bottom:2px}
 .gside .gs-item:hover{background:rgba(57,255,20,.08);color:var(--acid)}
 .gside .gs-item.active{background:rgba(57,255,20,.14);color:var(--acid)}
+.gside .gs-foot{margin-top:auto;padding:14px 8px 0;border-top:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;text-align:center}
+.gside .gs-foot a{color:var(--acid);text-decoration:none;transition:opacity .15s}
+.gside .gs-foot a:hover{opacity:.75}
+.wolfe-foot{padding:32px 20px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:.32em;color:var(--muted);text-transform:uppercase;border-top:1px solid var(--border);margin-top:24px}
+.wolfe-foot a{color:var(--acid);text-decoration:none;text-shadow:0 0 8px rgba(57,255,20,.35);transition:opacity .15s}
+.wolfe-foot a:hover{opacity:.75}
 #s-gallery.has-side{flex-direction:row;align-items:stretch}
 #s-gallery.has-side .gside{display:flex}
 #s-gallery.has-side .g-main{flex:1;display:flex;flex-direction:column;min-width:0;height:100vh;overflow:hidden}
@@ -121,8 +127,10 @@ button:active{transform:translateY(1px)}
 .sec{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .sec::after{content:'';flex:1;height:1px;background:var(--border)}
 .pgrid{columns:3;column-gap:3px}
+@media (min-width:900px){.pgrid{columns:4}}
+@media (min-width:1400px){.pgrid{columns:5}}
 .vgrid{display:flex;flex-wrap:wrap;gap:5px;justify-content:flex-start}
-.vgrid .mi{height:clamp(200px,38vw,300px);flex:0 0 auto;margin-bottom:0;min-width:80px}
+.vgrid .mi{height:clamp(160px,26vw,240px);flex:0 0 auto;margin-bottom:0;min-width:80px}
 .vgrid .mi img,.vgrid .mi video{width:100%;height:100%;object-fit:cover;display:block}
 #select-btn{background:var(--acid);color:var(--base);border:none;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.1em;padding:8px 18px;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s;border-radius:6px;animation:selectFloat 2.5s ease-in-out infinite}
 @keyframes selectFloat{0%,100%{transform:translateY(0);box-shadow:0 0 4px rgba(57,255,20,.3)}50%{transform:translateY(-2px);box-shadow:0 0 14px rgba(57,255,20,.5),0 0 24px rgba(57,255,20,.15)}}
@@ -497,6 +505,7 @@ button:active{transform:translateY(1px)}
   <aside class="gside" id="g-side">
     <button class="gs-brand" onclick="exitTeamGallery()" title="Back" type="button">REVIZE</button>
     <div id="g-side-list"></div>
+    <div class="gs-foot">Built by <a href="https://wolfeproductions.com.au" target="_blank" rel="noopener">Wolfe Ops</a></div>
   </aside>
   <div class="g-main">
   <div class="topbar">
@@ -517,6 +526,7 @@ button:active{transform:translateY(1px)}
     <div class="panel on" id="pn-photos"><div class="pgrid" id="g-photos"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
     <div class="panel" id="pn-videos"><div class="vgrid" id="g-videos"><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div><div class="skel" style="aspect-ratio:9/16"></div></div></div>
     <div class="panel" id="pn-faves"><div class="sec">Your Favourites</div><div id="faves-out"></div></div>
+    <div class="wolfe-foot">Built by <a href="https://wolfeproductions.com.au" target="_blank" rel="noopener">Wolfe Ops</a> · Lakes Entrance VIC</div>
   </div>
   <div class="cta-bar" id="cta-bar">
     <div class="cta-info"><div class="cl">Your selection</div><div class="cc"><span id="ct-p">0</span> photos · <span id="ct-v">0</span> videos · <span style="color:var(--acid)" id="ct-total">$0</span></div></div>
