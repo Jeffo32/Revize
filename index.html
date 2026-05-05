@@ -123,14 +123,20 @@ button:active{transform:translateY(1px)}
 .panel{display:none;padding:14px 14px 100px;max-width:1400px;width:100%;margin:0 auto;box-sizing:border-box}
 @media (min-width:900px){.panel{padding:20px 40px 120px}}
 @media (min-width:1280px){.panel{padding:24px 64px 140px}}
+/* When sidebar is showing, let the gallery fill the available width */
+#s-gallery.has-side .panel{max-width:none;padding:18px 24px 120px}
+#s-gallery.has-side .topbar{padding:14px 24px}
+#s-gallery.has-side .tabs{padding:0 24px}
 .panel.on{display:block}
 .sec{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .sec::after{content:'';flex:1;height:1px;background:var(--border)}
 .pgrid{columns:3;column-gap:3px}
 @media (min-width:900px){.pgrid{columns:4}}
 @media (min-width:1400px){.pgrid{columns:5}}
+@media (min-width:1900px){.pgrid{columns:6}}
+@media (min-width:2400px){.pgrid{columns:7}}
 .vgrid{display:flex;flex-wrap:wrap;gap:5px;justify-content:flex-start}
-.vgrid .mi{height:clamp(160px,26vw,240px);flex:0 0 auto;margin-bottom:0;min-width:80px}
+.vgrid .mi{height:clamp(180px,22vw,300px);flex:0 0 auto;margin-bottom:0;min-width:80px}
 .vgrid .mi img,.vgrid .mi video{width:100%;height:100%;object-fit:cover;display:block}
 #select-btn{background:var(--acid);color:var(--base);border:none;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.1em;padding:8px 18px;cursor:pointer;transition:transform .1s,box-shadow .1s,background .15s;border-radius:6px;animation:selectFloat 2.5s ease-in-out infinite}
 @keyframes selectFloat{0%,100%{transform:translateY(0);box-shadow:0 0 4px rgba(57,255,20,.3)}50%{transform:translateY(-2px);box-shadow:0 0 14px rgba(57,255,20,.5),0 0 24px rgba(57,255,20,.15)}}
