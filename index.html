@@ -90,8 +90,7 @@ button:active{transform:translateY(1px)}
 .pill .pn{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--acid);line-height:1}
 .pill .pl{font-size:9px;letter-spacing:.08em;color:var(--muted)}
 .tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface);padding:0 max(0px,calc((100vw - 1400px) / 2 + 24px))}
-.gside{display:none}
-.gside.show{display:flex;flex-direction:column;width:220px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);padding:22px 12px 24px;overflow-y:auto}
+.gside{display:none;flex-direction:column;width:220px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);padding:22px 12px 24px;overflow-y:auto;box-sizing:border-box;height:100vh}
 .gside .gs-brand{display:block;background:none;border:none;color:var(--acid);font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.14em;text-transform:uppercase;text-align:left;padding:0 6px 18px;margin:0 0 12px;border-bottom:1px solid var(--border);cursor:pointer;width:100%;text-shadow:0 0 12px rgba(57,255,20,.45);transition:opacity .15s}
 .gside .gs-brand:hover{opacity:.75}
 .gside .gs-cat{font-size:8px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin:14px 6px 4px}
@@ -1305,14 +1304,19 @@ async function loadDrive(folderId){
     renderGrid(allP,'photos');renderGrid(allV,'videos');
     document.getElementById('tn-p').textContent=allP.length;
     document.getElementById('tn-v').textContent=allV.length;
-    // If no photos but videos exist, hide photos tab and switch to videos
+    // Hide tabs/sort that aren't relevant for this gallery
     const tbP=document.getElementById('tb-photos');
-    if(!allP.length&&allV.length){
-      if(tbP)tbP.style.display='none';
-      switchTab('videos');
-    } else if(tbP){
-      tbP.style.display='';
-    }
+    const tbV=document.getElementById('tb-videos');
+    const tbSort=document.getElementById('tb-sort');
+    const tabsBar=document.querySelector('#s-gallery .tabs');
+    const onlyVideos=!allP.length&&allV.length;
+    const onlyPhotos=!allV.length&&allP.length;
+    if(tbP)tbP.style.display=onlyVideos?'none':'';
+    if(tbV)tbV.style.display=onlyPhotos?'none':'';
+    if(tbSort)tbSort.style.display=(onlyVideos||onlyPhotos)?'none':'';
+    if(tabsBar)tabsBar.style.display=(onlyVideos||onlyPhotos)?'none':'';
+    if(onlyVideos)switchTab('videos');
+    else if(onlyPhotos)switchTab('photos');
   }catch(e){
     allP=DEMO_PHOTOS;allV=DEMO_VIDEOS;
     renderGrid(allP,'photos');renderGrid(allV,'videos');
