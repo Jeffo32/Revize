@@ -455,8 +455,8 @@ button:active{transform:translateY(1px)}
     <!-- New gallery form -->
     <div id="new-client-form" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.25,.46,.45,.94)">
       <div class="field"><label class="lbl">Gallery Name</label><input class="inp" id="a-name" type="text" placeholder="e.g. Tim, March Shoot"></div>
-      <div class="field"><label class="lbl">Google Drive Folder Link</label><input class="inp" id="a-photos" type="text" placeholder="Paste Google Drive folder link"></div>
-      <div class="field"><label class="lbl">R2 Video Folder <span style="color:var(--muted);font-size:9px;letter-spacing:.16em">(optional)</span></label><input class="inp" id="a-r2" type="text" placeholder="e.g. mama-vu/march-shoot or full R2 prefix"></div>
+      <div class="field"><label class="lbl">Google Drive Folder Link <span style="color:var(--muted);font-size:9px;letter-spacing:.16em">(optional if using R2)</span></label><input class="inp" id="a-photos" type="text" placeholder="Paste Google Drive folder link"></div>
+      <div class="field"><label class="lbl">R2 Video Folder <span style="color:var(--muted);font-size:9px;letter-spacing:.16em">(optional if using Drive)</span></label><input class="inp" id="a-r2" type="text" placeholder="e.g. mama-vu/march-shoot or full R2 prefix"></div>
       <div class="field">
         <label class="lbl">Category</label>
         <select class="inp" id="a-category" style="appearance:none;-webkit-appearance:none;background:var(--surface2) url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22><path d=%221 1 5 6 9 1%22 stroke=%22%23888%22 fill=%22none%22 stroke-width=%221.5%22/></svg>') no-repeat right 14px center">
@@ -1182,7 +1182,7 @@ async function saveGallery(){
   const vf=normalizeR2Prefix(document.getElementById('a-r2').value.trim());
   const category=document.getElementById('a-category').value;
   if(!name){document.getElementById('a-name').focus();return;}
-  if(!pf){document.getElementById('a-photos').focus();return;}
+  if(!pf&&!vf){document.getElementById('a-photos').focus();alert('Add a Google Drive folder, R2 prefix, or both.');return;}
   const team=[];
   document.querySelectorAll('#a-team-checks input:checked').forEach(cb=>team.push(cb.dataset.member));
   const btn=document.getElementById('admin-save-btn');
@@ -1295,7 +1295,7 @@ function enterGallery(){
   // Use folder IDs from existing client selection, URL params, or demo
   const pf=window._activePF||getParam('pf');
   const vf=window._activeVF||getParam('vf');
-  if(pf&&pf!=='demo'){loadDrive(pf,vf);}
+  if((pf&&pf!=='demo')||vf){loadDrive(pf,vf);}
   else{setTimeout(()=>{allP=DEMO_PHOTOS;allV=DEMO_VIDEOS;renderGrid(allP,'photos');renderGrid(allV,'videos');document.getElementById('tn-p').textContent=allP.length;document.getElementById('tn-v').textContent=allV.length;},500);}
   // Load purchased files in background to grey them out
   const email=clientEmailAddr||document.getElementById('cl-email')?.value.trim()||'';
@@ -1305,21 +1305,25 @@ function enterGallery(){
 // —— DRIVE + R2 ————————————————————————————————————
 async function loadDrive(folderId,r2Prefix){
   try{
-    const res=await fetch('/api/drive'+(folderId?'?folder='+encodeURIComponent(folderId):''));
-    if(!res.ok)throw new Error();
-    const data=await res.json();
-    const files=data.files||[];
-    allP=files.filter(f=>f.mimeType&&f.mimeType.startsWith('image/')).map(f=>{
-      const meta=f.imageMediaMetadata||{};
-      const w=meta.width||4,h=meta.height||3;
-      return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',full:'https://lh3.googleusercontent.com/d/'+f.id+'=w1600',type:'photo',ar:w/h};
-    });
-    // Drive videos (fallback iframe)
-    const driveVids=files.filter(f=>f.mimeType&&f.mimeType.startsWith('video/')).map(f=>{
-      const meta=f.videoMediaMetadata||{};
-      const w=meta.width||16,h=meta.height||9;
-      return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',type:'video',ar:w/h};
-    });
+    let allP_local=[],driveVids=[];
+    // Only hit Drive if a folder ID is supplied
+    if(folderId){
+      const res=await fetch('/api/drive?folder='+encodeURIComponent(folderId));
+      if(!res.ok)throw new Error();
+      const data=await res.json();
+      const files=data.files||[];
+      allP_local=files.filter(f=>f.mimeType&&f.mimeType.startsWith('image/')).map(f=>{
+        const meta=f.imageMediaMetadata||{};
+        const w=meta.width||4,h=meta.height||3;
+        return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',full:'https://lh3.googleusercontent.com/d/'+f.id+'=w1600',type:'photo',ar:w/h};
+      });
+      driveVids=files.filter(f=>f.mimeType&&f.mimeType.startsWith('video/')).map(f=>{
+        const meta=f.videoMediaMetadata||{};
+        const w=meta.width||16,h=meta.height||9;
+        return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',type:'video',ar:w/h};
+      });
+    }
+    allP=allP_local;
     // R2 videos (native player) — load from /api/r2-list
     // Use explicit r2Prefix from gallery config when provided, fallback to client name slug
     let r2Vids=[];

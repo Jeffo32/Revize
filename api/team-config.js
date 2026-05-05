@@ -114,9 +114,13 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'addGallery must be an object' });
         }
         const name = addGallery.name;
-        const pf = addGallery.pf || addGallery.folder;
-        if (!name || !pf) {
-          return res.status(400).json({ error: 'addGallery requires name and pf' });
+        const pf = addGallery.pf || addGallery.folder || '';
+        const vfRaw = (addGallery.vf || '').toString();
+        if (!name) {
+          return res.status(400).json({ error: 'addGallery requires a name' });
+        }
+        if (!pf && !vfRaw) {
+          return res.status(400).json({ error: 'addGallery requires either pf (Drive) or vf (R2)' });
         }
         const team = typeof addGallery.team === 'string'
           ? [addGallery.team]
