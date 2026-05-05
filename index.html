@@ -1120,13 +1120,15 @@ async function renderGalleryList(){
       if(teamTags)html+='<div style="font-size:8px;color:var(--muted);letter-spacing:.06em;margin-top:2px">'+teamTags+'</div>';
       html+='</div>';
       html+='<div style="display:flex;gap:6px;flex-shrink:0">';
+      const sn=g.name.replace(/'/g,"\\'");
       if(g.category==='portfolio'){
-        html+='<button onclick="openPortfolio(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">VIEW</button>';
-        html+='<button onclick="copyPortfolioLink(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">LINK</button>';
+        html+='<button onclick="openPortfolio(\''+sn+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">VIEW</button>';
+        html+='<button onclick="copyPortfolioLink(\''+sn+'\',\''+g.pf+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">LINK</button>';
       } else {
-        html+='<button onclick="loadExistingClient(\''+g.name.replace(/'/g,"\\'")+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">OPEN</button>';
+        html+='<button onclick="loadExistingClient(\''+sn+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">OPEN</button>';
       }
-      html+='<button onclick="deleteGallery(\''+g.name.replace(/'/g,"\\'")+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">✕</button>';
+      html+='<button onclick="editGallery(\''+sn+'\')" title="Edit" style="background:transparent;color:var(--muted);border:1px solid var(--border2);font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">EDIT</button>';
+      html+='<button onclick="deleteGallery(\''+sn+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">✕</button>';
       html+='</div></div>';
     });
   });
@@ -1175,6 +1177,7 @@ function copyPortfolioLink(name,pf,btn){
   btn.textContent='✓';
   setTimeout(()=>{btn.textContent='LINK';},1500);
 }
+let _editingGalleryName='';
 async function saveGallery(){
   const name=document.getElementById('a-name').value.trim();
   const rawPf=document.getElementById('a-photos').value.trim();
@@ -1188,18 +1191,41 @@ async function saveGallery(){
   const btn=document.getElementById('admin-save-btn');
   btn.disabled=true;btn.textContent='SAVING...';
   try{
-    const r=await fetch('/api/team-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({addGallery:{name,pf,vf,category,created:new Date().toISOString().slice(0,10),team}})});
+    const isEdit=!!_editingGalleryName;
+    const body=isEdit
+      ? {updateGallery:{originalName:_editingGalleryName,name,pf,vf,category,team}}
+      : {addGallery:{name,pf,vf,category,created:new Date().toISOString().slice(0,10),team}};
+    const r=await fetch('/api/team-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(r.ok)teamConfig=await r.json();
   }catch(e){}
   btn.disabled=false;btn.textContent='✓ SAVED';
-  setTimeout(()=>{btn.textContent='SAVE GALLERY →';},1500);
-  // Switch to galleries view
+  setTimeout(()=>{btn.textContent=_editingGalleryName?'UPDATE GALLERY →':'SAVE GALLERY →';},1500);
+  // Reset edit state and form
+  _editingGalleryName='';
   adminMode('existing');
-  // Clear form
   document.getElementById('a-name').value='';
   document.getElementById('a-photos').value='';
   document.getElementById('a-r2').value='';
   document.querySelectorAll('#a-team-checks input').forEach(cb=>cb.checked=false);
+}
+function editGallery(name){
+  const g=(teamConfig.galleries||[]).find(x=>x.name===name);
+  if(!g)return;
+  _editingGalleryName=name;
+  adminMode('new'); // shows + populates the form
+  document.getElementById('a-name').value=g.name||'';
+  document.getElementById('a-photos').value=g.pf||'';
+  document.getElementById('a-r2').value=g.vf||'';
+  document.getElementById('a-category').value=g.category||'client';
+  // Pre-check assigned team
+  const assigned=(teamConfig.assignments||{})[g.name]||[];
+  document.querySelectorAll('#a-team-checks input').forEach(cb=>{
+    cb.checked=assigned.includes(cb.dataset.member);
+  });
+  const sb=document.getElementById('admin-save-btn');
+  if(sb)sb.textContent='UPDATE GALLERY →';
+  document.getElementById('a-name').focus();
+  document.getElementById('a-name').scrollIntoView({behavior:'smooth',block:'center'});
 }
 // Accept either a raw R2 prefix ("mama-vu/march"), a public URL ending in a folder,
 // or a Cloudflare dashboard URL — extract the folder portion. Strip leading/trailing slashes.

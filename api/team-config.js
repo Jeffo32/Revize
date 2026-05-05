@@ -98,7 +98,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const { members, assignments, galleries, addGallery, deleteGallery } = req.body || {};
+      const { members, assignments, galleries, addGallery, updateGallery, deleteGallery } = req.body || {};
       const { config } = await readConfig(r2, bucket);
 
       if (members) config.members = members;
@@ -137,6 +137,48 @@ export default async function handler(req, res) {
         config.galleries.push(normalized);
         if (team.length) {
           config.assignments[normalized.name] = team;
+        }
+      }
+
+      // Update an existing gallery in place — match by originalName, allow rename via name field.
+      if (updateGallery) {
+        if (!updateGallery || typeof updateGallery !== 'object') {
+          return res.status(400).json({ error: 'updateGallery must be an object' });
+        }
+        const original = updateGallery.originalName || updateGallery.name;
+        if (!original) {
+          return res.status(400).json({ error: 'updateGallery requires originalName' });
+        }
+        const idx = config.galleries.findIndex(g => g.name === original);
+        if (idx === -1) {
+          return res.status(404).json({ error: 'gallery not found: ' + original });
+        }
+        const cur = config.galleries[idx];
+        const newName = updateGallery.name || cur.name;
+        const team = typeof updateGallery.team === 'string'
+          ? [updateGallery.team]
+          : (Array.isArray(updateGallery.team) ? updateGallery.team : cur.team || []);
+        const merged = {
+          name: newName,
+          pf: 'pf' in updateGallery ? (updateGallery.pf || '') : (cur.pf || ''),
+          vf: ('vf' in updateGallery ? (updateGallery.vf || '') : (cur.vf || '')).toString().replace(/^\/+|\/+$/g, ''),
+          category: 'category' in updateGallery ? ((updateGallery.category || 'other') + '').toLowerCase() : (cur.category || 'other'),
+          created: cur.created || today(),
+          team,
+        };
+        if (!merged.pf && !merged.vf) {
+          return res.status(400).json({ error: 'gallery requires either pf or vf' });
+        }
+        config.galleries[idx] = merged;
+        // If renamed, move assignments key
+        if (newName !== original && config.assignments[original]) {
+          config.assignments[newName] = config.assignments[original];
+          delete config.assignments[original];
+        }
+        if (team.length) {
+          config.assignments[newName] = team;
+        } else {
+          delete config.assignments[newName];
         }
       }
 
