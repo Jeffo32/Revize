@@ -93,7 +93,7 @@ button:active{transform:translateY(1px)}
 .gside{display:none;flex-direction:column;width:260px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);padding:24px 16px 18px;overflow-y:auto;box-sizing:border-box;height:100vh}
 .gside .gs-brand{display:block;background:none;border:none;color:var(--acid);font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:.14em;text-transform:uppercase;text-align:left;padding:0 8px 20px;margin:0 0 14px;border-bottom:1px solid var(--border);cursor:pointer;width:100%;text-shadow:0 0 14px rgba(57,255,20,.5);transition:opacity .15s}
 .gside .gs-brand:hover{opacity:.75}
-.gside .gs-cat{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.22em;color:var(--acid);text-transform:uppercase;margin:18px 8px 6px;text-shadow:0 0 8px rgba(57,255,20,.35)}
+.gside .gs-cat{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.22em;color:var(--ice);text-transform:uppercase;margin:18px 8px 6px;text-shadow:0 0 8px rgba(79,195,247,.35)}
 .gside .gs-cat:first-child{margin-top:0}
 .gside .gs-item{display:block;width:100%;text-align:left;padding:10px 12px;background:transparent;border:none;color:#ddd;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em;cursor:pointer;border-radius:4px;transition:background .15s,color .15s;margin-bottom:2px}
 .gside .gs-item:hover{background:rgba(57,255,20,.08);color:var(--acid)}
@@ -456,6 +456,7 @@ button:active{transform:translateY(1px)}
     <div id="new-client-form" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.25,.46,.45,.94)">
       <div class="field"><label class="lbl">Gallery Name</label><input class="inp" id="a-name" type="text" placeholder="e.g. Tim, March Shoot"></div>
       <div class="field"><label class="lbl">Google Drive Folder Link</label><input class="inp" id="a-photos" type="text" placeholder="Paste Google Drive folder link"></div>
+      <div class="field"><label class="lbl">R2 Video Folder <span style="color:var(--muted);font-size:9px;letter-spacing:.16em">(optional)</span></label><input class="inp" id="a-r2" type="text" placeholder="e.g. mama-vu/march-shoot or full R2 prefix"></div>
       <div class="field">
         <label class="lbl">Category</label>
         <select class="inp" id="a-category" style="appearance:none;-webkit-appearance:none;background:var(--surface2) url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22><path d=%221 1 5 6 9 1%22 stroke=%22%23888%22 fill=%22none%22 stroke-width=%221.5%22/></svg>') no-repeat right 14px center">
@@ -1051,6 +1052,9 @@ function getClientMap(){
 function enterTeamGallery(clientName,pf){
   window._activePF=pf;
   window._activeClientName=clientName;
+  // Look up R2 video folder for this gallery (if set)
+  const _g=(teamConfig.galleries||[]).find(g=>g.name===clientName);
+  window._activeVF=(_g&&_g.vf)||'';
   document.getElementById('g-title').textContent=clientName.toUpperCase()+"'S GALLERY";
   // Replace CTA bar for team downloads
   document.getElementById('tutorial-steps').style.display='none';
@@ -1079,7 +1083,7 @@ function enterTeamGallery(clientName,pf){
   pg.innerHTML=[1,.75,1.3,.9,1.1,.7,1,.8,1.2,.95,1.4,.65,1,.85,1.15,.7,1.3,.9].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
   vg.innerHTML=[.56,.75,.56,1.3,.56,.75].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
   selP.clear();selV.clear();
-  loadDrive(pf);
+  loadDrive(pf,window._activeVF);
 }
 // —— GALLERY LIST & MANAGEMENT ————————————————————
 const CAT_ORDER=['belvu','mosaic','wolfe','client','portfolio'];
@@ -1175,6 +1179,7 @@ async function saveGallery(){
   const name=document.getElementById('a-name').value.trim();
   const rawPf=document.getElementById('a-photos').value.trim();
   const pf=extractDriveFolderId(rawPf);
+  const vf=normalizeR2Prefix(document.getElementById('a-r2').value.trim());
   const category=document.getElementById('a-category').value;
   if(!name){document.getElementById('a-name').focus();return;}
   if(!pf){document.getElementById('a-photos').focus();return;}
@@ -1183,7 +1188,7 @@ async function saveGallery(){
   const btn=document.getElementById('admin-save-btn');
   btn.disabled=true;btn.textContent='SAVING...';
   try{
-    const r=await fetch('/api/team-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({addGallery:{name,pf,category,created:new Date().toISOString().slice(0,10),team}})});
+    const r=await fetch('/api/team-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({addGallery:{name,pf,vf,category,created:new Date().toISOString().slice(0,10),team}})});
     if(r.ok)teamConfig=await r.json();
   }catch(e){}
   btn.disabled=false;btn.textContent='✓ SAVED';
@@ -1193,7 +1198,17 @@ async function saveGallery(){
   // Clear form
   document.getElementById('a-name').value='';
   document.getElementById('a-photos').value='';
+  document.getElementById('a-r2').value='';
   document.querySelectorAll('#a-team-checks input').forEach(cb=>cb.checked=false);
+}
+// Accept either a raw R2 prefix ("mama-vu/march"), a public URL ending in a folder,
+// or a Cloudflare dashboard URL — extract the folder portion. Strip leading/trailing slashes.
+function normalizeR2Prefix(s){
+  if(!s)return'';
+  s=s.trim();
+  // If a public R2 URL like https://pub-xxx.r2.dev/path/folder/, take the path
+  try{const u=new URL(s);if(u.pathname&&u.pathname!=='/')s=u.pathname;}catch(e){}
+  return s.replace(/^\/+|\/+$/g,'');
 }
 let pendingDeleteName='';
 let deleteTimer=null;
@@ -1288,7 +1303,7 @@ function enterGallery(){
 }
 
 // —— DRIVE + R2 ————————————————————————————————————
-async function loadDrive(folderId){
+async function loadDrive(folderId,r2Prefix){
   try{
     const res=await fetch('/api/drive'+(folderId?'?folder='+encodeURIComponent(folderId):''));
     if(!res.ok)throw new Error();
@@ -1306,10 +1321,11 @@ async function loadDrive(folderId){
       return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',type:'video',ar:w/h};
     });
     // R2 videos (native player) — load from /api/r2-list
+    // Use explicit r2Prefix from gallery config when provided, fallback to client name slug
     let r2Vids=[];
     try{
-      const clientSlug=(window._activeClientName||'shared').toLowerCase().replace(/\s+/g,'-');
-      const r2Res=await fetch('/api/r2-list?client='+encodeURIComponent(clientSlug));
+      const r2Key=(r2Prefix||window._activeVF||'').trim()||(window._activeClientName||'shared').toLowerCase().replace(/\s+/g,'-');
+      const r2Res=await fetch('/api/r2-list?client='+encodeURIComponent(r2Key));
       if(r2Res.ok){
         const r2Data=await r2Res.json();
         r2Vids=(r2Data.videos||[]).map(v=>({id:v.key,name:v.name,thumb:v.url,url:v.url,type:'video'}));

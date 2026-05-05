@@ -25,6 +25,7 @@ function today() {
 function migrateGallery(g) {
   if (!g || typeof g !== 'object' || !g.name) return null;
   const pf = g.pf || g.folder || '';
+  const vf = (g.vf || '').toString();
   const team = typeof g.team === 'string'
     ? [g.team]
     : (Array.isArray(g.team) ? g.team : []);
@@ -34,8 +35,8 @@ function migrateGallery(g) {
     !g.pf || 'folder' in g ||
     typeof g.team === 'string' || !Array.isArray(g.team) ||
     !g.category || g.category !== category ||
-    !('created' in g);
-  return { record: { name: g.name, pf, category, created, team }, changed };
+    !('created' in g) || !('vf' in g);
+  return { record: { name: g.name, pf, vf, category, created, team }, changed };
 }
 
 function migrateGalleries(list) {
@@ -123,6 +124,7 @@ export default async function handler(req, res) {
         const normalized = {
           name,
           pf,
+          vf: (addGallery.vf || '').toString().replace(/^\/+|\/+$/g, ''),
           category: ((addGallery.category || 'other') + '').toLowerCase(),
           created: addGallery.created || today(),
           team,
