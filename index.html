@@ -89,7 +89,23 @@ button:active{transform:translateY(1px)}
 .pill{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border2);padding:6px 12px;border-radius:6px}
 .pill .pn{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--acid);line-height:1}
 .pill .pl{font-size:9px;letter-spacing:.08em;color:var(--muted)}
-.tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+.tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface);padding:0 max(0px,calc((100vw - 1400px) / 2 + 24px))}
+.gside{display:none}
+.gside.show{display:flex;flex-direction:column;width:240px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);padding:18px 14px 24px;overflow-y:auto}
+.gside .gs-h{font-size:9px;letter-spacing:.24em;color:var(--muted);text-transform:uppercase;margin:0 6px 10px}
+.gside .gs-cat{font-size:8px;letter-spacing:.22em;color:var(--acid);text-transform:uppercase;margin:14px 6px 4px}
+.gside .gs-cat:first-child{margin-top:0}
+.gside .gs-item{display:block;width:100%;text-align:left;padding:9px 10px;background:transparent;border:none;color:#bbb;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.06em;cursor:pointer;border-radius:4px;transition:background .15s,color .15s;margin-bottom:1px}
+.gside .gs-item:hover{background:rgba(57,255,20,.08);color:var(--acid)}
+.gside .gs-item.active{background:rgba(57,255,20,.14);color:var(--acid)}
+#s-gallery.has-side{flex-direction:row;align-items:stretch}
+#s-gallery.has-side .gside{display:flex}
+#s-gallery.has-side .g-main{flex:1;display:flex;flex-direction:column;min-width:0;height:100vh;overflow:hidden}
+@media (max-width:840px){
+  #s-gallery.has-side{flex-direction:column}
+  #s-gallery.has-side .gside{width:100%;max-height:none;border-right:none;border-bottom:1px solid var(--border);padding:12px}
+  #s-gallery.has-side .g-main{height:auto;flex:1}
+}
 .tab{flex:1;padding:13px 0;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#888;background:var(--surface);border:none;cursor:pointer;position:relative;transition:color .2s,background .2s;display:flex;align-items:center;justify-content:center;gap:5px}
 .tab.on{color:var(--white);background:var(--surface2)}
 .tab.on::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--acid)}
@@ -476,6 +492,12 @@ button:active{transform:translateY(1px)}
 
 <!-- —— GALLERY ————————————————————————————————— -->
 <div class="screen hidden" id="s-gallery">
+  <aside class="gside" id="g-side">
+    <div class="tb-l" style="padding:6px 6px 18px;border-bottom:1px solid var(--border);margin-bottom:14px"><div class="ey">REVIZE</div><div class="ti" id="g-side-title" style="margin-top:6px">GALLERY HUB</div></div>
+    <div class="gs-h">Galleries</div>
+    <div id="g-side-list"></div>
+  </aside>
+  <div class="g-main">
   <div class="topbar">
     <div class="tb-l"><div class="ey">REVIZE</div><div class="ti" id="g-title">YOUR GALLERY</div></div>
     <div style="display:flex;align-items:center;gap:8px">
@@ -499,6 +521,7 @@ button:active{transform:translateY(1px)}
     <div class="cta-info"><div class="cl">Your selection</div><div class="cc"><span id="ct-p">0</span> photos · <span id="ct-v">0</span> videos · <span style="color:var(--acid)" id="ct-total">$0</span></div></div>
     <button class="cta-btn" onclick="openPricing()">CHECK OUT →</button>
   </div>
+  </div><!-- /g-main -->
 </div>
 
 <!-- —— DELETE SPLASH WITH UNDO ————————————————————— -->
@@ -921,6 +944,43 @@ async function loadTeamConfig(){
 async function saveTeamConfig(){
   try{await fetch('/api/team-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(teamConfig)});}catch(e){}
 }
+async function renderGallerySide(){
+  if(!teamConfig||!teamConfig.galleries||!teamConfig.galleries.length){await loadTeamConfig();}
+  const list=document.getElementById('g-side-list');
+  if(!list)return;
+  let galleries=(teamConfig.galleries||[]).slice();
+  // In team mode (not admin), filter to assigned only
+  if(teamMode&&!adminGalleryMode&&typeof teamMemberId!=='undefined'&&teamMemberId){
+    const assigns=teamConfig.assignments||{};
+    galleries=galleries.filter(g=>(assigns[g.name]||[]).includes(teamMemberId));
+  }
+  const cats={belvu:'BELVU',mosaic:'MOSAIC',wolfe:'WOLFE PRODUCTIONS',client:'CLIENT WORK',portfolio:'PORTFOLIO',other:'OTHER'};
+  const order=['belvu','mosaic','wolfe','client','portfolio','other'];
+  const groups={};
+  galleries.forEach(g=>{const c=(g.category||'other').toLowerCase();(groups[c]=groups[c]||[]).push(g);});
+  const active=window._activeClientName||'';
+  let html='';
+  // Back to admin/team home link
+  html+='<button class="gs-item" style="color:var(--muted);margin-bottom:10px" onclick="exitTeamGallery()">← '+(adminGalleryMode&&!teamMode?'GALLERY MANAGER':'ALL GALLERIES')+'</button>';
+  order.forEach(cat=>{
+    const arr=groups[cat];if(!arr||!arr.length)return;
+    html+='<div class="gs-cat">'+cats[cat]+'</div>';
+    arr.sort((a,b)=>a.name.localeCompare(b.name)).forEach(g=>{
+      const isActive=g.name===active?' active':'';
+      const safe=g.name.replace(/'/g,"\\'");
+      const fn=g.category==='portfolio'?'openPortfolio':'loadExistingClient';
+      const args=g.category==='portfolio'?"'"+safe+"','"+g.pf+"'":"'"+safe+"','"+g.pf+"',''";
+      html+='<button class="gs-item'+isActive+'" onclick="'+fn+'('+args+')">'+g.name+'</button>';
+    });
+  });
+  list.innerHTML=html;
+}
+function exitTeamGallery(){
+  document.getElementById('s-gallery').classList.remove('has-side');
+  const dl=document.getElementById('team-dl-all');if(dl)dl.style.display='none';
+  if(adminGalleryMode&&!teamMode){showScreen('s-admin');renderGalleryList();}
+  else{loadTeamGalleries();}
+}
 async function loadTeamGalleries(){
   await loadTeamConfig();
   const container=document.getElementById('team-galleries');
@@ -982,18 +1042,11 @@ function enterTeamGallery(clientName,pf){
   document.getElementById('cta-bar').innerHTML='<div class="cta-info"><div class="cl">Your selection</div><div class="cc"><span id="ct-p">0</span> photos · <span id="ct-v">0</span> videos</div></div><button class="cta-btn" onclick="downloadSelected()">DOWNLOAD SELECTED →</button>';
   // Hide faves tab in team mode
   document.getElementById('tb-faves').style.display='none';
-  // Add back button to topbar
-  let backBtn=document.getElementById('team-back');
-  if(!backBtn){
-    const topbar=document.querySelector('.topbar .tb-l');
-    backBtn=document.createElement('button');
-    backBtn.id='team-back';
-    backBtn.textContent='←';
-    backBtn.style.cssText='background:none;border:1px solid var(--border2);color:var(--muted);font-size:16px;padding:4px 10px;cursor:pointer;border-radius:4px;margin-right:8px';
-    backBtn.onclick=()=>{const dl=document.getElementById('team-dl-all');if(dl)dl.style.display='none';if(adminGalleryMode&&!teamMode){showScreen('s-admin');renderGalleryList();}else{loadTeamGalleries();}};
-    topbar.insertBefore(backBtn,topbar.firstChild);
-  }
-  backBtn.style.display='block';
+  // Hide legacy back button if any
+  const oldBack=document.getElementById('team-back');if(oldBack)oldBack.style.display='none';
+  // Show persistent left sidebar with gallery list
+  document.getElementById('s-gallery').classList.add('has-side');
+  renderGallerySide();
   // Add Download All button fixed bottom-right
   let dlAllBtn=document.getElementById('team-dl-all');
   if(!dlAllBtn){
