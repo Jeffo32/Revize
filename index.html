@@ -95,7 +95,9 @@ button:active{transform:translateY(1px)}
 .tn{font-family:'Bebas Neue',sans-serif;font-size:14px;color:#777}
 .tab.on .tn{color:var(--acid)}
 .panels{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.panel{display:none;padding:14px 14px 100px}
+.panel{display:none;padding:14px 14px 100px;max-width:1400px;width:100%;margin:0 auto;box-sizing:border-box}
+@media (min-width:900px){.panel{padding:20px 40px 120px}}
+@media (min-width:1280px){.panel{padding:24px 64px 140px}}
 .panel.on{display:block}
 .sec{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .sec::after{content:'';flex:1;height:1px;background:var(--border)}
@@ -108,7 +110,8 @@ button:active{transform:translateY(1px)}
 #select-btn.done-mode{background:transparent;color:var(--acid);border:1px solid var(--acid)}
 .mi{position:relative;cursor:pointer;overflow:hidden;background:var(--surface2);-webkit-touch-callout:none;user-select:none;border-radius:4px;break-inside:avoid;margin-bottom:3px}
 .vgrid .mi{margin-bottom:5px}
-.mi img{width:100%;height:auto;display:block;transition:transform .2s ease}
+.mi img,.mi video{width:100%;height:auto;display:block;transition:transform .2s ease}
+.mi video{background:#000;pointer-events:none;object-fit:cover}
 .mi:hover img{transform:scale(1.05)}
 .mi.purchased img{opacity:.35;filter:grayscale(1)}
 .mi.purchased:hover img{transform:none}
@@ -1246,6 +1249,14 @@ async function loadDrive(folderId){
     renderGrid(allP,'photos');renderGrid(allV,'videos');
     document.getElementById('tn-p').textContent=allP.length;
     document.getElementById('tn-v').textContent=allV.length;
+    // If no photos but videos exist, hide photos tab and switch to videos
+    const tbP=document.getElementById('tb-photos');
+    if(!allP.length&&allV.length){
+      if(tbP)tbP.style.display='none';
+      switchTab('videos');
+    } else if(tbP){
+      tbP.style.display='';
+    }
   }catch(e){
     allP=DEMO_PHOTOS;allV=DEMO_VIDEOS;
     renderGrid(allP,'photos');renderGrid(allV,'videos');
@@ -1323,7 +1334,14 @@ function renderGrid(items,type){
     const el=document.createElement('div');
     el.className='mi fi'+(isPurchased?' purchased':'');el.style.animationDelay=i*.04+'s';el.dataset.id=item.id;
     if(item.ar)el.style.aspectRatio=item.ar;
-    el.innerHTML='<img src="'+item.thumb+'" loading="lazy">'+((teamMode||adminGalleryMode)?'':'<div class="wm"></div>')+'<div class="ov"></div>'+
+    let media;
+    if(type==='videos'){
+      const vsrc=item.url||('/api/stream-video?id='+item.id);
+      media='<video src="'+vsrc+'#t=0.5" preload="metadata" muted playsinline></video>';
+    } else {
+      media='<img src="'+item.thumb+'" loading="lazy">';
+    }
+    el.innerHTML=media+((teamMode||adminGalleryMode)?'':'<div class="wm"></div>')+'<div class="ov"></div>'+
       (viewOnly?'':'<div class="ck"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>')+
       (isPurchased?'<div class="purchased-tag">PURCHASED</div>':'')+
       (type==='videos'?'<div class="pb">&#9658; VIDEO</div>':'');
