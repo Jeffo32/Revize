@@ -118,30 +118,42 @@ button:active{transform:translateY(1px)}
 .sd-item.active{border-color:var(--ice);color:var(--ice)}
 /* —— HUB LAYOUT (admin) —— */
 #s-admin{display:flex;flex-direction:row;align-items:stretch;justify-content:flex-start;padding:0;min-height:100vh;width:100%}
-.hub-side{width:260px;flex-shrink:0;padding:36px 24px 24px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--base)}
-.hub-brand{margin-bottom:36px}
-.hub-mark{font-family:var(--font-display);font-weight:700;font-size:36px;letter-spacing:-0.04em;line-height:.95;color:var(--bone)}
+.hub-side{width:260px;flex-shrink:0;padding:42px 22px 22px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--base)}
+.hub-brand{margin-bottom:32px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.hub-seal{width:128px;height:128px;display:block;margin:0 auto 14px}
+.hub-co{font-family:var(--font-mono);font-size:10px;letter-spacing:.42em;color:var(--bone);text-transform:uppercase;margin-bottom:14px}
+.hub-mark{font-family:var(--font-display);font-weight:700;font-size:30px;letter-spacing:-0.03em;line-height:.95;color:var(--bone)}
 .hub-mark span{color:var(--bone);font-weight:600}
-.hub-tagline{font-family:var(--font-display);font-weight:500;font-size:13px;letter-spacing:.02em;color:var(--muted);margin-top:6px;text-transform:uppercase}
-.hub-section-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;padding:0 4px}
-.hub-domains{display:flex;flex-direction:column;gap:2px;flex:1}
-.hub-domain{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:transparent;border:none;color:var(--muted);font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:0;transition:background .15s,color .15s}
-.hub-domain:hover{color:var(--ochre)}
-.hub-domain.on{background:rgba(207,191,170,.06);color:var(--bone)}
-.hub-domain .dn{display:flex;align-items:center;gap:10px}
-.hub-domain .dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
-.hub-domain.on .dot{background:var(--ochre)}
-.hub-domain .ct{color:var(--muted);font-size:10px}
-.hub-side-foot{padding:16px 4px 0;border-top:1px solid var(--border);font-family:var(--font-mono);font-size:9px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;line-height:1.6}
-.hub-main{flex:1;padding:32px 36px 24px;display:flex;flex-direction:column;min-width:0;overflow-x:hidden}
-.hub-toolbar{display:flex;gap:8px;margin-bottom:24px;align-items:stretch;flex-wrap:wrap}
-.hub-search-wrap{position:relative;flex:1;min-width:220px}
-.hub-search-ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--muted);pointer-events:none}
-.hub-search{width:100%;background:var(--surface);border:1px solid var(--border);padding:11px 14px 11px 38px;color:var(--bone);font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;border-radius:0;outline:none;transition:border-color .15s}
+.hub-tagline{display:none}
+.hub-section-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.24em;color:var(--muted);text-transform:uppercase;margin:0 0 6px;padding:0 12px;line-height:1.4}
+.hub-domains{display:flex;flex-direction:column;gap:0;flex:1}
+.hub-domain{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:transparent;border:none;color:var(--muted);font-family:var(--font-mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;border-radius:0;transition:background .15s,color .15s}
+.hub-domain:hover{background:rgba(207,191,170,.06);color:var(--bone)}
+.hub-domain:hover .ct{color:var(--bone)}
+.hub-domain.on{background:rgba(207,191,170,.08);color:var(--bone)}
+.hub-domain .dn{display:flex;align-items:center;gap:12px}
+.hub-domain .dot{width:5px;height:5px;border-radius:50%;background:var(--muted);transition:background .15s}
+.hub-domain:hover .dot,.hub-domain.on .dot{background:var(--bone)}
+.hub-domain .ct{color:var(--muted);font-size:10px;letter-spacing:0;transition:color .15s}
+.hub-side-foot{padding:16px 12px 0;font-family:var(--font-mono);font-size:9px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;line-height:1.8}
+.hub-main{flex:1;padding:36px 40px 24px;display:flex;flex-direction:column;min-width:0;overflow-x:hidden}
+.hub-toolbar{display:flex;gap:8px;margin-bottom:24px;align-items:center;flex-wrap:wrap}
+.hub-search-wrap{position:relative;width:280px;flex-shrink:0}
+.hub-search-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--muted);pointer-events:none}
+.hub-search{width:100%;background:var(--surface);border:1px solid var(--border);padding:9px 12px 9px 32px;color:var(--bone);font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;border-radius:0;outline:none;transition:border-color .15s;height:36px;box-sizing:border-box}
 .hub-search:focus{border-color:var(--ochre)}
-.hub-add{background:var(--ochre);color:#fff;border:none;font-family:var(--font-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;padding:11px 22px;cursor:pointer;border-radius:0;transition:opacity .15s,transform .1s;font-weight:700}
+.hub-add{background:var(--ochre);color:#fff;border:none;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;padding:0 18px;cursor:pointer;border-radius:0;transition:opacity .15s,transform .1s;font-weight:700;height:36px;display:flex;align-items:center}
 .hub-add:hover{opacity:.88}
 .hub-add:active{transform:translateY(1px)}
+.hub-vt{display:flex;height:36px;border:1px solid var(--border)}
+.hub-vt button{background:transparent;border:none;color:var(--muted);font-family:var(--font-mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;padding:0 14px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s,color .15s}
+.hub-vt button:hover{color:var(--bone);background:rgba(207,191,170,.04)}
+.hub-vt button.on{color:var(--bone);background:rgba(207,191,170,.08)}
+.hub-vt button + button{border-left:1px solid var(--border)}
+.hub-vt svg{width:13px;height:13px}
+.hub-tool-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--font-mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;padding:0 16px;cursor:pointer;height:36px;display:flex;align-items:center;gap:6px;transition:color .15s,border-color .15s}
+.hub-tool-btn:hover{color:var(--bone);border-color:var(--border2)}
+.hub-tool-btn svg{width:13px;height:13px}
 .hub-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:28px;overflow-x:auto;scrollbar-width:none}
 .hub-tabs::-webkit-scrollbar{display:none}
 .hub-tab{padding:14px 18px 12px;background:transparent;border:none;color:var(--muted);font-family:var(--font-mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s}
@@ -150,6 +162,15 @@ button:active{transform:translateY(1px)}
 .hub-tab .tct{color:var(--muted);margin-left:6px;font-size:10px}
 .hub-tab.on .tct{color:var(--bone)}
 .hub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;align-content:start}
+.hub-grid.list{display:flex;flex-direction:column;gap:0}
+.hub-grid.list .hub-card{flex-direction:row;align-items:center;min-height:0;padding:14px 18px;gap:18px;border-radius:0;border-bottom:none;border-top:1px solid var(--border);border-left:none;border-right:none;background:transparent}
+.hub-grid.list .hub-card:last-child{border-bottom:1px solid var(--border)}
+.hub-grid.list .hub-card:hover{background:rgba(207,191,170,.04)}
+.hub-grid.list .hub-card-top{flex:0 0 auto;flex-direction:row;gap:14px;align-items:center;min-width:280px}
+.hub-grid.list .hub-card .nm{font-size:18px}
+.hub-grid.list .hub-card .meta{flex:0 0 auto;min-width:160px}
+.hub-grid.list .hub-card .desc{flex:1;font-size:12px;line-height:1.4}
+.hub-grid.list .hub-card-actions{margin-top:0;padding-top:0;flex-shrink:0}
 .hub-card{padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:0;display:flex;flex-direction:column;gap:14px;transition:border-color .15s,transform .15s;position:relative;min-height:160px}
 .hub-card:hover{border-color:var(--border2)}
 .hub-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
@@ -418,10 +439,19 @@ button:active{transform:translateY(1px)}
   <button id="hub-side-toggle" class="side-toggle" onclick="toggleHubSide()" aria-label="Menu" style="position:fixed;top:16px;left:16px;z-index:60;display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button>
   <aside class="hub-side" id="hub-side">
     <div class="hub-brand">
+      <svg class="hub-seal" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M40 50 L70 38 L100 95 L130 38 L160 50 L150 110 L155 145 L100 175 L45 145 L50 110 Z" fill="#CFBFAA"/>
+        <path d="M70 38 L78 70 L100 95 L122 70 L130 38 L100 60 Z" fill="#171618"/>
+        <circle cx="83" cy="105" r="4" fill="#171618"/>
+        <circle cx="117" cy="105" r="4" fill="#171618"/>
+        <path d="M92 130 L100 140 L108 130 Z" fill="#171618"/>
+        <line x1="100" y1="80" x2="100" y2="125" stroke="#171618" stroke-width="2.5"/>
+        <circle cx="100" cy="148" r="3" fill="#CE703F"/>
+      </svg>
+      <div class="hub-co">WOLFE CO</div>
       <div class="hub-mark">RE<span>VIZE</span></div>
-      <div class="hub-tagline">Gallery Hub</div>
     </div>
-    <div class="hub-section-label">Domains</div>
+    <div class="hub-section-label">Domains · hover<br>to switch</div>
     <div class="hub-domains" id="hub-domains"></div>
     <div class="hub-side-foot">
       <div id="hub-foot-count">0 galleries</div>
@@ -435,6 +465,11 @@ button:active{transform:translateY(1px)}
         <input id="hub-search" class="hub-search" type="text" placeholder="search" oninput="renderGalleryList()">
       </div>
       <button class="hub-add" onclick="openAddSheet()">+ ADD GALLERY</button>
+      <div class="hub-vt" role="group" aria-label="View">
+        <button id="hub-view-grid" class="on" onclick="setHubView('grid')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>GRID</button>
+        <button id="hub-view-list" onclick="setHubView('list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>LIST</button>
+      </div>
+      <button class="hub-tool-btn" onclick="renderGalleryList()" title="Reload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>SYNC</button>
     </div>
     <div class="hub-tabs" id="hub-tabs"></div>
     <div class="hub-grid" id="gallery-list"></div>
@@ -1100,8 +1135,16 @@ const CAT_ORDER=['belvu','mosaic','wolfe','client','portfolio'];
 const CAT_NAMES={belvu:'BELVU',mosaic:'MOSAIC',wolfe:'WOLFE PRODUCTIONS',client:'CLIENT WORK',portfolio:'PORTFOLIO'};
 let _hubDomain='all';
 let _hubTab='all';
+let _hubView='grid';
 function setHubDomain(c){_hubDomain=c;renderGalleryList();}
 function setHubTab(t){_hubTab=t;renderGalleryList();}
+function setHubView(v){
+  _hubView=v;
+  document.getElementById('hub-view-grid').classList.toggle('on',v==='grid');
+  document.getElementById('hub-view-list').classList.toggle('on',v==='list');
+  const grid=document.getElementById('gallery-list');
+  if(grid)grid.classList.toggle('list',v==='list');
+}
 function openAddSheet(){
   adminMode('new');
   document.getElementById('add-sheet').classList.add('open');
@@ -1116,6 +1159,7 @@ function toggleHubSide(){document.getElementById('hub-side').classList.toggle('o
 async function renderGalleryList(){
   await loadTeamConfig();
   const grid=document.getElementById('gallery-list');
+  if(grid)grid.classList.toggle('list',_hubView==='list');
   const sideEl=document.getElementById('hub-domains');
   const tabsEl=document.getElementById('hub-tabs');
   const all=(teamConfig.galleries||[]).map(g=>{try{return normalizeGallery(g);}catch(e){return null;}}).filter(Boolean);
@@ -1383,10 +1427,17 @@ async function loadDrive(folderId){
     document.getElementById('tn-p').textContent=allP.length;
     document.getElementById('tn-v').textContent=allV.length;
   }catch(e){
-    allP=DEMO_PHOTOS;allV=DEMO_VIDEOS;
-    renderGrid(allP,'photos');renderGrid(allV,'videos');
-    document.getElementById('tn-p').textContent=allP.length;
-    document.getElementById('tn-v').textContent=allV.length;
+    if(teamMode||adminGalleryMode){
+      allP=[];allV=[];
+      document.getElementById('g-photos').innerHTML='<div style="padding:32px 0;font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:#ff6b6b;text-transform:uppercase">Could not load folder — check the Drive link is shared publicly and the folder ID is correct.<br><span style="opacity:.6;font-size:9px">'+e.message+'</span></div>';
+      document.getElementById('g-videos').innerHTML='';
+      document.getElementById('tn-p').textContent=0;document.getElementById('tn-v').textContent=0;
+    }else{
+      allP=DEMO_PHOTOS;allV=DEMO_VIDEOS;
+      renderGrid(allP,'photos');renderGrid(allV,'videos');
+      document.getElementById('tn-p').textContent=allP.length;
+      document.getElementById('tn-v').textContent=allV.length;
+    }
   }
 }
 
