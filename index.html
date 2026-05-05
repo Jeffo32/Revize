@@ -1492,90 +1492,7 @@ function renderGrid(items,type){
   if(type==='videos')activateVideoThumbs(g);
 }
 
-// —— VIDEO POSTER CACHE (IndexedDB) ————————————————
-// First load captures the first frame to a JPEG data URL and stores it.
-// Subsequent loads instantly swap the <video> for an <img> with the cached poster.
-const POSTER_DB='revize-posters';
-let _posterDB=null;
-function openPosterDB(){
-  return new Promise(res=>{
-    if(_posterDB)return res(_posterDB);
-    try{
-      const req=indexedDB.open(POSTER_DB,1);
-      req.onupgradeneeded=()=>req.result.createObjectStore('p');
-      req.onsuccess=()=>{_posterDB=req.result;res(_posterDB);};
-      req.onerror=()=>res(null);
-    }catch(e){res(null);}
-  });
-}
-async function getPoster(key){
-  const db=await openPosterDB();if(!db)return null;
-  return new Promise(res=>{
-    try{const tx=db.transaction('p','readonly').objectStore('p').get(key);
-      tx.onsuccess=()=>res(tx.result||null);tx.onerror=()=>res(null);
-    }catch(e){res(null);}
-  });
-}
-async function savePoster(key,dataURL){
-  const db=await openPosterDB();if(!db)return;
-  try{db.transaction('p','readwrite').objectStore('p').put(dataURL,key);}catch(e){}
-}
-// Concurrency-limited activation queue — never more than VID_CONCURRENCY videos loading at once.
-const VID_CONCURRENCY=3;
-let _vidQueue=[],_vidActive=0;
-function processVidQueue(){
-  while(_vidActive<VID_CONCURRENCY&&_vidQueue.length){
-    const job=_vidQueue.shift();_vidActive++;
-    Promise.resolve().then(job).finally(()=>{_vidActive--;processVidQueue();});
-  }
-}
-function swapVideoForPoster(v,dataURL,arHint){
-  const parent=v.parentElement;if(!parent)return;
-  const img=document.createElement('img');
-  img.src=dataURL;img.loading='eager';
-  img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;background:#000';
-  img.onload=()=>{
-    if(img.naturalWidth&&img.naturalHeight)parent.style.aspectRatio=img.naturalWidth+'/'+img.naturalHeight;
-  };
-  if(arHint)parent.style.aspectRatio=arHint;
-  v.replaceWith(img);
-}
-async function activateVideo(v){
-  if(!v.dataset||!v.dataset.src)return;
-  const key=v.dataset.src.split('#')[0];
-  const cached=await getPoster(key);
-  if(cached){swapVideoForPoster(v,cached);return;}
-  // Capture first frame from video metadata
-  return new Promise(resolve=>{
-    v.crossOrigin='anonymous';
-    v.preload='metadata';
-    v.muted=true;
-    v.playsInline=true;
-    v.src=v.dataset.src;
-    let done=false;const finish=()=>{if(!done){done=true;resolve();}};
-    const capture=()=>{
-      try{
-        if(!v.videoWidth||!v.videoHeight){finish();return;}
-        const c=document.createElement('canvas');
-        const W=Math.min(v.videoWidth,640);
-        const H=Math.round(W*(v.videoHeight/v.videoWidth));
-        c.width=W;c.height=H;
-        c.getContext('2d').drawImage(v,0,0,W,H);
-        const data=c.toDataURL('image/jpeg',0.72);
-        savePoster(key,data);
-        swapVideoForPoster(v,data);
-      }catch(e){/* canvas tainted — keep playing element as fallback */}
-      finish();
-    };
-    v.addEventListener('loadedmetadata',()=>{
-      if(v.videoWidth&&v.videoHeight&&v.parentElement)v.parentElement.style.aspectRatio=v.videoWidth+'/'+v.videoHeight;
-      try{v.currentTime=Math.min(0.1,(v.duration||1)/10);}catch(e){capture();}
-    },{once:true});
-    v.addEventListener('seeked',capture,{once:true});
-    v.addEventListener('error',finish,{once:true});
-    setTimeout(finish,12000);
-  });
-}
+// Lazily load + paint first frame for video thumbnails as they enter the viewport.
 let _vidObserver=null;
 function activateVideoThumbs(container){
   const vids=container.querySelectorAll('video[data-src]');
@@ -1586,11 +1503,17 @@ function activateVideoThumbs(container){
         if(!en.isIntersecting)return;
         const v=en.target;
         _vidObserver.unobserve(v);
-        if(!v.dataset.src||v.src)return;
-        _vidQueue.push(()=>activateVideo(v));
-        processVidQueue();
+        if(v.dataset.src&&!v.src){
+          v.preload='auto';
+          v.src=v.dataset.src;
+          // When metadata loads, set aspect ratio + seek to force first-frame paint
+          v.addEventListener('loadedmetadata',()=>{
+            if(v.videoWidth&&v.videoHeight)v.parentElement.style.aspectRatio=v.videoWidth+'/'+v.videoHeight;
+            try{v.currentTime=0.1;}catch(e){}
+          },{once:true});
+        }
       });
-    },{rootMargin:'400px 0px'});
+    },{rootMargin:'200px 0px'});
   }
   vids.forEach(v=>_vidObserver.observe(v));
 }
