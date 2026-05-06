@@ -22,7 +22,15 @@ button:active{transform:translateY(1px)}
 /* —— SCREENS ——————————————————————————————— */
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;overflow-y:auto;transition:opacity .2s ease,transform .2s ease}
 #s-admin{justify-content:flex-start;padding-top:48px}
-#s-admin .card{max-width:1100px}
+#s-admin .card{max-width:900px;background:transparent;border:none;padding:0}
+#s-admin .tag{display:none}
+.gm-act{transition:transform .12s,box-shadow .2s,background .15s,color .15s,border-color .15s}
+.gm-act:hover{transform:translateY(-1px)}
+.gm-act.open-btn:hover{background:var(--acid)!important;box-shadow:0 0 14px rgba(57,255,20,.55),0 0 26px rgba(57,255,20,.2)}
+.gm-act.view-btn:hover{box-shadow:0 0 14px rgba(79,195,247,.5),0 0 26px rgba(79,195,247,.18)}
+.gm-act.link-btn:hover{background:rgba(79,195,247,.12)!important;box-shadow:0 0 14px rgba(79,195,247,.45)}
+.gm-act.edit-btn:hover{color:var(--acid)!important;border-color:var(--acid)!important;box-shadow:0 0 12px rgba(57,255,20,.4)}
+.gm-act.del-btn:hover{background:rgba(255,68,68,.08)!important;color:#fff!important;box-shadow:0 0 14px rgba(255,68,68,.55),0 0 26px rgba(255,68,68,.2)}
 .gm-box{background:rgba(8,8,8,.5);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden;transition:border-color .25s}
 .gm-box:hover{border-color:var(--border2)}
 .gm-box.open{border-color:rgba(79,195,247,.4)}
@@ -1140,13 +1148,13 @@ async function renderGalleryList(){
       html+='<div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap">';
       const sn=g.name.replace(/'/g,"\\'");
       if(g.category==='portfolio'){
-        html+='<button onclick="openPortfolio(\''+sn+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">VIEW</button>';
-        html+='<button onclick="copyPortfolioLink(\''+sn+'\',\''+g.pf+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">LINK</button>';
+        html+='<button class="gm-act view-btn" onclick="openPortfolio(\''+sn+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">VIEW</button>';
+        html+='<button class="gm-act link-btn" onclick="copyPortfolioLink(\''+sn+'\',\''+g.pf+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">LINK</button>';
       } else {
-        html+='<button onclick="loadExistingClient(\''+sn+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">OPEN</button>';
+        html+='<button class="gm-act open-btn" onclick="loadExistingClient(\''+sn+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">OPEN</button>';
       }
-      html+='<button onclick="editGallery(\''+sn+'\')" title="Edit" style="background:transparent;color:var(--muted);border:1px solid var(--border2);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">EDIT</button>';
-      html+='<button onclick="deleteGallery(\''+sn+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">✕</button>';
+      html+='<button class="gm-act edit-btn" onclick="editGallery(\''+sn+'\')" title="Edit" style="background:transparent;color:var(--muted);border:1px solid var(--border2);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">EDIT</button>';
+      html+='<button class="gm-act del-btn" onclick="deleteGallery(\''+sn+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">✕</button>';
       html+='</div></div>';
     });
     html+='</div></div></div></div>';
