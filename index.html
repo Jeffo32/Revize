@@ -22,16 +22,6 @@ button:active{transform:translateY(1px)}
 /* —— SCREENS ——————————————————————————————— */
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;overflow-y:auto;transition:opacity .2s ease,transform .2s ease}
 #s-admin{justify-content:flex-start;padding-top:48px}
-#s-admin .card{max-width:1500px}
-.gm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;align-items:start}
-.gm-col{display:flex;flex-direction:column}
-.gm-col .gm-cat{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.26em;color:var(--ice);text-transform:uppercase;margin:0 4px 12px;padding-bottom:10px;border-bottom:1px solid var(--border);text-shadow:0 0 8px rgba(79,195,247,.4)}
-.gm-col .gm-cat .gm-ct{color:var(--muted);font-size:11px;letter-spacing:.18em;margin-left:6px}
-.gm-col .gm-row{padding:14px 16px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;margin-bottom:8px;display:flex;flex-direction:column;gap:10px}
-.gm-col .gm-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.08em;line-height:1.1;word-break:break-word}
-.gm-col .gm-team{font-size:10px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase}
-.gm-col .gm-actions{display:flex;flex-wrap:wrap;gap:6px}
-.gm-col .gm-actions button{flex:1;min-width:60px}
 .screen.hidden{opacity:0;pointer-events:none;transform:translateY(-8px)}
 .screen.glitch-out,.screen.glitch-in{transition:none}
 .eyebrow{font-size:9px;letter-spacing:.28em;color:var(--acid);text-transform:uppercase;margin-bottom:10px;text-align:center}
@@ -1118,33 +1108,31 @@ async function renderGalleryList(){
       groups[cat].push(g);
     }catch(e){}
   });
-  let html='<div class="gm-grid">';
+  let html='';
   CAT_ORDER.forEach(cat=>{
     if(!groups[cat]||!groups[cat].length)return;
-    html+='<div class="gm-col">';
-    html+='<div class="gm-cat">'+CAT_NAMES[cat]+'<span class="gm-ct">'+groups[cat].length+'</span></div>';
+    html+='<div style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.24em;color:var(--ice);text-transform:uppercase;margin:24px 4px 12px;text-shadow:0 0 8px rgba(79,195,247,.35)">'+CAT_NAMES[cat]+'</div>';
     groups[cat].forEach(g=>{
       const rawAssigned=(teamConfig.assignments||{})[g.name];
       const assigned=Array.isArray(rawAssigned)?rawAssigned:[];
       const teamTags=assigned.map(id=>{const m=Object.values(TEAM_PINS).find(x=>x.id===id);return m?m.name.split(' ')[0]:id;}).join(', ');
+      html+='<div style="padding:18px 20px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px">';
+      html+='<div style="flex:1;min-width:0"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:.08em;line-height:1.1">'+g.name.toUpperCase()+'</div>';
+      if(teamTags)html+='<div style="font-size:10px;color:var(--muted);letter-spacing:.16em;margin-top:6px;text-transform:uppercase">'+teamTags+'</div>';
+      html+='</div>';
+      html+='<div style="display:flex;gap:6px;flex-shrink:0">';
       const sn=g.name.replace(/'/g,"\\'");
-      html+='<div class="gm-row">';
-      html+='<div class="gm-name">'+g.name.toUpperCase()+'</div>';
-      if(teamTags)html+='<div class="gm-team">'+teamTags+'</div>';
-      html+='<div class="gm-actions">';
       if(g.category==='portfolio'){
-        html+='<button onclick="openPortfolio(\''+sn+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:13px;letter-spacing:.1em;padding:8px 10px;cursor:pointer;border-radius:4px">VIEW</button>';
-        html+='<button onclick="copyPortfolioLink(\''+sn+'\',\''+g.pf+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:13px;letter-spacing:.1em;padding:8px 10px;cursor:pointer;border-radius:4px">LINK</button>';
+        html+='<button onclick="openPortfolio(\''+sn+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">VIEW</button>';
+        html+='<button onclick="copyPortfolioLink(\''+sn+'\',\''+g.pf+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">LINK</button>';
       } else {
-        html+='<button onclick="loadExistingClient(\''+sn+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:13px;letter-spacing:.1em;padding:8px 10px;cursor:pointer;border-radius:4px">OPEN</button>';
+        html+='<button onclick="loadExistingClient(\''+sn+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">OPEN</button>';
       }
-      html+='<button onclick="editGallery(\''+sn+'\')" title="Edit" style="background:transparent;color:var(--muted);border:1px solid var(--border2);font-family:\'Bebas Neue\',sans-serif;font-size:13px;letter-spacing:.1em;padding:8px 10px;cursor:pointer;border-radius:4px">EDIT</button>';
-      html+='<button onclick="deleteGallery(\''+sn+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:13px;letter-spacing:.1em;padding:8px 10px;cursor:pointer;border-radius:4px;flex:0;min-width:auto;padding:8px 12px">✕</button>';
+      html+='<button onclick="editGallery(\''+sn+'\')" title="Edit" style="background:transparent;color:var(--muted);border:1px solid var(--border2);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">EDIT</button>';
+      html+='<button onclick="deleteGallery(\''+sn+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">✕</button>';
       html+='</div></div>';
     });
-    html+='</div>';
   });
-  html+='</div>';
   container.innerHTML=html;
 }
 function openPortfolio(name,pf){
