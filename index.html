@@ -22,6 +22,7 @@ button:active{transform:translateY(1px)}
 /* —— SCREENS ——————————————————————————————— */
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;overflow-y:auto;transition:opacity .2s ease,transform .2s ease}
 #s-admin{justify-content:flex-start;padding-top:48px}
+#s-admin .card{max-width:1100px}
 .gm-box{background:rgba(8,8,8,.5);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden;transition:border-color .2s}
 .gm-box:hover{border-color:var(--border2)}
 .gm-box[open]{border-color:rgba(79,195,247,.4)}
@@ -1122,18 +1123,18 @@ async function renderGalleryList(){
   let html='';
   CAT_ORDER.forEach(cat=>{
     if(!groups[cat]||!groups[cat].length)return;
-    html+='<details class="gm-box" onmouseenter="this.open=true">';
+    html+='<details class="gm-box" onmouseenter="this.open=true" onmouseleave="this.open=false">';
     html+='<summary class="gm-box-head"><div class="gm-box-name">'+CAT_NAMES[cat]+'</div><div class="gm-box-count">'+groups[cat].length+(groups[cat].length===1?' Gallery':' Galleries')+'</div></summary>';
     html+='<div class="gm-box-body">';
     groups[cat].forEach(g=>{
       const rawAssigned=(teamConfig.assignments||{})[g.name];
       const assigned=Array.isArray(rawAssigned)?rawAssigned:[];
       const teamTags=assigned.map(id=>{const m=Object.values(TEAM_PINS).find(x=>x.id===id);return m?m.name.split(' ')[0]:id;}).join(', ');
-      html+='<div style="padding:18px 20px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px">';
-      html+='<div style="flex:1;min-width:0"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:.08em;line-height:1.1">'+g.name.toUpperCase()+'</div>';
+      html+='<div style="padding:18px 20px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap">';
+      html+='<div style="flex:1 1 200px;min-width:0;word-break:break-word"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:.08em;line-height:1.1">'+g.name.toUpperCase()+'</div>';
       if(teamTags)html+='<div style="font-size:10px;color:var(--muted);letter-spacing:.16em;margin-top:6px;text-transform:uppercase">'+teamTags+'</div>';
       html+='</div>';
-      html+='<div style="display:flex;gap:6px;flex-shrink:0">';
+      html+='<div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap">';
       const sn=g.name.replace(/'/g,"\\'");
       if(g.category==='portfolio'){
         html+='<button onclick="openPortfolio(\''+sn+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">VIEW</button>';
