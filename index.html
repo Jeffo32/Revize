@@ -31,6 +31,20 @@ button:active{transform:translateY(1px)}
 .gm-act.link-btn:hover{background:rgba(79,195,247,.12)!important;box-shadow:0 0 14px rgba(79,195,247,.45)}
 .gm-act.edit-btn:hover{color:var(--acid)!important;border-color:var(--acid)!important;box-shadow:0 0 12px rgba(57,255,20,.4)}
 .gm-act.del-btn:hover{background:rgba(255,68,68,.08)!important;color:#fff!important;box-shadow:0 0 14px rgba(255,68,68,.55),0 0 26px rgba(255,68,68,.2)}
+.gm-cols{display:flex;align-items:stretch;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.gm-cols .gm-add{flex:0 0 auto;width:54px;background:transparent;border:1px solid var(--acid);color:var(--acid);font-family:'Bebas Neue',sans-serif;font-size:26px;cursor:pointer;border-radius:8px;transition:background .15s,box-shadow .2s,transform .12s;text-shadow:0 0 8px rgba(57,255,20,.5)}
+.gm-cols .gm-add:hover{background:rgba(57,255,20,.12);box-shadow:0 0 16px rgba(57,255,20,.45),0 0 32px rgba(57,255,20,.18);transform:translateY(-1px)}
+.gm-cols .gm-add.on{background:var(--acid);color:var(--base);text-shadow:none}
+.gm-cols .gm-tab{flex:1 1 130px;min-width:120px;background:rgba(8,8,8,.5);border:1px solid var(--border);color:var(--ice);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.18em;text-transform:uppercase;padding:14px 12px;cursor:pointer;border-radius:8px;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:4px;text-shadow:0 0 8px rgba(79,195,247,.35)}
+.gm-cols .gm-tab .gm-tab-ct{font-size:11px;color:var(--muted);letter-spacing:.16em;text-shadow:none}
+.gm-cols .gm-tab:hover,.gm-cols .gm-tab.active{border-color:var(--ice);background:rgba(79,195,247,.08);box-shadow:0 0 14px rgba(79,195,247,.35)}
+.gm-cols .gm-tab.active .gm-tab-ct{color:var(--ice)}
+.gm-content{min-height:120px;transition:opacity .2s ease}
+.gm-content .gm-row{padding:18px 20px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.gm-content .gm-row-name{flex:1 1 200px;min-width:0;word-break:break-word;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.08em;line-height:1.1}
+.gm-content .gm-row-team{font-size:10px;color:var(--muted);letter-spacing:.16em;margin-top:6px;text-transform:uppercase}
+.gm-content .gm-row-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+.gm-content .gm-empty{color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.18em;text-align:center;padding:48px 0;text-transform:uppercase}
 .gm-box{background:rgba(8,8,8,.5);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden;transition:border-color .25s}
 .gm-box:hover{border-color:var(--border2)}
 .gm-box.open{border-color:rgba(79,195,247,.4)}
@@ -464,19 +478,13 @@ button:active{transform:translateY(1px)}
   <div class="big-title float float-d2">GALLERY<br><span>MANAGER</span></div>
   <div class="sub float float-d3">Add, assign & manage galleries</div>
   <div class="card float float-d4">
-    <div class="tag">Admin</div>
-    <!-- NEW / EXISTING toggle -->
-    <div style="display:flex;gap:8px;margin-bottom:20px">
-      <button id="btn-new" onclick="adminMode('new')" onmouseenter="adminHover('new')" style="flex:1;padding:11px;background:transparent;border:1px solid var(--border2);color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">+ NEW</button>
-      <button id="btn-existing" onclick="adminMode('existing')" onmouseenter="adminHover('existing')" style="flex:1;padding:11px;background:var(--acid);color:var(--base);border:none;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .15s">GALLERIES</button>
+    <!-- Tabs row: + button on the left, category columns on the right -->
+    <div class="gm-cols" id="gm-cols"></div>
+    <!-- Content area swaps based on hovered/active category -->
+    <div class="gm-content" id="gallery-list">
+      <div style="color:var(--muted);font-size:11px;text-align:center;padding:20px 0">Loading...</div>
     </div>
-    <!-- Existing galleries list -->
-    <div id="existing-clients" style="display:block;margin-bottom:14px">
-      <div id="gallery-list" style="display:flex;flex-direction:column;gap:10px">
-        <div style="color:var(--muted);font-size:11px;text-align:center;padding:20px 0">Loading...</div>
-      </div>
-    </div>
-    <!-- New gallery form -->
+    <!-- New gallery form (slides in from + button) -->
     <div id="new-client-form" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.25,.46,.45,.94)">
       <div class="field"><label class="lbl">Gallery Name</label><input class="inp" id="a-name" type="text" placeholder="e.g. Tim, March Shoot"></div>
       <div class="field"><label class="lbl">Google Drive Folder Link <span style="color:var(--muted);font-size:9px;letter-spacing:.16em">(optional if using R2)</span></label><input class="inp" id="a-photos" type="text" placeholder="Paste Google Drive folder link"></div>
@@ -495,12 +503,15 @@ button:active{transform:translateY(1px)}
         <label class="lbl">Assign To</label>
         <div id="a-team-checks" style="display:flex;flex-direction:column;gap:6px"></div>
       </div>
+      <button class="btn-p" id="admin-save-btn" onclick="saveGallery()" style="width:100%">SAVE GALLERY →</button>
     </div>
-    <button class="btn-p" id="admin-save-btn" onclick="saveGallery()">SAVE GALLERY →</button>
     <div class="url-box" id="url-box">
       <div class="url-label">Client link <button class="copy-btn" onclick="copyUrl()">COPY</button></div>
       <div class="url-text" id="url-text"></div>
     </div>
+    <button id="btn-new" onclick="adminMode('new')" style="display:none"></button>
+    <button id="btn-existing" onclick="adminMode('existing')" style="display:none"></button>
+    <div id="existing-clients" style="display:none"></div>
   </div>
 </div>
 
@@ -1112,54 +1123,92 @@ function enterTeamGallery(clientName,pf){
 // —— GALLERY LIST & MANAGEMENT ————————————————————
 const CAT_ORDER=['belvu','mosaic','wolfe','client','portfolio'];
 const CAT_NAMES={belvu:'BELVU',mosaic:'MOSAIC',wolfe:'WOLFE PRODUCTIONS',client:'CLIENT WORK',portfolio:'PORTFOLIO'};
+let _gmActiveCat='';
+let _gmHoverCat='';
+let _gmGroups={};
 async function renderGalleryList(){
   await loadTeamConfig();
+  const cols=document.getElementById('gm-cols');
   const container=document.getElementById('gallery-list');
   const galleries=teamConfig.galleries||[];
-  if(!galleries.length){
-    container.innerHTML='<div style="color:var(--muted);font-size:11px;text-align:center;padding:20px 0">No galleries yet. Click + NEW to add one.</div>';
-    return;
-  }
   // Group by category
-  const groups={};
+  _gmGroups={};
   galleries.forEach(raw=>{
     try{
       const g=normalizeGallery(raw);
       if(!g)return;
       const cat=g.category||'client';
-      if(!groups[cat])groups[cat]=[];
-      groups[cat].push(g);
+      if(!_gmGroups[cat])_gmGroups[cat]=[];
+      _gmGroups[cat].push(g);
     }catch(e){}
   });
-  let html='';
+  // Pick a default active category (first non-empty)
+  if(!_gmActiveCat||!_gmGroups[_gmActiveCat]){
+    _gmActiveCat=CAT_ORDER.find(c=>_gmGroups[c]&&_gmGroups[c].length)||'';
+  }
+  // Render the column tabs
+  let tabsHtml='<button class="gm-add" onclick="openNewGallery()" title="New gallery">+</button>';
   CAT_ORDER.forEach(cat=>{
-    if(!groups[cat]||!groups[cat].length)return;
-    html+='<div class="gm-box" onmouseenter="this.classList.add(\'open\')" onmouseleave="this.classList.remove(\'open\')">';
-    html+='<div class="gm-box-head" onclick="this.parentElement.classList.toggle(\'open\')"><div class="gm-box-name">'+CAT_NAMES[cat]+'</div><div class="gm-box-count">'+groups[cat].length+(groups[cat].length===1?' Gallery':' Galleries')+'</div></div>';
-    html+='<div class="gm-box-wrap"><div class="gm-box-body"><div class="gm-box-inner">';
-    groups[cat].forEach(g=>{
-      const rawAssigned=(teamConfig.assignments||{})[g.name];
-      const assigned=Array.isArray(rawAssigned)?rawAssigned:[];
-      const teamTags=assigned.map(id=>{const m=Object.values(TEAM_PINS).find(x=>x.id===id);return m?m.name.split(' ')[0]:id;}).join(', ');
-      html+='<div style="padding:18px 20px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap">';
-      html+='<div style="flex:1 1 200px;min-width:0;word-break:break-word"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:.08em;line-height:1.1">'+g.name.toUpperCase()+'</div>';
-      if(teamTags)html+='<div style="font-size:10px;color:var(--muted);letter-spacing:.16em;margin-top:6px;text-transform:uppercase">'+teamTags+'</div>';
-      html+='</div>';
-      html+='<div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap">';
-      const sn=g.name.replace(/'/g,"\\'");
-      if(g.category==='portfolio'){
-        html+='<button class="gm-act view-btn" onclick="openPortfolio(\''+sn+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">VIEW</button>';
-        html+='<button class="gm-act link-btn" onclick="copyPortfolioLink(\''+sn+'\',\''+g.pf+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">LINK</button>';
-      } else {
-        html+='<button class="gm-act open-btn" onclick="loadExistingClient(\''+sn+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">OPEN</button>';
-      }
-      html+='<button class="gm-act edit-btn" onclick="editGallery(\''+sn+'\')" title="Edit" style="background:transparent;color:var(--muted);border:1px solid var(--border2);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">EDIT</button>';
-      html+='<button class="gm-act del-btn" onclick="deleteGallery(\''+sn+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">✕</button>';
-      html+='</div></div>';
-    });
-    html+='</div></div></div></div>';
+    const arr=_gmGroups[cat];if(!arr||!arr.length)return;
+    const active=cat===_gmActiveCat?' active':'';
+    tabsHtml+='<button class="gm-tab'+active+'" data-cat="'+cat+'" onmouseenter="hoverGmCat(\''+cat+'\')" onmouseleave="hoverGmCat(\'\')" onclick="setGmCat(\''+cat+'\')">'+CAT_NAMES[cat]+'<span class="gm-tab-ct">'+arr.length+(arr.length===1?' GALLERY':' GALLERIES')+'</span></button>';
+  });
+  if(cols)cols.innerHTML=tabsHtml;
+  renderGmContent();
+}
+function hoverGmCat(cat){
+  _gmHoverCat=cat;
+  // Highlight the hovered tab
+  document.querySelectorAll('.gm-cols .gm-tab').forEach(t=>{
+    t.classList.toggle('active',t.dataset.cat===(cat||_gmActiveCat));
+  });
+  renderGmContent();
+}
+function setGmCat(cat){
+  _gmActiveCat=cat;
+  _gmHoverCat='';
+  document.querySelectorAll('.gm-cols .gm-tab').forEach(t=>{
+    t.classList.toggle('active',t.dataset.cat===cat);
+  });
+  renderGmContent();
+}
+function renderGmContent(){
+  const container=document.getElementById('gallery-list');
+  if(!container)return;
+  const cat=_gmHoverCat||_gmActiveCat;
+  const arr=_gmGroups[cat]||[];
+  if(!arr.length){
+    container.innerHTML='<div class="gm-empty">No galleries yet. Click + to add one.</div>';
+    return;
+  }
+  let html='';
+  arr.forEach(g=>{
+    const rawAssigned=(teamConfig.assignments||{})[g.name];
+    const assigned=Array.isArray(rawAssigned)?rawAssigned:[];
+    const teamTags=assigned.map(id=>{const m=Object.values(TEAM_PINS).find(x=>x.id===id);return m?m.name.split(' ')[0]:id;}).join(', ');
+    const sn=g.name.replace(/'/g,"\\'");
+    html+='<div class="gm-row">';
+    html+='<div class="gm-row-name">'+g.name.toUpperCase();
+    if(teamTags)html+='<div class="gm-row-team">'+teamTags+'</div>';
+    html+='</div>';
+    html+='<div class="gm-row-actions">';
+    if(g.category==='portfolio'){
+      html+='<button class="gm-act view-btn" onclick="openPortfolio(\''+sn+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">VIEW</button>';
+      html+='<button class="gm-act link-btn" onclick="copyPortfolioLink(\''+sn+'\',\''+g.pf+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">LINK</button>';
+    } else {
+      html+='<button class="gm-act open-btn" onclick="loadExistingClient(\''+sn+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">OPEN</button>';
+    }
+    html+='<button class="gm-act edit-btn" onclick="editGallery(\''+sn+'\')" title="Edit" style="background:transparent;color:var(--muted);border:1px solid var(--border2);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">EDIT</button>';
+    html+='<button class="gm-act del-btn" onclick="deleteGallery(\''+sn+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">✕</button>';
+    html+='</div></div>';
   });
   container.innerHTML=html;
+}
+function openNewGallery(){
+  adminMode('new');
+  // Toggle "+" highlight
+  const add=document.querySelector('.gm-cols .gm-add');if(add)add.classList.add('on');
+  document.getElementById('a-name').focus();
 }
 function openPortfolio(name,pf){
   viewOnly=true;
@@ -1229,6 +1278,7 @@ async function saveGallery(){
   setTimeout(()=>{btn.textContent=_editingGalleryName?'UPDATE GALLERY →':'SAVE GALLERY →';},1500);
   // Reset edit state and form
   _editingGalleryName='';
+  const add=document.querySelector('.gm-cols .gm-add');if(add)add.classList.remove('on');
   adminMode('existing');
   document.getElementById('a-name').value='';
   document.getElementById('a-photos').value='';
