@@ -23,17 +23,20 @@ button:active{transform:translateY(1px)}
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;overflow-y:auto;transition:opacity .2s ease,transform .2s ease}
 #s-admin{justify-content:flex-start;padding-top:48px}
 #s-admin .card{max-width:1100px}
-.gm-box{background:rgba(8,8,8,.5);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden;transition:border-color .2s}
+.gm-box{background:rgba(8,8,8,.5);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden;transition:border-color .25s}
 .gm-box:hover{border-color:var(--border2)}
-.gm-box[open]{border-color:rgba(79,195,247,.4)}
-.gm-box-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;cursor:pointer;list-style:none;user-select:none;transition:background .15s}
-.gm-box-head::-webkit-details-marker{display:none}
+.gm-box.open{border-color:rgba(79,195,247,.4)}
+.gm-box-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;cursor:pointer;user-select:none;transition:background .2s}
 .gm-box-head:hover{background:rgba(79,195,247,.05)}
 .gm-box-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.22em;color:var(--ice);text-transform:uppercase;text-shadow:0 0 10px rgba(79,195,247,.4);display:flex;align-items:center;gap:14px}
-.gm-box-name::before{content:'▸';display:inline-block;font-size:14px;color:var(--ice);transition:transform .2s ease;transform-origin:center}
-.gm-box[open] .gm-box-name::before{transform:rotate(90deg)}
+.gm-box-name::before{content:'▸';display:inline-block;font-size:14px;color:var(--ice);transition:transform .35s cubic-bezier(.34,1.56,.64,1);transform-origin:center}
+.gm-box.open .gm-box-name::before{transform:rotate(90deg)}
 .gm-box-count{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
-.gm-box-body{padding:0 20px 16px;border-top:1px solid var(--border);padding-top:16px}
+.gm-box-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s cubic-bezier(.4,0,.2,1)}
+.gm-box.open .gm-box-wrap{grid-template-rows:1fr}
+.gm-box-body{overflow:hidden;opacity:0;transform:translateY(-4px);transition:opacity .25s ease,transform .25s ease;transition-delay:0s}
+.gm-box.open .gm-box-body{opacity:1;transform:translateY(0);transition-delay:.1s}
+.gm-box-inner{padding:16px 20px 16px;border-top:1px solid var(--border)}
 .screen.hidden{opacity:0;pointer-events:none;transform:translateY(-8px)}
 .screen.glitch-out,.screen.glitch-in{transition:none}
 .eyebrow{font-size:9px;letter-spacing:.28em;color:var(--acid);text-transform:uppercase;margin-bottom:10px;text-align:center}
@@ -1123,9 +1126,9 @@ async function renderGalleryList(){
   let html='';
   CAT_ORDER.forEach(cat=>{
     if(!groups[cat]||!groups[cat].length)return;
-    html+='<details class="gm-box" onmouseenter="this.open=true" onmouseleave="this.open=false">';
-    html+='<summary class="gm-box-head"><div class="gm-box-name">'+CAT_NAMES[cat]+'</div><div class="gm-box-count">'+groups[cat].length+(groups[cat].length===1?' Gallery':' Galleries')+'</div></summary>';
-    html+='<div class="gm-box-body">';
+    html+='<div class="gm-box" onmouseenter="this.classList.add(\'open\')" onmouseleave="this.classList.remove(\'open\')">';
+    html+='<div class="gm-box-head" onclick="this.parentElement.classList.toggle(\'open\')"><div class="gm-box-name">'+CAT_NAMES[cat]+'</div><div class="gm-box-count">'+groups[cat].length+(groups[cat].length===1?' Gallery':' Galleries')+'</div></div>';
+    html+='<div class="gm-box-wrap"><div class="gm-box-body"><div class="gm-box-inner">';
     groups[cat].forEach(g=>{
       const rawAssigned=(teamConfig.assignments||{})[g.name];
       const assigned=Array.isArray(rawAssigned)?rawAssigned:[];
@@ -1146,7 +1149,7 @@ async function renderGalleryList(){
       html+='<button onclick="deleteGallery(\''+sn+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">✕</button>';
       html+='</div></div>';
     });
-    html+='</div></details>';
+    html+='</div></div></div></div>';
   });
   container.innerHTML=html;
 }
