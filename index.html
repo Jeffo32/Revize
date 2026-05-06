@@ -1110,25 +1110,25 @@ async function renderGalleryList(){
   let html='';
   CAT_ORDER.forEach(cat=>{
     if(!groups[cat]||!groups[cat].length)return;
-    html+='<div style="font-size:8px;letter-spacing:.22em;color:var(--ice);text-transform:uppercase;margin:4px 0 2px">'+CAT_NAMES[cat]+'</div>';
+    html+='<div style="font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.24em;color:var(--ice);text-transform:uppercase;margin:24px 4px 12px;text-shadow:0 0 8px rgba(79,195,247,.35)">'+CAT_NAMES[cat]+'</div>';
     groups[cat].forEach(g=>{
       const rawAssigned=(teamConfig.assignments||{})[g.name];
       const assigned=Array.isArray(rawAssigned)?rawAssigned:[];
       const teamTags=assigned.map(id=>{const m=Object.values(TEAM_PINS).find(x=>x.id===id);return m?m.name.split(' ')[0]:id;}).join(', ');
-      html+='<div style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:8px">';
-      html+='<div style="flex:1;min-width:0"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:17px;letter-spacing:.06em">'+g.name.toUpperCase()+'</div>';
-      if(teamTags)html+='<div style="font-size:8px;color:var(--muted);letter-spacing:.06em;margin-top:2px">'+teamTags+'</div>';
+      html+='<div style="padding:18px 20px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px">';
+      html+='<div style="flex:1;min-width:0"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;letter-spacing:.08em;line-height:1.1">'+g.name.toUpperCase()+'</div>';
+      if(teamTags)html+='<div style="font-size:10px;color:var(--muted);letter-spacing:.16em;margin-top:6px;text-transform:uppercase">'+teamTags+'</div>';
       html+='</div>';
       html+='<div style="display:flex;gap:6px;flex-shrink:0">';
       const sn=g.name.replace(/'/g,"\\'");
       if(g.category==='portfolio'){
-        html+='<button onclick="openPortfolio(\''+sn+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">VIEW</button>';
-        html+='<button onclick="copyPortfolioLink(\''+sn+'\',\''+g.pf+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">LINK</button>';
+        html+='<button onclick="openPortfolio(\''+sn+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">VIEW</button>';
+        html+='<button onclick="copyPortfolioLink(\''+sn+'\',\''+g.pf+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">LINK</button>';
       } else {
-        html+='<button onclick="loadExistingClient(\''+sn+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">OPEN</button>';
+        html+='<button onclick="loadExistingClient(\''+sn+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">OPEN</button>';
       }
-      html+='<button onclick="editGallery(\''+sn+'\')" title="Edit" style="background:transparent;color:var(--muted);border:1px solid var(--border2);font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">EDIT</button>';
-      html+='<button onclick="deleteGallery(\''+sn+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:12px;letter-spacing:.08em;padding:6px 10px;cursor:pointer;border-radius:4px">✕</button>';
+      html+='<button onclick="editGallery(\''+sn+'\')" title="Edit" style="background:transparent;color:var(--muted);border:1px solid var(--border2);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">EDIT</button>';
+      html+='<button onclick="deleteGallery(\''+sn+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">✕</button>';
       html+='</div></div>';
     });
   });
