@@ -136,6 +136,9 @@ button:active{transform:translateY(1px)}
 .gside .gs-item{display:block;width:100%;text-align:left;padding:10px 12px;background:transparent;border:none;color:#ddd;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em;cursor:pointer;border-radius:4px;transition:background .15s,color .15s;margin-bottom:2px}
 .gside .gs-item:hover{background:rgba(57,255,20,.08);color:var(--acid)}
 .gside .gs-item.active{background:rgba(57,255,20,.14);color:var(--acid)}
+.gside .gs-recent{border-left:2px solid var(--ice);padding-left:10px;margin-bottom:14px;color:var(--ice);text-shadow:0 0 8px rgba(79,195,247,.35)}
+.gside .gs-recent:hover{background:rgba(79,195,247,.1);color:var(--ice)}
+.gside .gs-recent.active{background:rgba(79,195,247,.16);color:var(--ice)}
 .gside .gs-foot{margin-top:auto;padding:14px 8px 0;border-top:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;text-align:center}
 .gside .gs-foot a{color:var(--acid);text-decoration:none;transition:opacity .15s}
 .gside .gs-foot a:hover{opacity:.75}
@@ -1013,6 +1016,8 @@ async function renderGallerySide(){
   galleries.forEach(g=>{const c=(g.category||'other').toLowerCase();(groups[c]=groups[c]||[]).push(g);});
   const active=window._activeClientName||'';
   let html='';
+  const recentActive=active==='__RECENT__'?' active':'';
+  html+='<button class="gs-item gs-recent'+recentActive+'" onclick="loadRecentFeed()">RECENT</button>';
   order.forEach(cat=>{
     const arr=groups[cat];if(!arr||!arr.length)return;
     html+='<div class="gs-cat">'+cats[cat]+'</div>';
@@ -1119,6 +1124,26 @@ function enterTeamGallery(clientName,pf){
   vg.innerHTML=[.56,.75,.56,1.3,.56,.75].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
   selP.clear();selV.clear();
   loadDrive(pf,window._activeVF);
+}
+async function loadRecentFeed(){
+  window._activePF='';
+  window._activeClientName='__RECENT__';
+  window._activeVF='';
+  document.getElementById('g-title').textContent='RECENT';
+  document.getElementById('tutorial-steps').style.display='none';
+  document.getElementById('cta-bar').innerHTML='<div class="cta-info"><div class="cl">Your selection</div><div class="cc"><span id="ct-p">0</span> photos · <span id="ct-v">0</span> videos</div></div><button class="cta-btn" onclick="downloadSelected()">DOWNLOAD SELECTED →</button>';
+  document.getElementById('tb-faves').style.display='none';
+  const oldBack=document.getElementById('team-back');if(oldBack)oldBack.style.display='none';
+  document.getElementById('s-gallery').classList.add('has-side');
+  const dlAllBtn=document.getElementById('team-dl-all');if(dlAllBtn)dlAllBtn.style.display='none';
+  renderGallerySide();
+  showScreen('s-gallery');
+  const pg=document.getElementById('g-photos');
+  const vg=document.getElementById('g-videos');
+  pg.innerHTML=[1,.75,1.3,.9,1.1,.7,1,.8,1.2,.95,1.4,.65,1,.85,1.15,.7,1.3,.9].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
+  vg.innerHTML=[.56,.75,.56,1.3,.56,.75].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
+  selP.clear();selV.clear();
+  loadDriveRecent();
 }
 // —— GALLERY LIST & MANAGEMENT ————————————————————
 const CAT_ORDER=['belvu','mosaic','wolfe','client','portfolio'];
@@ -1465,6 +1490,45 @@ async function loadDrive(folderId,r2Prefix){
     renderGrid(allP,'photos');renderGrid(allV,'videos');
     document.getElementById('tn-p').textContent=allP.length;
     document.getElementById('tn-v').textContent=allV.length;
+  }
+}
+async function loadDriveRecent(){
+  try{
+    const res=await fetch('/api/drive-recent');
+    if(!res.ok)throw new Error('drive-recent '+res.status);
+    const data=await res.json();
+    const files=data.files||[];
+    allP=files.filter(f=>f.mimeType&&f.mimeType.startsWith('image/')).map(f=>{
+      const meta=f.imageMediaMetadata||{};
+      const w=meta.width||4,h=meta.height||3;
+      return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',full:'https://lh3.googleusercontent.com/d/'+f.id+'=w1600',type:'photo',ar:w/h,gallery:f._gallery};
+    });
+    allV=files.filter(f=>f.mimeType&&f.mimeType.startsWith('video/')).map(f=>{
+      const meta=f.videoMediaMetadata||{};
+      const w=meta.width||16,h=meta.height||9;
+      return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',type:'video',ar:w/h,gallery:f._gallery};
+    });
+    renderGrid(allP,'photos');renderGrid(allV,'videos');
+    document.getElementById('tn-p').textContent=allP.length;
+    document.getElementById('tn-v').textContent=allV.length;
+    const tbP=document.getElementById('tb-photos');
+    const tbV=document.getElementById('tb-videos');
+    const tbSort=document.getElementById('tb-sort');
+    const tabsBar=document.querySelector('#s-gallery .tabs');
+    const onlyVideos=!allP.length&&allV.length;
+    const onlyPhotos=!allV.length&&allP.length;
+    if(tbP)tbP.style.display=onlyVideos?'none':'';
+    if(tbV)tbV.style.display=onlyPhotos?'none':'';
+    if(tbSort)tbSort.style.display=(onlyVideos||onlyPhotos)?'none':'';
+    if(tabsBar)tabsBar.style.display=(onlyVideos||onlyPhotos)?'none':'';
+    if(onlyVideos)switchTab('videos');
+    else if(onlyPhotos)switchTab('photos');
+  }catch(e){
+    allP=[];allV=[];
+    document.getElementById('g-photos').innerHTML='<div style="color:var(--muted);font-size:12px;padding:20px;text-align:center">Could not load recent files.</div>';
+    document.getElementById('g-videos').innerHTML='';
+    document.getElementById('tn-p').textContent=0;
+    document.getElementById('tn-v').textContent=0;
   }
 }
 

@@ -1,8 +1,8 @@
-async function fetchFiles(folderId, apiKey) {
+export async function fetchFiles(folderId, apiKey) {
   let allFiles = [];
   let pageToken = '';
   do {
-    const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,thumbnailLink,imageMediaMetadata(width,height),videoMediaMetadata(width,height)),nextPageToken&pageSize=200&supportsAllDrives=true&includeItemsFromAllDrives=true&key=${apiKey}` + (pageToken ? `&pageToken=${pageToken}` : '');
+    const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,createdTime,thumbnailLink,imageMediaMetadata(width,height),videoMediaMetadata(width,height)),nextPageToken&pageSize=200&supportsAllDrives=true&includeItemsFromAllDrives=true&key=${apiKey}` + (pageToken ? `&pageToken=${pageToken}` : '');
     const res = await fetch(url);
     if (!res.ok) {
       const body = await res.text().catch(() => '');
@@ -15,7 +15,7 @@ async function fetchFiles(folderId, apiKey) {
   return allFiles;
 }
 
-async function fetchAllRecursive(folderId, apiKey, depth = 0) {
+export async function fetchAllRecursive(folderId, apiKey, depth = 0) {
   if (depth > 5) return []; // safety limit
   const items = await fetchFiles(folderId, apiKey);
   const results = [];
