@@ -150,10 +150,16 @@ button:active{transform:translateY(1px)}
 #s-gallery.has-side .g-main{flex:1;display:flex;flex-direction:column;min-width:0;height:100vh;overflow:hidden}
 #s-gallery.has-side .topbar .tb-l .ey{display:none}
 #s-gallery.has-side .topbar .tb-l .ti{font-size:22px;letter-spacing:.1em;color:var(--bone);margin-top:0}
+.gs-toggle{display:none;background:transparent;border:1px solid var(--border);color:var(--acid);padding:6px 10px;border-radius:6px;cursor:pointer;align-items:center;justify-content:center;font-size:20px;line-height:1;margin-right:8px}
+.gs-toggle:hover{background:rgba(57,255,20,.08)}
+.gs-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:119}
 @media (max-width:840px){
-  #s-gallery.has-side{flex-direction:column}
-  #s-gallery.has-side .gside{width:100%;max-height:none;border-right:none;border-bottom:1px solid var(--border);padding:12px}
-  #s-gallery.has-side .g-main{height:auto;flex:1}
+  #s-gallery.has-side{flex-direction:row;position:relative}
+  #s-gallery.has-side .gside{position:fixed;top:0;left:0;height:100vh;width:80vw;max-width:300px;z-index:120;transform:translateX(-100%);transition:transform .25s ease;border-right:1px solid var(--border);border-bottom:none;padding:18px 14px;box-shadow:2px 0 20px rgba(0,0,0,.5)}
+  #s-gallery.has-side.side-open .gside{transform:translateX(0)}
+  #s-gallery.has-side.side-open .gs-backdrop{display:block}
+  #s-gallery.has-side .g-main{height:100vh;flex:1;width:100%}
+  #s-gallery.has-side .gs-toggle{display:inline-flex}
 }
 .tab{flex:1;padding:13px 0;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#888;background:var(--surface);border:none;cursor:pointer;position:relative;transition:color .2s,background .2s;display:flex;align-items:center;justify-content:center;gap:5px}
 .tab.on{color:var(--white);background:var(--surface2)}
@@ -547,6 +553,7 @@ button:active{transform:translateY(1px)}
 
 <!-- —— GALLERY ————————————————————————————————— -->
 <div class="screen hidden" id="s-gallery">
+  <div class="gs-backdrop" onclick="toggleGSide(false)"></div>
   <aside class="gside" id="g-side">
     <button class="gs-brand" onclick="exitTeamGallery()" title="Back" type="button">REVIZE</button>
     <div id="g-side-list"></div>
@@ -554,6 +561,7 @@ button:active{transform:translateY(1px)}
   </aside>
   <div class="g-main">
   <div class="topbar">
+    <button class="gs-toggle" onclick="toggleGSide()" aria-label="Open gallery list" type="button">☰</button>
     <div class="tb-l"><div class="ey">REVIZE</div><div class="ti" id="g-title">YOUR GALLERY</div></div>
     <div style="display:flex;align-items:center;gap:8px">
       <button id="select-btn" onclick="toggleSelectMode()">SELECT</button>
@@ -1000,6 +1008,13 @@ async function loadTeamConfig(){
 async function saveTeamConfig(){
   try{await fetch('/api/team-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(teamConfig)});}catch(e){}
 }
+function toggleGSide(force){
+  const s=document.getElementById('s-gallery');
+  if(!s)return;
+  if(force===false)s.classList.remove('side-open');
+  else if(force===true)s.classList.add('side-open');
+  else s.classList.toggle('side-open');
+}
 async function renderGallerySide(){
   if(!teamConfig||!teamConfig.galleries||!teamConfig.galleries.length){await loadTeamConfig();}
   const list=document.getElementById('g-side-list');
@@ -1017,7 +1032,7 @@ async function renderGallerySide(){
   const active=window._activeClientName||'';
   let html='';
   const recentActive=active==='__RECENT__'?' active':'';
-  html+='<button class="gs-item gs-recent'+recentActive+'" onclick="loadRecentFeed()">RECENT</button>';
+  html+='<button class="gs-item gs-recent'+recentActive+'" onclick="toggleGSide(false);loadRecentFeed()">RECENT</button>';
   order.forEach(cat=>{
     const arr=groups[cat];if(!arr||!arr.length)return;
     html+='<div class="gs-cat">'+cats[cat]+'</div>';
@@ -1026,7 +1041,7 @@ async function renderGallerySide(){
       const safe=g.name.replace(/'/g,"\\'");
       const fn=g.category==='portfolio'?'openPortfolio':'loadExistingClient';
       const args=g.category==='portfolio'?"'"+safe+"','"+g.pf+"'":"'"+safe+"','"+g.pf+"',''";
-      html+='<button class="gs-item'+isActive+'" onclick="'+fn+'('+args+')">'+g.name+'</button>';
+      html+='<button class="gs-item'+isActive+'" onclick="toggleGSide(false);'+fn+'('+args+')">'+g.name+'</button>';
     });
   });
   list.innerHTML=html;
