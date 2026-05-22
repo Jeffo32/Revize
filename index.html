@@ -2233,7 +2233,7 @@ function lbOpen(list,idx){
   const lbWm=document.querySelector('.lb-wm');
   if(lbWm)lbWm.style.display=(teamMode||adminGalleryMode)?'none':'';
   const lbSb=document.getElementById('lb-sb');
-  if(lbSb&&(teamMode||adminGalleryMode||viewOnly))lbSb.style.display='none';
+  if(lbSb)lbSb.style.display=viewOnly?'none':'';
   lbBuildTrack();
   lbPreload();
 }
@@ -2417,7 +2417,8 @@ function lbUpdateUI(){
   document.getElementById('lb-cnt').textContent=(lbIdx+1)+' / '+n;
   const s=item.type==='video'?selV:selP;
   const btn=document.getElementById('lb-sb');
-  btn.innerHTML=s.has(item.id)?'&#10003; ADDED':'ADD TO FAVOURITES';
+  const teamish=teamMode||adminGalleryMode;
+  btn.innerHTML=s.has(item.id)?(teamish?'&#10003; SELECTED':'&#10003; ADDED'):(teamish?'SELECT':'ADD TO FAVOURITES');
   btn.classList.toggle('on',s.has(item.id));
   btn.classList.remove('juggle');void btn.offsetWidth;btn.classList.add('juggle');
   document.getElementById('lb-pv').style.display=n>1?'flex':'none';
