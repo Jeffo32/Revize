@@ -23,6 +23,7 @@ button:active{transform:translateY(1px)}
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;overflow-y:auto;transition:opacity .2s ease,transform .2s ease}
 #s-admin{justify-content:flex-start;padding-top:48px}
 #s-admin .card{max-width:900px;background:transparent;border:none;padding:0}
+#s-admin .card::before{display:none}
 #s-admin .tag{display:none}
 .gm-act{transition:transform .12s,box-shadow .2s,background .15s,color .15s,border-color .15s}
 .gm-act:hover{transform:translateY(-1px)}
@@ -1182,17 +1183,24 @@ async function renderGalleryList(){
       _gmGroups[cat].push(g);
     }catch(e){}
   });
-  // Pick a default active category (first non-empty)
-  if(!_gmActiveCat||!_gmGroups[_gmActiveCat]){
-    _gmActiveCat=CAT_ORDER.find(c=>_gmGroups[c]&&_gmGroups[c].length)||'';
+  // Flat "ALL" view across every category, sorted alphabetically
+  _gmGroups.all=galleries.slice().map(g=>normalizeGallery(g)).filter(Boolean).sort((a,b)=>a.name.localeCompare(b.name));
+  // Default to ALL when nothing is set or when the previously-active category was emptied
+  if(!_gmActiveCat||!_gmGroups[_gmActiveCat]||!_gmGroups[_gmActiveCat].length){
+    _gmActiveCat=_gmGroups.all.length?'all':(CAT_ORDER.find(c=>_gmGroups[c]&&_gmGroups[c].length)||'');
   }
-  // Render the column tabs
-  let tabsHtml='<button class="gm-add" onclick="openNewGallery()" title="New gallery">+</button>';
+  // Render the column tabs: ALL first, then each non-empty category, + button last
+  let tabsHtml='';
+  const renderTab=(cat,label,count)=>{
+    const active=cat===_gmActiveCat?' active':'';
+    tabsHtml+='<button class="gm-tab'+active+'" data-cat="'+cat+'" onmouseenter="hoverGmCat(\''+cat+'\')" onmouseleave="hoverGmCat(\'\')" onclick="setGmCat(\''+cat+'\')">'+label+'<span class="gm-tab-ct">'+count+(count===1?' GALLERY':' GALLERIES')+'</span></button>';
+  };
+  if(_gmGroups.all.length)renderTab('all','ALL',_gmGroups.all.length);
   CAT_ORDER.forEach(cat=>{
     const arr=_gmGroups[cat];if(!arr||!arr.length)return;
-    const active=cat===_gmActiveCat?' active':'';
-    tabsHtml+='<button class="gm-tab'+active+'" data-cat="'+cat+'" onmouseenter="hoverGmCat(\''+cat+'\')" onmouseleave="hoverGmCat(\'\')" onclick="setGmCat(\''+cat+'\')">'+CAT_NAMES[cat]+'<span class="gm-tab-ct">'+arr.length+(arr.length===1?' GALLERY':' GALLERIES')+'</span></button>';
+    renderTab(cat,CAT_NAMES[cat],arr.length);
   });
+  tabsHtml+='<button class="gm-add" onclick="openNewGallery()" title="New gallery">+</button>';
   if(cols)cols.innerHTML=tabsHtml;
   renderGmContent();
 }
