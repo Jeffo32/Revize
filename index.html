@@ -1165,7 +1165,6 @@ async function loadRecentFeed(){
 const CAT_ORDER=['belvu','mosaic','wolfe','client','portfolio'];
 const CAT_NAMES={belvu:'BELVU',mosaic:'MOSAIC',wolfe:'WOLFE PRODUCTIONS',client:'CLIENT WORK',portfolio:'PORTFOLIO'};
 let _gmActiveCat='';
-let _gmHoverCat='';
 let _gmGroups={};
 async function renderGalleryList(){
   await loadTeamConfig();
@@ -1193,7 +1192,7 @@ async function renderGalleryList(){
   let tabsHtml='';
   const renderTab=(cat,label,count)=>{
     const active=cat===_gmActiveCat?' active':'';
-    tabsHtml+='<button class="gm-tab'+active+'" data-cat="'+cat+'" onmouseenter="hoverGmCat(\''+cat+'\')" onmouseleave="hoverGmCat(\'\')" onclick="setGmCat(\''+cat+'\')">'+label+'<span class="gm-tab-ct">'+count+(count===1?' GALLERY':' GALLERIES')+'</span></button>';
+    tabsHtml+='<button class="gm-tab'+active+'" data-cat="'+cat+'" onclick="setGmCat(\''+cat+'\')">'+label+'<span class="gm-tab-ct">'+count+(count===1?' GALLERY':' GALLERIES')+'</span></button>';
   };
   if(_gmGroups.all.length)renderTab('all','ALL',_gmGroups.all.length);
   CAT_ORDER.forEach(cat=>{
@@ -1204,17 +1203,8 @@ async function renderGalleryList(){
   if(cols)cols.innerHTML=tabsHtml;
   renderGmContent();
 }
-function hoverGmCat(cat){
-  _gmHoverCat=cat;
-  // Highlight the hovered tab
-  document.querySelectorAll('.gm-cols .gm-tab').forEach(t=>{
-    t.classList.toggle('active',t.dataset.cat===(cat||_gmActiveCat));
-  });
-  renderGmContent();
-}
 function setGmCat(cat){
   _gmActiveCat=cat;
-  _gmHoverCat='';
   document.querySelectorAll('.gm-cols .gm-tab').forEach(t=>{
     t.classList.toggle('active',t.dataset.cat===cat);
   });
@@ -1223,7 +1213,7 @@ function setGmCat(cat){
 function renderGmContent(){
   const container=document.getElementById('gallery-list');
   if(!container)return;
-  const cat=_gmHoverCat||_gmActiveCat;
+  const cat=_gmActiveCat;
   const arr=_gmGroups[cat]||[];
   if(!arr.length){
     container.innerHTML='<div class="gm-empty">No galleries yet. Click + to add one.</div>';
