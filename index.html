@@ -177,6 +177,15 @@ button:active{transform:translateY(1px)}
 .fld-tab.on{background:var(--acid);color:var(--base);border-color:var(--acid);box-shadow:0 0 14px rgba(57,255,20,.35)}
 .fld-tab.on .fc{color:var(--base);opacity:.6}
 #s-gallery.has-side .fld-tabs{padding:11px 24px}
+.fld-tab{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+/* collection share popover (right-click / long-press a tab) */
+.fld-share{position:fixed;z-index:600;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:13px 14px;min-width:200px;box-shadow:0 14px 44px rgba(0,0,0,.6);animation:fsIn .15s ease-out}
+@keyframes fsIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.fld-share .fs-label{font-size:8px;letter-spacing:.24em;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+.fld-share .fs-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.06em;color:var(--ice);text-transform:uppercase;line-height:1;margin-bottom:13px;text-shadow:0 0 10px rgba(79,195,247,.35);word-break:break-word}
+.fld-share .fs-btn{width:100%;background:var(--acid);color:var(--base);border:none;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.12em;padding:11px;border-radius:6px;cursor:pointer;box-shadow:0 0 14px rgba(57,255,20,.3);transition:transform .12s,box-shadow .2s}
+.fld-share .fs-btn:hover{transform:translateY(-1px);box-shadow:0 0 22px rgba(57,255,20,.55)}
+.fld-share .fs-btn:active{transform:scale(.97)}
 .panels{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .panel{display:none;padding:14px 14px 100px;max-width:1400px;width:100%;margin:0 auto;box-sizing:border-box}
 @media (min-width:900px){.panel{padding:20px 40px 120px}}
@@ -624,6 +633,11 @@ button:active{transform:translateY(1px)}
     </div>
   </div>
   <div class="fld-tabs" id="fld-tabs" style="display:none"></div>
+  <div class="fld-share" id="fld-share" style="display:none">
+    <div class="fs-label">Send a link to</div>
+    <div class="fs-name" id="fld-share-name"></div>
+    <button class="fs-btn" id="fld-share-btn" onclick="shareCollection()">SEND LINK →</button>
+  </div>
   <div class="tabs">
     <button class="tab on" id="tb-photos" onclick="switchTab('photos')">Photos <span class="tn" id="tn-p">0</span></button>
     <button class="tab" id="tb-videos" onclick="switchTab('videos')">Videos <span class="tn" id="tn-v">0</span></button>
@@ -1858,17 +1872,29 @@ function filterFolder(arr){return curFolder?arr.filter(x=>x._folderId===curFolde
 function renderFolderTabs(folders){
   const bar=document.getElementById('fld-tabs');
   if(!bar)return;
+  closeShareMenu();
   folderList=Array.isArray(folders)?folders:[];
   curFolder='';
   // Only worth a switcher when there are at least two collections.
   if(folderList.length<2){bar.style.display='none';bar.innerHTML='';return;}
   const total=folderList.reduce((n,f)=>n+(f.count||0),0);
-  let h='<button class="fld-tab on" onclick="selectFolder(-1,this)">ALL <span class="fc">'+total+'</span></button>';
+  let h='<button class="fld-tab on" data-idx="-1" title="Right-click or hold to share the whole folder">ALL <span class="fc">'+total+'</span></button>';
   folderList.forEach((f,i)=>{
-    h+='<button class="fld-tab" onclick="selectFolder('+i+',this)">'+wlcEsc((f.name||'').toUpperCase())+' <span class="fc">'+(f.count||0)+'</span></button>';
+    h+='<button class="fld-tab" data-idx="'+i+'" title="Right-click or hold to share this collection">'+wlcEsc((f.name||'').toUpperCase())+' <span class="fc">'+(f.count||0)+'</span></button>';
   });
   bar.innerHTML=h;
   bar.style.display='flex';
+  // Left-click switches collection; right-click / long-press opens a share menu.
+  bar.querySelectorAll('.fld-tab').forEach(btn=>{
+    const idx=parseInt(btn.dataset.idx,10);
+    btn.addEventListener('click',e=>{if(btn._lp){btn._lp=false;e.stopPropagation();return;}selectFolder(idx,btn);});
+    btn.addEventListener('contextmenu',e=>{e.preventDefault();openShareMenu(idx,btn);});
+    let t=null,sx=0,sy=0;
+    btn.addEventListener('touchstart',e=>{const o=e.touches[0];sx=o.clientX;sy=o.clientY;btn._lp=false;t=setTimeout(()=>{btn._lp=true;if(navigator.vibrate)navigator.vibrate(15);openShareMenu(idx,btn);},480);},{passive:true});
+    btn.addEventListener('touchmove',e=>{const o=e.touches[0];if(Math.abs(o.clientX-sx)>8||Math.abs(o.clientY-sy)>8)clearTimeout(t);},{passive:true});
+    btn.addEventListener('touchend',()=>clearTimeout(t),{passive:true});
+    btn.addEventListener('touchcancel',()=>clearTimeout(t),{passive:true});
+  });
 }
 function selectFolder(i,btn){
   curFolder=(i<0||!folderList[i])?'':folderList[i].id;
@@ -1887,6 +1913,52 @@ function selectFolder(i,btn){
   if(btn&&btn.scrollIntoView)btn.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
   document.querySelector('.panels')?.scrollTo({top:0,behavior:'smooth'});
 }
+
+// —— SHARE A SINGLE COLLECTION ————————————————————
+// Right-click (desktop) or long-press (touch) a collection tab to pop a "send
+// link" button. The link is scoped to just that subfolder via ?collection=,
+// or the whole folder when ALL is shared. Built from the live gallery state so
+// it works whether the gallery was opened from a share link or from admin.
+let shareIdx=-1;
+function buildShareUrl(idx){
+  const p=new URLSearchParams();
+  p.set('view','true');
+  if(window._activePF)p.set('pf',window._activePF);
+  if(window._activeVF)p.set('vf',window._activeVF);
+  const nm=window._activeClientName;
+  if(nm&&nm!=='Portfolio')p.set('client',nm);
+  if(idx>=0&&folderList[idx])p.set('collection',folderList[idx].name);
+  return location.origin+'/?'+p.toString();
+}
+function openShareMenu(idx,btn){
+  shareIdx=idx;
+  const pop=document.getElementById('fld-share');
+  if(!pop||!btn)return;
+  document.getElementById('fld-share-name').textContent=(idx<0)?'Whole folder':(folderList[idx]?folderList[idx].name:'');
+  document.getElementById('fld-share-btn').textContent=navigator.share?'SEND LINK →':'COPY LINK';
+  pop.style.display='block';
+  const r=btn.getBoundingClientRect();
+  const pw=pop.offsetWidth||220;
+  let left=r.left+r.width/2-pw/2;
+  left=Math.max(10,Math.min(left,window.innerWidth-pw-10));
+  pop.style.left=left+'px';
+  pop.style.top=(r.bottom+8)+'px';
+}
+function closeShareMenu(){const pop=document.getElementById('fld-share');if(pop)pop.style.display='none';shareIdx=-1;}
+async function shareCollection(){
+  const url=buildShareUrl(shareIdx);
+  const label=(shareIdx<0)?((window._activeClientName&&window._activeClientName!=='Portfolio')?window._activeClientName:'Portfolio'):(folderList[shareIdx]?folderList[shareIdx].name:'');
+  const sbtn=document.getElementById('fld-share-btn');
+  if(navigator.share){
+    try{await navigator.share({title:'Wolfe Productions — '+label,url});closeShareMenu();}catch(e){}
+  }else{
+    try{await navigator.clipboard.writeText(url);}catch(e){}
+    if(sbtn){sbtn.textContent='✓ LINK COPIED';setTimeout(closeShareMenu,1000);}
+  }
+}
+document.addEventListener('click',e=>{const pop=document.getElementById('fld-share');if(pop&&pop.style.display==='block'&&!pop.contains(e.target))closeShareMenu();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeShareMenu();});
+window.addEventListener('scroll',()=>closeShareMenu(),true);
 let sortAsc=true;
 function toggleSort(){
   sortAsc=!sortAsc;
