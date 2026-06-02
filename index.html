@@ -167,6 +167,16 @@ button:active{transform:translateY(1px)}
 .tab.on::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--acid)}
 .tn{font-family:'Bebas Neue',sans-serif;font-size:14px;color:#777}
 .tab.on .tn{color:var(--acid)}
+/* —— SUBFOLDER (COLLECTION) TABS ————————————————— */
+.fld-tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;background:rgba(8,8,8,.95);border-bottom:1px solid var(--border);flex-shrink:0;padding:11px max(16px,calc((100vw - 1400px) / 2 + 24px))}
+.fld-tabs::-webkit-scrollbar{display:none}
+.fld-tab{flex:0 0 auto;display:flex;align-items:center;gap:8px;white-space:nowrap;background:rgba(8,8,8,.5);border:1px solid var(--border2);color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.14em;text-transform:uppercase;padding:8px 16px;border-radius:20px;cursor:pointer;transition:color .2s,background .2s,border-color .2s,box-shadow .2s}
+.fld-tab .fc{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.04em;color:var(--muted);opacity:.8;font-variant-numeric:tabular-nums}
+.fld-tab:hover{border-color:var(--ice);color:var(--ice)}
+.fld-tab:hover .fc{color:var(--ice)}
+.fld-tab.on{background:var(--acid);color:var(--base);border-color:var(--acid);box-shadow:0 0 14px rgba(57,255,20,.35)}
+.fld-tab.on .fc{color:var(--base);opacity:.6}
+#s-gallery.has-side .fld-tabs{padding:11px 24px}
 .panels{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .panel{display:none;padding:14px 14px 100px;max-width:1400px;width:100%;margin:0 auto;box-sizing:border-box}
 @media (min-width:900px){.panel{padding:20px 40px 120px}}
@@ -404,6 +414,40 @@ button:active{transform:translateY(1px)}
   71%{transform:translate(1px,0);filter:hue-rotate(10deg)}
   72%{transform:translate(0);filter:none}
 }
+
+/* —— PORTFOLIO WELCOME —————————————————————————— */
+#s-welcome{justify-content:center}
+.wlc-eyebrow{font-size:10px;letter-spacing:.34em;color:var(--acid);text-transform:uppercase;margin-bottom:20px;text-align:center;text-shadow:0 0 10px rgba(57,255,20,.5)}
+.wlc-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,15vw,108px);letter-spacing:.03em;line-height:.84;text-align:center;margin-bottom:20px}
+.wlc-title span{color:var(--acid);text-shadow:0 0 20px rgba(57,255,20,.45)}
+.wlc-sub{font-size:12px;letter-spacing:.1em;color:#9a9a9a;text-align:center;max-width:360px;line-height:1.9;margin-bottom:36px}
+.wlc-enter{width:100%;max-width:320px;padding:17px;border:none;background:var(--acid);color:var(--base);font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.14em;cursor:pointer;border-radius:7px;transition:transform .12s,box-shadow .2s,opacity .15s;box-shadow:0 0 20px rgba(57,255,20,.35)}
+.wlc-enter:hover{box-shadow:0 0 30px rgba(57,255,20,.6),0 0 56px rgba(57,255,20,.18);transform:translateY(-2px)}
+.wlc-enter:active{transform:scale(.97) translateY(1px)}
+.wlc-meta{font-size:9px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;text-align:center;margin-top:24px;max-width:300px;line-height:2}
+/* entrance — smooth fade-up + de-blur, staggered */
+@keyframes wlcIn{from{opacity:0;transform:translateY(24px);filter:blur(7px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+#s-welcome:not(.hidden) .wlc-anim{animation:wlcIn .85s cubic-bezier(.16,1,.3,1) both}
+#s-welcome .wlc-d1{animation-delay:.06s}#s-welcome .wlc-d2{animation-delay:.2s}
+#s-welcome .wlc-d3{animation-delay:.36s}#s-welcome .wlc-d4{animation-delay:.54s}
+#s-welcome .wlc-d5{animation-delay:.7s}
+/* exit — push up, scale down, blur out */
+@keyframes wlcOut{to{opacity:0;transform:translateY(-20px) scale(.96);filter:blur(9px)}}
+
+/* —— GALLERY POWER-ON SWEEP ————————————————————— */
+#s-gallery{transform-origin:center center}
+.g-sweep{position:absolute;inset:0;z-index:200;pointer-events:none;opacity:0;overflow:hidden}
+#s-gallery.power-on .g-sweep{opacity:1}
+.g-sweep::before{content:'';position:absolute;left:0;right:0;height:42%;top:-46%;background:linear-gradient(180deg,transparent,rgba(57,255,20,.12) 44%,rgba(79,195,247,.2) 56%,transparent);filter:blur(2px)}
+#s-gallery.power-on .g-sweep::before{animation:powerScan .85s cubic-bezier(.4,0,.2,1) forwards}
+.g-sweep::after{content:'';position:absolute;inset:0;background:rgba(57,255,20,.07)}
+#s-gallery.power-on .g-sweep::after{animation:powerFlash .55s ease-out forwards}
+@keyframes powerScan{0%{top:-46%;opacity:0}12%{opacity:1}100%{top:118%;opacity:0}}
+@keyframes powerFlash{0%{opacity:.85}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){
+  #s-welcome:not(.hidden) .wlc-anim{animation:none}
+  #s-gallery.power-on .g-sweep::before,#s-gallery.power-on .g-sweep::after{animation:none}
+}
 </style>
 </head>
 <body>
@@ -419,6 +463,15 @@ button:active{transform:translateY(1px)}
     <button class="btn-auth primary float float-d5" onclick="showScreen('s-signup')" onmouseenter="authHover(this)">NEW USER</button>
     <button class="btn-auth secondary float float-d6" onclick="showScreen('s-pin')" onmouseenter="authHover(this)">EXISTING USER</button>
   </div>
+</div>
+
+<!-- —— PORTFOLIO WELCOME (no-signup share link) ————————— -->
+<div class="screen hidden" id="s-welcome">
+  <div class="wlc-eyebrow wlc-anim wlc-d1" id="wlc-eyebrow">Wolfe Productions · Portfolio</div>
+  <div class="wlc-title wlc-anim wlc-d2" id="wlc-title">SELECTED<br><span>WORK</span></div>
+  <div class="wlc-sub wlc-anim wlc-d3" id="wlc-sub">A short collection of recent frames and films. No sign-up, nothing to download — just press in and look around.</div>
+  <button class="wlc-enter wlc-anim wlc-d4" onclick="enterPortfolioGallery()">VIEW THE WORK →</button>
+  <div class="wlc-meta wlc-anim wlc-d5">Lakes Entrance, VIC · Shot &amp; cut by Wolfe Productions</div>
 </div>
 
 <!-- —— SIGNUP ————————————————————————————————— -->
@@ -554,6 +607,7 @@ button:active{transform:translateY(1px)}
 
 <!-- —— GALLERY ————————————————————————————————— -->
 <div class="screen hidden" id="s-gallery">
+  <div class="g-sweep"></div>
   <div class="gs-backdrop" onclick="toggleGSide(false)"></div>
   <aside class="gside" id="g-side">
     <button class="gs-brand" onclick="exitTeamGallery()" title="Back" type="button">REVIZE</button>
@@ -569,6 +623,7 @@ button:active{transform:translateY(1px)}
       <div class="pill"><div class="pn" id="fav-n">0</div><div class="pl">selected</div></div>
     </div>
   </div>
+  <div class="fld-tabs" id="fld-tabs" style="display:none"></div>
   <div class="tabs">
     <button class="tab on" id="tb-photos" onclick="switchTab('photos')">Photos <span class="tn" id="tn-p">0</span></button>
     <button class="tab" id="tb-videos" onclick="switchTab('videos')">Videos <span class="tn" id="tn-v">0</span></button>
@@ -805,6 +860,51 @@ function glitchTransition(fromId,toId){
 
 // —— URL PARAMS ———————————————————————————————
 function getParam(k){return new URLSearchParams(location.search).get(k)||'';}
+function wlcEsc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+// Populate the portfolio welcome screen. Personalises with the recipient's
+// name (?client=), or honours explicit ?title= / ?intro= overrides.
+function setupWelcome(name){
+  const titleEl=document.getElementById('wlc-title');
+  const subEl=document.getElementById('wlc-sub');
+  const customTitle=getParam('title');
+  const customSub=getParam('intro');
+  if(customTitle){
+    titleEl.innerHTML=wlcEsc(customTitle.toUpperCase());
+  } else if(name){
+    titleEl.innerHTML='WELCOME,<br><span>'+wlcEsc(name.toUpperCase())+'</span>';
+  } else {
+    titleEl.innerHTML='SELECTED<br><span>WORK</span>';
+  }
+  if(customSub)subEl.textContent=customSub;
+}
+// Smooth handoff from welcome → gallery: stagger-fade the welcome out while
+// the (already-loaded) gallery pushes forward with a single power-on sweep.
+function enterPortfolioGallery(){
+  const w=document.getElementById('s-welcome');
+  const g=document.getElementById('s-gallery');
+  if(!w||!g||w.dataset.leaving)return;
+  w.dataset.leaving='1';
+  const kids=Array.from(w.children);
+  kids.forEach((c,i)=>{c.style.animation='wlcOut .45s cubic-bezier(.4,0,.2,1) '+(i*0.04)+'s both';});
+  w.style.transition='opacity .5s ease,transform .55s cubic-bezier(.4,0,.2,1)';
+  w.style.transform='scale(1.06)';
+  w.style.opacity='0';
+  // Prep gallery: visible but pushed back + transparent, no transition yet.
+  g.classList.remove('hidden');
+  g.style.transition='none';
+  g.style.opacity='0';
+  g.style.transform='scale(1.05)';
+  void g.offsetWidth;
+  setTimeout(()=>{
+    g.style.transition='opacity .7s ease,transform .8s cubic-bezier(.16,1,.3,1)';
+    g.style.opacity='1';
+    g.style.transform='scale(1)';
+    g.classList.add('power-on');
+    currentScreen='s-gallery';
+    setTimeout(()=>{w.classList.add('hidden');w.style.transition='';w.style.transform='';w.style.opacity='';kids.forEach(c=>c.style.animation='');},140);
+    setTimeout(()=>{g.style.transition='';g.style.transform='';g.classList.remove('power-on');},920);
+  },300);
+}
 window.addEventListener('DOMContentLoaded',()=>{
   const client=getParam('client'),pf=getParam('pf');
   if(pf)window._activePF=pf;
@@ -846,24 +946,34 @@ window.addEventListener('DOMContentLoaded',()=>{
   // Check for purchases when email is entered
   const clEmail=document.getElementById('cl-email');
   if(clEmail)clEmail.addEventListener('input',()=>checkPurchased(clEmail.value.trim()));
-  // View-only mode — clean browsable gallery, no select/checkout
-  if(getParam('view')==='true'&&getParam('pf')){
+  // View-only / portfolio mode — clean browsable gallery, no select/checkout.
+  // Works for Drive (pf), R2 (vf), or both. Shows a welcome screen first
+  // (skip with &welcome=0) and preloads the gallery behind it for a seamless handoff.
+  if(getParam('view')==='true'&&(getParam('pf')||getParam('vf'))){
     viewOnly=true;
-    const name=getParam('client')||'Portfolio';
+    const name=getParam('client')||'';
     window._activePF=getParam('pf');
-    window._activeClientName=name;
-    document.getElementById('g-title').textContent=name.toUpperCase();
+    window._activeVF=getParam('vf');
+    window._activeClientName=name||'Portfolio';
+    document.getElementById('g-title').textContent=(name||'Portfolio').toUpperCase();
     document.getElementById('select-btn').style.display='none';
     document.querySelector('.pill').style.display='none';
     document.getElementById('tb-faves').style.display='none';
     document.getElementById('tutorial-steps').style.display='none';
     document.getElementById('cta-bar').style.display='none';
-    showScreen('s-gallery');
+    // Render skeletons + start loading NOW so the gallery is ready the moment
+    // the visitor taps through the welcome screen.
     const pg=document.getElementById('g-photos');
     const vg=document.getElementById('g-videos');
     pg.innerHTML=[1,.75,1.3,.9,1.1,.7,1,.8,1.2,.95,1.4,.65,1,.85,1.15,.7,1.3,.9].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
     vg.innerHTML=[.56,.75,.56,1.3,.56,.75].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
-    loadDrive(getParam('pf'));
+    loadDrive(getParam('pf'),getParam('vf'));
+    if(getParam('welcome')==='0'){
+      showScreen('s-gallery');
+    } else {
+      setupWelcome(name);
+      showScreen('s-welcome');
+    }
     return;
   }
   // Client link → straight to client splash; else → Revize splash
@@ -1240,8 +1350,8 @@ function renderGmContent(){
     html+='</div>';
     html+='<div class="gm-row-actions">';
     if(g.category==='portfolio'){
-      html+='<button class="gm-act view-btn" onclick="openPortfolio(\''+sn+'\',\''+g.pf+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">VIEW</button>';
-      html+='<button class="gm-act link-btn" onclick="copyPortfolioLink(\''+sn+'\',\''+g.pf+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">LINK</button>';
+      html+='<button class="gm-act view-btn" onclick="openPortfolio(\''+sn+'\',\''+g.pf+'\',\''+(g.vf||'')+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">VIEW</button>';
+      html+='<button class="gm-act link-btn" onclick="copyPortfolioLink(\''+sn+'\',\''+g.pf+'\',\''+(g.vf||'')+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">LINK</button>';
     } else {
       html+='<button class="gm-act open-btn" onclick="loadExistingClient(\''+sn+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">OPEN</button>';
     }
@@ -1257,9 +1367,10 @@ function openNewGallery(){
   const add=document.querySelector('.gm-cols .gm-add');if(add)add.classList.add('on');
   document.getElementById('a-name').focus();
 }
-function openPortfolio(name,pf){
+function openPortfolio(name,pf,vf){
   viewOnly=true;
   window._activePF=pf;
+  window._activeVF=vf||'';
   window._activeClientName=name;
   // Hide all screens first
   document.querySelectorAll('.screen').forEach(s=>{ s.classList.add('hidden');s.style.opacity='0'; });
@@ -1292,13 +1403,18 @@ function openPortfolio(name,pf){
   const vg=document.getElementById('g-videos');
   pg.innerHTML=[1,.75,1.3,.9,1.1,.7,1,.8,1.2,.95,1.4,.65,1,.85,1.15,.7,1.3,.9].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
   vg.innerHTML=[.56,.75,.56,1.3,.56,.75].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
-  loadDrive(pf);
+  loadDrive(pf,vf||'');
 }
-function copyPortfolioLink(name,pf,btn){
-  const url=location.origin+'/?client='+encodeURIComponent(name)+'&pf='+encodeURIComponent(pf)+'&view=true';
+function copyPortfolioLink(name,pf,vf,btn){
+  // Optionally personalise the welcome screen ("WELCOME, <name>"). Leave blank
+  // for a generic "Selected Work" welcome.
+  const who=(prompt('Send to someone in particular? Enter their first name to personalise the welcome (leave blank for a generic one):','')||'').trim();
+  let url=location.origin+'/?view=true&pf='+encodeURIComponent(pf||'');
+  if(vf)url+='&vf='+encodeURIComponent(vf);
+  if(who)url+='&client='+encodeURIComponent(who);
   navigator.clipboard.writeText(url);
-  btn.textContent='✓';
-  setTimeout(()=>{btn.textContent='LINK';},1500);
+  btn.textContent='✓ COPIED';
+  setTimeout(()=>{btn.textContent='LINK';},1600);
 }
 let _editingGalleryName='';
 async function saveGallery(){
@@ -1455,22 +1571,23 @@ function enterGallery(){
 // —— DRIVE + R2 ————————————————————————————————————
 async function loadDrive(folderId,r2Prefix){
   try{
-    let allP_local=[],driveVids=[];
+    let allP_local=[],driveVids=[],driveFolders=[];
     // Only hit Drive if a folder ID is supplied
     if(folderId){
       const res=await fetch('/api/drive?folder='+encodeURIComponent(folderId));
       if(!res.ok)throw new Error();
       const data=await res.json();
       const files=data.files||[];
+      driveFolders=data.folders||[];
       allP_local=files.filter(f=>f.mimeType&&f.mimeType.startsWith('image/')).map(f=>{
         const meta=f.imageMediaMetadata||{};
         const w=meta.width||4,h=meta.height||3;
-        return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',full:'https://lh3.googleusercontent.com/d/'+f.id+'=w1600',type:'photo',ar:w/h};
+        return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',full:'https://lh3.googleusercontent.com/d/'+f.id+'=w1600',type:'photo',ar:w/h,_folderId:f._folderId||'',_folder:f._folder||''};
       });
       driveVids=files.filter(f=>f.mimeType&&f.mimeType.startsWith('video/')).map(f=>{
         const meta=f.videoMediaMetadata||{};
         const w=meta.width||16,h=meta.height||9;
-        return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',type:'video',ar:w/h};
+        return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',type:'video',ar:w/h,_folderId:f._folderId||'',_folder:f._folder||''};
       });
     }
     allP=allP_local;
@@ -1485,15 +1602,18 @@ async function loadDrive(folderId,r2Prefix){
         r2Vids=(r2Data.videos||[]).map(v=>{
           // Encode spaces and special chars in path while preserving slashes
           const encUrl=v.url?v.url.split('/').map((p,i)=>i<3?p:encodeURIComponent(p)).join('/'):'';
-          return {id:v.key,name:v.name,thumb:encUrl,url:encUrl,type:'video',ar:9/16};
+          return {id:v.key,name:v.name,thumb:encUrl,url:encUrl,type:'video',ar:9/16,_folderId:'',_folder:''};
         });
       }
     }catch(e){}
     // R2 first, then Drive
     allV=[...r2Vids,...driveVids];
-    renderGrid(allP,'photos');renderGrid(allV,'videos');
-    document.getElementById('tn-p').textContent=allP.length;
-    document.getElementById('tn-v').textContent=allV.length;
+    // Subfolder collection tabs (resets curFolder to ALL); render the active slice.
+    renderFolderTabs(driveFolders);
+    const fp=filterFolder(allP),fv=filterFolder(allV);
+    renderGrid(fp,'photos');renderGrid(fv,'videos');
+    document.getElementById('tn-p').textContent=fp.length;
+    document.getElementById('tn-v').textContent=fv.length;
     // Hide tabs/sort that aren't relevant for this gallery
     const tbP=document.getElementById('tb-photos');
     const tbV=document.getElementById('tb-videos');
@@ -1507,14 +1627,22 @@ async function loadDrive(folderId,r2Prefix){
     if(tabsBar)tabsBar.style.display=(onlyVideos||onlyPhotos)?'none':'';
     if(onlyVideos)switchTab('videos');
     else if(onlyPhotos)switchTab('photos');
+    // Optional deep-link straight to a named collection (?collection=Weddings)
+    const wantCol=getParam('collection');
+    if(wantCol&&folderList.length>1){
+      const idx=folderList.findIndex(f=>(f.name||'').toLowerCase()===wantCol.toLowerCase());
+      if(idx>=0)selectFolder(idx,document.querySelectorAll('#fld-tabs .fld-tab')[idx+1]);
+    }
   }catch(e){
     allP=DEMO_PHOTOS;allV=DEMO_VIDEOS;
+    renderFolderTabs([]);
     renderGrid(allP,'photos');renderGrid(allV,'videos');
     document.getElementById('tn-p').textContent=allP.length;
     document.getElementById('tn-v').textContent=allV.length;
   }
 }
 async function loadDriveRecent(){
+  renderFolderTabs([]); // flattened "recent" view has no collections
   try{
     const res=await fetch('/api/drive-recent');
     if(!res.ok)throw new Error('drive-recent '+res.status);
@@ -1649,7 +1777,7 @@ function renderGrid(items,type){
       const mi=t?.closest('.mi');if(mi&&mi.dataset.id)applyDragSel(mi.dataset.id,dragSelType);
     },{passive:true});
     el.addEventListener('mouseover',()=>{if(dragSelecting)applyDragSel(item.id,dragSelType);});
-    el.addEventListener('click',()=>{if(viewOnly){lbOpen(type==='photos'?allP:allV,i);}else if(selectMode){toggle(item.id,type);}else if(!dragSelecting){lbOpen(type==='photos'?allP:allV,i);}});
+    el.addEventListener('click',()=>{const list=type==='photos'?filterFolder(allP):filterFolder(allV);if(viewOnly){lbOpen(list,i);}else if(selectMode){toggle(item.id,type);}else if(!dragSelecting){lbOpen(list,i);}});
     g.appendChild(el);
   });
   if(type==='videos')activateVideoThumbs(g);
@@ -1720,6 +1848,45 @@ function switchTab(t){
   });
   if(t==='faves')renderFaves();
 }
+
+// —— SUBFOLDER (COLLECTION) TABS ——————————————————
+// When a Drive folder contains subfolders, /api/drive returns a `folders` list
+// and tags each file with _folderId. We surface those as a horizontal tab row
+// so a viewer can switch collections without leaving the gallery.
+let folderList=[],curFolder='';
+function filterFolder(arr){return curFolder?arr.filter(x=>x._folderId===curFolder):arr;}
+function renderFolderTabs(folders){
+  const bar=document.getElementById('fld-tabs');
+  if(!bar)return;
+  folderList=Array.isArray(folders)?folders:[];
+  curFolder='';
+  // Only worth a switcher when there are at least two collections.
+  if(folderList.length<2){bar.style.display='none';bar.innerHTML='';return;}
+  const total=folderList.reduce((n,f)=>n+(f.count||0),0);
+  let h='<button class="fld-tab on" onclick="selectFolder(-1,this)">ALL <span class="fc">'+total+'</span></button>';
+  folderList.forEach((f,i)=>{
+    h+='<button class="fld-tab" onclick="selectFolder('+i+',this)">'+wlcEsc((f.name||'').toUpperCase())+' <span class="fc">'+(f.count||0)+'</span></button>';
+  });
+  bar.innerHTML=h;
+  bar.style.display='flex';
+}
+function selectFolder(i,btn){
+  curFolder=(i<0||!folderList[i])?'':folderList[i].id;
+  const bar=document.getElementById('fld-tabs');
+  if(bar)bar.querySelectorAll('.fld-tab').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  const fp=filterFolder(allP),fv=filterFolder(allV);
+  document.getElementById('tn-p').textContent=fp.length;
+  document.getElementById('tn-v').textContent=fv.length;
+  renderGrid(fp,'photos');renderGrid(fv,'videos');
+  // If the active media tab is empty for this collection, hop to the one that isn't.
+  const onPhotos=document.getElementById('tb-photos').classList.contains('on');
+  const onVideos=document.getElementById('tb-videos').classList.contains('on');
+  if(onPhotos&&!fp.length&&fv.length)switchTab('videos');
+  else if(onVideos&&!fv.length&&fp.length)switchTab('photos');
+  if(btn&&btn.scrollIntoView)btn.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
+  document.querySelector('.panels')?.scrollTo({top:0,behavior:'smooth'});
+}
 let sortAsc=true;
 function toggleSort(){
   sortAsc=!sortAsc;
@@ -1728,7 +1895,7 @@ function toggleSort(){
   btn.style.color=sortAsc?'#888':'var(--acid)';
   const cmp=(a,b)=>sortAsc?a.name.localeCompare(b.name):b.name.localeCompare(a.name);
   allP.sort(cmp);allV.sort(cmp);
-  renderGrid(allP,'photos');renderGrid(allV,'videos');
+  renderGrid(filterFolder(allP),'photos');renderGrid(filterFolder(allV),'videos');
 }
 
 // —— PRICING ——————————————————————————————————————

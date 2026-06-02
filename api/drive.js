@@ -30,6 +30,38 @@ export async function fetchAllRecursive(folderId, apiKey, depth = 0) {
   return results;
 }
 
+// List a folder's media grouped by its immediate subfolders. Root-level loose
+// media becomes a synthetic "Main" group. Each returned file is tagged with
+// _folderId / _folder so the client can render subfolder tabs. When the folder
+// has no subfolders this just returns a single flat group (legacy behaviour).
+export async function fetchGrouped(rootId, apiKey) {
+  const items = await fetchFiles(rootId, apiKey);
+  const subfolders = items.filter(i => i.mimeType === 'application/vnd.google-apps.folder');
+  const rootMedia = items.filter(i => i.mimeType && (i.mimeType.startsWith('image/') || i.mimeType.startsWith('video/')));
+  // Natural sort so "Set 2" comes before "Set 10"; prefix names with numbers to control order.
+  subfolders.sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true, sensitivity: 'base' }));
+
+  const files = [];
+  const folders = [];
+
+  if (rootMedia.length) {
+    rootMedia.forEach(f => files.push({ ...f, _folderId: '__root__', _folder: 'Main' }));
+    folders.push({ id: '__root__', name: 'Main', count: rootMedia.length });
+  }
+
+  const subFiles = await Promise.all(
+    subfolders.map(s => fetchAllRecursive(s.id, apiKey).catch(() => []))
+  );
+  subfolders.forEach((sub, i) => {
+    const fs = subFiles[i];
+    if (!fs.length) return;
+    fs.forEach(f => files.push({ ...f, _folderId: sub.id, _folder: sub.name }));
+    folders.push({ id: sub.id, name: sub.name, count: fs.length });
+  });
+
+  return { files, folders };
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
@@ -42,23 +74,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const allFiles = await fetchAllRecursive(folderId, apiKey);
-    const videos = allFiles.filter(f => f.mimeType && f.mimeType.startsWith('video/'));
-    if (videos.length) {
-      console.log('drive api videos', {
-        folderId,
-        count: videos.length,
-        withThumb: videos.filter(v => v.thumbnailLink).length,
-        sample: videos.slice(0, 5).map(v => ({
-          id: v.id,
-          name: v.name,
-          mimeType: v.mimeType,
-          hasThumb: !!v.thumbnailLink,
-          thumbHost: v.thumbnailLink ? new URL(v.thumbnailLink).host : null,
-        })),
-      });
-    }
-    return res.status(200).json({ files: allFiles });
+    const { files, folders } = await fetchGrouped(folderId, apiKey);
+    return res.status(200).json({ files, folders });
   } catch (e) {
     console.error('drive api error', { folderId, message: e.message, stack: e.stack });
     return res.status(500).json({ error: e.message });
