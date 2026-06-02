@@ -923,7 +923,8 @@ function setupWelcome(name){
   if(customTitle){
     titleEl.innerHTML=wlcEsc(customTitle.toUpperCase());
   } else if(name){
-    titleEl.innerHTML='CLIENT<br><span>'+wlcEsc(name.toUpperCase())+'</span>';
+    const greet=getParam('sets')?'WELCOME,':'CLIENT';
+    titleEl.innerHTML=greet+'<br><span>'+wlcEsc(name.toUpperCase())+'</span>';
   } else {
     titleEl.innerHTML='SELECTED<br><span>WORK</span>';
   }
@@ -960,6 +961,7 @@ function enterPortfolioGallery(){
 window.addEventListener('DOMContentLoaded',()=>{
   const client=getParam('client'),pf=getParam('pf');
   if(pf)window._activePF=pf;
+  if(getParam('vf'))window._activeVF=getParam('vf');
   if(client){
     window._activeClientName=client;
     document.getElementById('cl-title').innerHTML=client.toUpperCase().replace(' ','<br>')+"'S<br><span>GALLERY</span>";
@@ -1426,7 +1428,8 @@ function renderGmContent(){
       html+='<button class="gm-act view-btn" onclick="openPortfolio(\''+sn+'\',\''+g.pf+'\',\''+(g.vf||'')+'\')" style="background:var(--ice);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">VIEW</button>';
       html+='<button class="gm-act link-btn" onclick="copyPortfolioLink(\''+sn+'\',\''+g.pf+'\',\''+(g.vf||'')+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">LINK</button>';
     } else {
-      html+='<button class="gm-act open-btn" onclick="loadExistingClient(\''+sn+'\',\''+g.pf+'\',\'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">OPEN</button>';
+      html+='<button class="gm-act open-btn" onclick="loadExistingClient(\''+sn+'\',\''+g.pf+'\',\''+(g.vf||'')+'\')" style="background:var(--acid);color:var(--base);border:none;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">OPEN</button>';
+      html+='<button class="gm-act link-btn" onclick="copyClientLink(\''+sn+'\',\''+g.pf+'\',\''+(g.vf||'')+'\',this)" style="background:transparent;color:var(--ice);border:1px solid var(--ice);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">LINK</button>';
     }
     html+='<button class="gm-act edit-btn" onclick="editGallery(\''+sn+'\')" title="Edit" style="background:transparent;color:var(--muted);border:1px solid var(--border2);font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">EDIT</button>';
     html+='<button class="gm-act del-btn" onclick="deleteGallery(\''+sn+'\',this)" style="background:transparent;color:#ff4444;border:1px solid #ff4444;font-family:\'Bebas Neue\',sans-serif;font-size:14px;letter-spacing:.1em;padding:9px 14px;cursor:pointer;border-radius:4px">✕</button>';
@@ -1488,6 +1491,17 @@ function copyPortfolioLink(name,pf,vf,btn){
   navigator.clipboard.writeText(url);
   btn.textContent='✓ COPIED';
   setTimeout(()=>{btn.textContent='LINK';},1600);
+}
+// LINK button for non-portfolio galleries — copies the client (selection) link
+// so the recipient can browse and pick favourites. Toast confirms the copy.
+function copyClientLink(name,pf,vf,btn){
+  const p=new URLSearchParams();
+  p.set('client',name);
+  if(pf)p.set('pf',pf);
+  if(vf)p.set('vf',vf);
+  const url=location.origin+'/?'+p.toString();
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(()=>showToast('Copied')).catch(()=>showToast('Link ready'));
+  else showToast('Link ready');
 }
 let _editingGalleryName='';
 async function saveGallery(){
