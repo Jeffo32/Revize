@@ -128,7 +128,7 @@ button:active{transform:translateY(1px)}
 .pill{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border2);padding:6px 12px;border-radius:6px}
 .pill .pn{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--acid);line-height:1}
 .pill .pl{font-size:9px;letter-spacing:.08em;color:var(--muted)}
-.tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface);padding:0 max(0px,calc((100vw - 1400px) / 2 + 24px))}
+.tabs{display:flex;flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin:8px max(16px,calc((100vw - 1400px) / 2 + 24px)) 0}
 .gside{display:none;flex-direction:column;width:260px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);padding:24px 16px 18px;overflow-y:auto;box-sizing:border-box;height:100vh}
 .gside .gs-brand{display:block;background:none;border:none;color:var(--acid);font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:.14em;text-transform:uppercase;text-align:left;padding:0 8px 20px;margin:0 0 14px;border-bottom:1px solid var(--border);cursor:pointer;width:100%;text-shadow:0 0 14px rgba(57,255,20,.5);transition:opacity .15s}
 .gside .gs-brand:hover{opacity:.75}
@@ -164,7 +164,7 @@ button:active{transform:translateY(1px)}
 }
 .tab{flex:1;padding:13px 0;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#888;background:var(--surface);border:none;cursor:pointer;position:relative;transition:color .2s,background .2s;display:flex;align-items:center;justify-content:center;gap:5px}
 .tab.on{color:var(--white);background:var(--surface2)}
-.tab.on::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--acid)}
+.tab.on::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--acid)}
 .tn{font-family:'Bebas Neue',sans-serif;font-size:14px;color:#777}
 .tab.on .tn{color:var(--acid)}
 /* —— SUBFOLDER (COLLECTION) TABS ————————————————— */
@@ -217,6 +217,7 @@ button:active{transform:translateY(1px)}
 /* When sidebar is showing, let the gallery fill the available width */
 #s-gallery.has-side .panel{max-width:none;padding:18px 24px 120px}
 #s-gallery.has-side .topbar{padding:14px 24px}
+#s-gallery.has-side .tabs{margin:8px 24px 0}
 #s-gallery.has-side .tabs{padding:0 24px}
 .panel.on{display:block}
 .sec{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
@@ -1770,11 +1771,16 @@ async function loadLibrary(sets){
       if(count)folders.push({id:sid,name:s.name,count,pf:s.pf,vf:s.vf});
     });
     allP=P;allV=V;
-    renderFolderTabs(folders);
-    const fp=filterFolder(allP),fv=filterFolder(allV);
-    renderGrid(fp,'photos');renderGrid(fv,'videos');
-    document.getElementById('tn-p').textContent=fp.length;
-    document.getElementById('tn-v').textContent=fv.length;
+    renderFolderTabs(folders,{noAll:true});
+    // No ALL tab in showcases — open on the first gallery.
+    if(folderList.length>=2){
+      selectFolder(0,document.querySelector('#fld-tabs .fld-tab'));
+    }else{
+      const fp=filterFolder(allP),fv=filterFolder(allV);
+      renderGrid(fp,'photos');renderGrid(fv,'videos');
+      document.getElementById('tn-p').textContent=fp.length;
+      document.getElementById('tn-v').textContent=fv.length;
+    }
     const tbP=document.getElementById('tb-photos'),tbV=document.getElementById('tb-videos'),tbSort=document.getElementById('tb-sort'),tabsBar=document.querySelector('#s-gallery .tabs');
     const onlyVideos=!allP.length&&allV.length,onlyPhotos=!allV.length&&allP.length;
     if(tbP)tbP.style.display=onlyVideos?'none':'';
@@ -2017,7 +2023,8 @@ function applyTabLocks(){
     if(locked&&!btn.querySelector('.lk'))btn.insertAdjacentHTML('afterbegin','<span class="lk"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>');
   });
 }
-function renderFolderTabs(folders){
+function renderFolderTabs(folders,opts){
+  opts=opts||{};
   const bar=document.getElementById('fld-tabs');
   if(!bar)return;
   closeShareMenu();
@@ -2025,10 +2032,16 @@ function renderFolderTabs(folders){
   curFolder='';lockedCollection=null;
   // Only worth a switcher when there are at least two collections.
   if(folderList.length<2){bar.style.display='none';bar.innerHTML='';return;}
-  const total=folderList.reduce((n,f)=>n+(f.count||0),0);
-  let h='<button class="fld-tab on" data-idx="-1" title="Right-click or hold to share the whole folder">ALL <span class="fc">'+total+'</span></button>';
+  // Showcase links (noAll): no ALL tab — viewer switches between the chosen galleries only.
+  const noAll=!!opts.noAll;
+  let h='';
+  if(!noAll){
+    const total=folderList.reduce((n,f)=>n+(f.count||0),0);
+    h+='<button class="fld-tab on" data-idx="-1" title="Right-click or hold to share the whole folder">ALL <span class="fc">'+total+'</span></button>';
+  }
   folderList.forEach((f,i)=>{
-    h+='<button class="fld-tab" data-idx="'+i+'" title="Right-click or hold to share this collection">'+wlcEsc((f.name||'').toUpperCase())+' <span class="fc">'+(f.count||0)+'</span></button>';
+    const on=(noAll&&i===0)?' on':'';
+    h+='<button class="fld-tab'+on+'" data-idx="'+i+'" title="Right-click or hold to share this gallery">'+wlcEsc((f.name||'').toUpperCase())+' <span class="fc">'+(f.count||0)+'</span></button>';
   });
   bar.innerHTML=h;
   bar.style.display='flex';
