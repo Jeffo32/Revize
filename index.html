@@ -194,6 +194,22 @@ button:active{transform:translateY(1px)}
 /* toast (Copied / Locked) */
 .rv-toast{position:fixed;left:50%;bottom:40px;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border2);color:var(--white);font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.16em;text-transform:uppercase;padding:12px 24px;border-radius:24px;z-index:1200;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .25s cubic-bezier(.16,1,.3,1);box-shadow:0 10px 34px rgba(0,0,0,.5)}
 .rv-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* showcase builder (admin) */
+.sc-trigger{width:100%;margin-top:14px;background:transparent;border:1px dashed var(--ice);color:var(--ice);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.16em;text-transform:uppercase;padding:13px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .15s,box-shadow .2s}
+.sc-trigger:hover{background:rgba(79,195,247,.08);box-shadow:0 0 16px rgba(79,195,247,.3)}
+#showcase-modal{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.85);align-items:center;justify-content:center;padding:20px}
+.sc-card{position:relative;width:100%;max-width:460px;max-height:86vh;overflow-y:auto;background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:26px 22px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+.sc-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer}
+.sc-close:hover{color:var(--white)}
+.sc-h{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:.04em;line-height:.9;margin-bottom:8px}
+.sc-h span{color:var(--acid)}
+.sc-sub{font-size:10px;color:#999;letter-spacing:.06em;line-height:1.6;margin-bottom:18px}
+.sc-empty{color:var(--muted);font-size:11px;text-align:center;padding:24px 0;letter-spacing:.1em;text-transform:uppercase}
+.sc-row{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.sc-row:hover{border-color:var(--ice)}
+.sc-ck{accent-color:var(--acid);width:18px;height:18px;cursor:pointer;flex:0 0 auto}
+.sc-name{flex:1 1 auto;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.06em;min-width:0;word-break:break-word}
+.sc-cat{flex:0 0 auto;font-size:8px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
 .panels{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .panel{display:none;padding:14px 14px 100px;max-width:1400px;width:100%;margin:0 auto;box-sizing:border-box}
 @media (min-width:900px){.panel{padding:20px 40px 120px}}
@@ -564,6 +580,7 @@ button:active{transform:translateY(1px)}
     <div class="gm-content" id="gallery-list">
       <div style="color:var(--muted);font-size:11px;text-align:center;padding:20px 0">Loading...</div>
     </div>
+    <button class="sc-trigger" onclick="openShowcaseBuilder()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="7" height="16" rx="1"/><rect x="14" y="4" width="7" height="16" rx="1"/></svg> BUILD A SHOWCASE LINK</button>
     <!-- New gallery form (slides in from + button) -->
     <div id="new-client-form" style="max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.25,.46,.45,.94)">
       <div class="field"><label class="lbl">Gallery Name</label><input class="inp" id="a-name" type="text" placeholder="e.g. Tim, March Shoot"></div>
@@ -592,6 +609,19 @@ button:active{transform:translateY(1px)}
     <button id="btn-new" onclick="adminMode('new')" style="display:none"></button>
     <button id="btn-existing" onclick="adminMode('existing')" style="display:none"></button>
     <div id="existing-clients" style="display:none"></div>
+  </div>
+</div>
+
+<!-- —— SHOWCASE BUILDER (combine galleries into one tabbed link) ———— -->
+<div id="showcase-modal" style="display:none">
+  <div class="sc-card">
+    <button class="sc-close" onclick="closeShowcaseBuilder()" aria-label="Close">✕</button>
+    <div class="sc-h">SHOWCASE<br><span>BUILDER</span></div>
+    <div class="sc-sub">Tick the galleries to combine into one tabbed link — the viewer switches between them.</div>
+    <div id="sc-list"></div>
+    <div class="field" style="margin:14px 0 0"><label class="lbl">Client name <span style="color:var(--muted);font-size:9px;letter-spacing:.16em">(optional)</span></label><input class="inp" id="sc-client" type="text" placeholder="e.g. Sarah"></div>
+    <button class="btn-p" id="sc-copy" onclick="copyShowcaseLink()" style="width:100%;margin-top:14px">COPY SHOWCASE LINK →</button>
+    <div class="url-box" id="sc-url-box" style="display:none;margin-top:14px"><div class="url-label">Showcase link</div><div class="url-text" id="sc-url"></div></div>
   </div>
 </div>
 
@@ -968,6 +998,27 @@ window.addEventListener('DOMContentLoaded',()=>{
   // Check for purchases when email is entered
   const clEmail=document.getElementById('cl-email');
   if(clEmail)clEmail.addEventListener('input',()=>checkPurchased(clEmail.value.trim()));
+  // Showcase mode — a custom library: several hand-picked galleries combined
+  // into one tabbed link (?sets=Label~pf~vf|Label~pf~vf). Each becomes a tab.
+  if(getParam('view')==='true'&&getParam('sets')){
+    viewOnly=true;
+    const name=getParam('client')||'';
+    window._activeClientName=name||'Portfolio';
+    document.getElementById('g-title').textContent=(name||'Portfolio').toUpperCase();
+    document.getElementById('select-btn').style.display='none';
+    document.querySelector('.pill').style.display='none';
+    document.getElementById('tb-faves').style.display='none';
+    document.getElementById('tutorial-steps').style.display='none';
+    document.getElementById('cta-bar').style.display='none';
+    const pgs=document.getElementById('g-photos');
+    const vgs=document.getElementById('g-videos');
+    pgs.innerHTML=[1,.75,1.3,.9,1.1,.7,1,.8,1.2,.95,1.4,.65,1,.85,1.15,.7,1.3,.9].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
+    vgs.innerHTML=[.56,.75,.56,1.3,.56,.75].map(r=>'<div class="skel" style="aspect-ratio:'+r+'"></div>').join('');
+    loadLibrary(parseSets(getParam('sets')));
+    if(getParam('welcome')==='0'){showScreen('s-gallery');}
+    else{setupWelcome(name);showScreen('s-welcome');}
+    return;
+  }
   // View-only / portfolio mode — clean browsable gallery, no select/checkout.
   // Works for Drive (pf), R2 (vf), or both. Shows a welcome screen first
   // (skip with &welcome=0) and preloads the gallery behind it for a seamless handoff.
@@ -1668,6 +1719,63 @@ async function loadDrive(folderId,r2Prefix){
     document.getElementById('tn-v').textContent=allV.length;
   }
 }
+
+// —— CUSTOM LIBRARY / SHOWCASE ————————————————————
+// Parse ?sets=Label~pf~vf|Label~pf~vf into [{name,pf,vf}].
+function parseSets(raw){
+  return (raw||'').split('|').map(s=>{const a=s.split('~');return {name:(a[0]||'').trim(),pf:(a[1]||'').trim(),vf:(a[2]||'').trim()};}).filter(s=>s.name&&(s.pf||s.vf));
+}
+// Load several independent galleries and present each as one collection tab.
+async function loadLibrary(sets){
+  window._activeSets=sets;
+  try{
+    const driveRes=await Promise.all(sets.map(s=>s.pf
+      ?fetch('/api/drive?folder='+encodeURIComponent(s.pf)).then(r=>r.ok?r.json():{files:[]}).catch(()=>({files:[]}))
+      :Promise.resolve({files:[]})));
+    const r2Res=await Promise.all(sets.map(s=>s.vf
+      ?fetch('/api/r2-list?client='+encodeURIComponent(s.vf)).then(r=>r.ok?r.json():{videos:[]}).catch(()=>({videos:[]}))
+      :Promise.resolve({videos:[]})));
+    let P=[],V=[];const folders=[];
+    sets.forEach((s,i)=>{
+      const sid='set'+i;
+      const files=(driveRes[i]||{}).files||[];
+      const photos=files.filter(f=>f.mimeType&&f.mimeType.startsWith('image/')).map(f=>{
+        const m=f.imageMediaMetadata||{};const w=m.width||4,h=m.height||3;
+        return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',full:'https://lh3.googleusercontent.com/d/'+f.id+'=w1600',type:'photo',ar:w/h,_folderId:sid,_folder:s.name};
+      });
+      const dvids=files.filter(f=>f.mimeType&&f.mimeType.startsWith('video/')).map(f=>{
+        const m=f.videoMediaMetadata||{};const w=m.width||16,h=m.height||9;
+        return {id:f.id,name:f.name,thumb:'https://lh3.googleusercontent.com/d/'+f.id+'=w400',type:'video',ar:w/h,_folderId:sid,_folder:s.name};
+      });
+      const r2vids=((r2Res[i]||{}).videos||[]).map(v=>{
+        const encUrl=v.url?v.url.split('/').map((p,j)=>j<3?p:encodeURIComponent(p)).join('/'):'';
+        return {id:v.key,name:v.name,thumb:encUrl,url:encUrl,type:'video',ar:9/16,_folderId:sid,_folder:s.name};
+      });
+      P.push(...photos);V.push(...r2vids,...dvids);
+      const count=photos.length+r2vids.length+dvids.length;
+      if(count)folders.push({id:sid,name:s.name,count,pf:s.pf,vf:s.vf});
+    });
+    allP=P;allV=V;
+    renderFolderTabs(folders);
+    const fp=filterFolder(allP),fv=filterFolder(allV);
+    renderGrid(fp,'photos');renderGrid(fv,'videos');
+    document.getElementById('tn-p').textContent=fp.length;
+    document.getElementById('tn-v').textContent=fv.length;
+    const tbP=document.getElementById('tb-photos'),tbV=document.getElementById('tb-videos'),tbSort=document.getElementById('tb-sort'),tabsBar=document.querySelector('#s-gallery .tabs');
+    const onlyVideos=!allP.length&&allV.length,onlyPhotos=!allV.length&&allP.length;
+    if(tbP)tbP.style.display=onlyVideos?'none':'';
+    if(tbV)tbV.style.display=onlyPhotos?'none':'';
+    if(tbSort)tbSort.style.display=(onlyVideos||onlyPhotos)?'none':'';
+    if(tabsBar)tabsBar.style.display=(onlyVideos||onlyPhotos)?'none':'';
+    if(onlyVideos)switchTab('videos');else if(onlyPhotos)switchTab('photos');
+  }catch(e){
+    renderFolderTabs([]);
+    allP=DEMO_PHOTOS;allV=DEMO_VIDEOS;
+    renderGrid(allP,'photos');renderGrid(allV,'videos');
+    document.getElementById('tn-p').textContent=allP.length;
+    document.getElementById('tn-v').textContent=allV.length;
+  }
+}
 async function loadDriveRecent(){
   renderFolderTabs([]); // flattened "recent" view has no collections
   try{
@@ -1949,11 +2057,22 @@ let shareIdx=-1;
 function buildShareUrl(idx){
   const p=new URLSearchParams();
   p.set('view','true');
-  if(window._activePF)p.set('pf',window._activePF);
-  if(window._activeVF)p.set('vf',window._activeVF);
   const nm=window._activeClientName;
+  const f=idx>=0?folderList[idx]:null;
+  if(f&&(f.pf||f.vf)){
+    // Showcase set (or a tab that knows its own folder) -> link to just that gallery.
+    if(f.pf)p.set('pf',f.pf);
+    if(f.vf)p.set('vf',f.vf);
+  }else if(idx<0&&window._activeSets&&window._activeSets.length){
+    // ALL in a showcase -> reproduce the whole multi-gallery link.
+    p.set('sets',window._activeSets.map(s=>(s.name||'').replace(/[|~]/g,' ')+'~'+(s.pf||'')+'~'+(s.vf||'')).join('|'));
+  }else{
+    // Subfolder mode -> parent folder, optionally filtered to one collection.
+    if(window._activePF)p.set('pf',window._activePF);
+    if(window._activeVF)p.set('vf',window._activeVF);
+    if(idx>=0&&folderList[idx])p.set('collection',folderList[idx].name);
+  }
   if(nm&&nm!=='Portfolio')p.set('client',nm);
-  if(idx>=0&&folderList[idx])p.set('collection',folderList[idx].name);
   return location.origin+'/?'+p.toString();
 }
 function openShareMenu(idx,btn){
@@ -1994,6 +2113,38 @@ function showToast(msg){
 document.addEventListener('click',e=>{const pop=document.getElementById('fld-share');if(pop&&pop.style.display==='block'&&!pop.contains(e.target))closeShareMenu();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeShareMenu();});
 window.addEventListener('scroll',()=>closeShareMenu(),true);
+
+// —— SHOWCASE BUILDER (admin: combine galleries into one tabbed link) ——
+async function openShowcaseBuilder(){
+  if(!teamConfig||!teamConfig.galleries||!teamConfig.galleries.length){try{await loadTeamConfig();}catch(e){}}
+  const list=document.getElementById('sc-list');
+  const gals=(teamConfig.galleries||[]).filter(g=>g&&(g.pf||g.vf));
+  window._scGals=gals;
+  if(!gals.length){
+    list.innerHTML='<div class="sc-empty">No galleries yet — add some first.</div>';
+  }else{
+    list.innerHTML=gals.map((g,i)=>'<label class="sc-row"><input type="checkbox" class="sc-ck" data-i="'+i+'"><span class="sc-name">'+wlcEsc((g.name||'').toUpperCase())+'</span><span class="sc-cat">'+wlcEsc((g.category||'').toUpperCase())+'</span></label>').join('');
+  }
+  document.getElementById('sc-url-box').style.display='none';
+  document.getElementById('showcase-modal').style.display='flex';
+}
+function closeShowcaseBuilder(){document.getElementById('showcase-modal').style.display='none';}
+function copyShowcaseLink(){
+  const gals=window._scGals||[];
+  const picked=[...document.querySelectorAll('#sc-list .sc-ck:checked')].map(ck=>gals[parseInt(ck.dataset.i,10)]).filter(Boolean);
+  if(!picked.length){showToast('Pick at least one');return;}
+  const parts=picked.map(g=>(g.name||'').replace(/[|~]/g,' ')+'~'+(g.pf||'')+'~'+(g.vf||''));
+  const p=new URLSearchParams();
+  p.set('view','true');
+  p.set('sets',parts.join('|'));
+  const client=document.getElementById('sc-client').value.trim();
+  if(client)p.set('client',client);
+  const url=location.origin+'/?'+p.toString();
+  document.getElementById('sc-url').textContent=url;
+  document.getElementById('sc-url-box').style.display='block';
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(()=>showToast('Copied')).catch(()=>showToast('Link ready'));
+  else showToast('Link ready');
+}
 let sortAsc=true;
 function toggleSort(){
   sortAsc=!sortAsc;
