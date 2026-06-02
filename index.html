@@ -168,7 +168,7 @@ button:active{transform:translateY(1px)}
 .tn{font-family:'Bebas Neue',sans-serif;font-size:14px;color:#777}
 .tab.on .tn{color:var(--acid)}
 /* —— SUBFOLDER (COLLECTION) TABS ————————————————— */
-.fld-tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;background:rgba(8,8,8,.95);border-bottom:1px solid var(--border);flex-shrink:0;padding:11px max(16px,calc((100vw - 1400px) / 2 + 24px))}
+.fld-tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-shrink:0;margin:0 max(16px,calc((100vw - 1400px) / 2 + 24px));padding:10px 0 2px}
 .fld-tabs::-webkit-scrollbar{display:none}
 .fld-tab{flex:0 0 auto;display:flex;align-items:center;gap:8px;white-space:nowrap;background:rgba(8,8,8,.5);border:1px solid var(--border2);color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.14em;text-transform:uppercase;padding:8px 16px;border-radius:20px;cursor:pointer;transition:color .2s,background .2s,border-color .2s,box-shadow .2s}
 .fld-tab .fc{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.04em;color:var(--muted);opacity:.8;font-variant-numeric:tabular-nums}
@@ -176,7 +176,7 @@ button:active{transform:translateY(1px)}
 .fld-tab:hover .fc{color:var(--ice)}
 .fld-tab.on{background:var(--acid);color:var(--base);border-color:var(--acid);box-shadow:0 0 14px rgba(57,255,20,.35)}
 .fld-tab.on .fc{color:var(--base);opacity:.6}
-#s-gallery.has-side .fld-tabs{padding:11px 24px}
+#s-gallery.has-side .fld-tabs{margin:0 24px;padding:10px 0 2px}
 .fld-tab{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 /* collection share popover (right-click / long-press a tab) */
 .fld-share{position:fixed;z-index:600;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:13px 14px;min-width:200px;box-shadow:0 14px 44px rgba(0,0,0,.6);animation:fsIn .15s ease-out}
