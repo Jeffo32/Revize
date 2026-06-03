@@ -1067,7 +1067,15 @@ function pinKey(k){
 }
 function pinDel(){pinVal=pinVal.slice(0,-1);updatePinDots();document.getElementById('pin-error').style.display='none';}
 document.addEventListener('keydown',e=>{
-  if(document.getElementById('s-pin').classList.contains('hidden'))return;
+  // On the Revize splash, typing a digit jumps straight into PIN entry
+  // (no need to click "Existing user") and registers that first digit.
+  if(currentScreen==='s-revize'&&e.key>='0'&&e.key<='9'){
+    pinVal='';
+    showScreen('s-pin');
+    pinKey(e.key);
+    return;
+  }
+  if(currentScreen!=='s-pin')return;
   if(e.key>='0'&&e.key<='9')pinKey(e.key);
   else if(e.key==='Backspace')pinDel();
 });
