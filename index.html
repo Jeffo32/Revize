@@ -834,6 +834,7 @@ const JEFFO_EMAIL='wolfeproductions@icloud.com';
 // —— TEAM MODE ——————————————————————————————————
 let teamMode=false;
 let viewOnly=false;
+let showcaseMode=false;
 let teamMemberId='';
 const TEAM_PINS={
   '1111':{id:'smm',name:'Social Media Manager'},
@@ -1005,6 +1006,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   // into one tabbed link (?sets=Label~pf~vf|Label~pf~vf). Each becomes a tab.
   if(getParam('view')==='true'&&getParam('sets')){
     viewOnly=true;
+    showcaseMode=true;
     const name=getParam('client')||'';
     window._activeClientName=name||'Portfolio';
     document.getElementById('g-title').textContent=(name||'Portfolio').toUpperCase();
@@ -1927,7 +1929,7 @@ function renderGrid(items,type){
     } else {
       media='<img src="'+item.thumb+'" loading="lazy">';
     }
-    el.innerHTML=media+((teamMode||adminGalleryMode)?'':'<div class="wm"></div>')+'<div class="ov"></div>'+
+    el.innerHTML=media+((teamMode||adminGalleryMode||showcaseMode)?'':'<div class="wm"></div>')+'<div class="ov"></div>'+
       (viewOnly?'':'<div class="ck"><svg viewBox="0 0 12 12" fill="none" stroke="#080808" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,6 4.5,9 10.5,3"/></svg></div>')+
       (isPurchased?'<div class="purchased-tag">PURCHASED</div>':'')+
       (type==='videos'?'<div class="pb">&#9658; VIDEO</div>':'');
@@ -2698,7 +2700,7 @@ function lbOpen(list,idx){
   document.getElementById('lb').classList.add('open');
   document.body.style.overflow='hidden';
   const lbWm=document.querySelector('.lb-wm');
-  if(lbWm)lbWm.style.display=(teamMode||adminGalleryMode)?'none':'';
+  if(lbWm)lbWm.style.display=(teamMode||adminGalleryMode||showcaseMode)?'none':'';
   const lbSb=document.getElementById('lb-sb');
   if(lbSb)lbSb.style.display=viewOnly?'none':'';
   lbBuildTrack();
