@@ -2654,40 +2654,90 @@ function downloadAllTeam(){
 }
 
 // —— SHOWCASE DOWNLOADS (public, no checkout) ——————————————
+// On mobile we hand the file to the native share sheet so the viewer can
+// "Save Image"/"Save Video" straight into their photo gallery (Files-only
+// <a download> would dump it in Downloads). Desktop falls back to a download.
+const _MOBILE=/iphone|ipad|ipod|android/i.test(navigator.userAgent);
+function _mimeFromName(name){
+  const ext=(name||'').toLowerCase().split('.').pop();
+  return {jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',gif:'image/gif',webp:'image/webp',heic:'image/heic',heif:'image/heif',
+    mp4:'video/mp4',mov:'video/quicktime',m4v:'video/x-m4v',webm:'video/webm'}[ext]||'application/octet-stream';
+}
+function _canShareFiles(files){try{return !!(navigator.canShare&&navigator.canShare({files}));}catch(e){return false;}}
+function _mediaFile(blob,name){
+  const type=/^(image|video)\//.test(blob.type)?blob.type:_mimeFromName(name);
+  return new File([blob],name||'file',{type});
+}
+function _saveBlob(blob,name){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=name||'file';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+}
+async function _fetchMediaBlob(item,isVideo){
+  let res;
+  if(isVideo){
+    try{res=await fetch(item.url);if(!res.ok)throw new Error();}
+    catch(e){res=await fetch('/api/fetch-file?type=r2&key='+encodeURIComponent(item.id||item.key));}
+  } else {
+    if(originalsMap===null){try{const r=await fetch('/api/originals');if(r.ok)originalsMap=(await r.json()).map||{};}catch(e){}}
+    const orig=findOriginal(item.name);
+    res=await fetch('/api/fetch-file?type=drive&id='+(orig?orig.id:item.id));
+  }
+  if(!res||!res.ok)throw new Error('fetch failed');
+  return res.blob();
+}
 async function downloadSingle(item){
   if(!item)return;
+  const fname=item.name||'file';
   try{
-    let res;
-    const fname=item.name||'file';
-    if(item.type==='video'){
-      try{res=await fetch(item.url);if(!res.ok)throw new Error();}
-      catch(e){res=await fetch('/api/fetch-file?type=r2&key='+encodeURIComponent(item.id||item.key));}
-    } else {
-      if(originalsMap===null){try{const r=await fetch('/api/originals');if(r.ok)originalsMap=(await r.json()).map||{};}catch(e){}}
-      const orig=findOriginal(item.name);
-      const dlId=orig?orig.id:item.id;
-      res=await fetch('/api/fetch-file?type=drive&id='+dlId);
+    const blob=await _fetchMediaBlob(item,item.type==='video');
+    const file=_mediaFile(blob,fname);
+    // Mobile: native share sheet → "Save to Photos" / gallery
+    if(_MOBILE&&_canShareFiles([file])){
+      try{await navigator.share({files:[file]});return;}
+      catch(e){if(e&&e.name==='AbortError')return;} // user cancelled, or fall through
     }
-    if(!res||!res.ok)throw new Error('fetch failed');
-    const blob=await res.blob();
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=fname;
-    a.click();
-    URL.revokeObjectURL(a.href);
+    _saveBlob(blob,fname);
   }catch(e){alert('Download failed — please try again');}
 }
 function lbDownloadCurrent(){
   const btn=document.getElementById('lb-dl');
   const orig=btn?btn.innerHTML:'';
-  if(btn){btn.disabled=true;btn.innerHTML='SAVING…';}
+  if(btn){btn.disabled=true;btn.innerHTML=_MOBILE?'SAVING…':'DOWNLOADING…';}
   Promise.resolve(downloadSingle(lbList[lbIdx])).finally(()=>{
     if(btn){btn.disabled=false;btn.innerHTML=orig||'&#10515; DOWNLOAD';}
   });
 }
-function downloadAllShowcase(){
+async function downloadAllShowcase(){
   if(!allP.length&&!allV.length){alert('Nothing to download yet — give it a second to load');return;}
   const name=(window._activeClientName||'showcase').toLowerCase().replace(/\s+/g,'-');
+  const btn=document.getElementById('showcase-dl-all');
+  const orig=btn?btn.innerHTML:'';
+  // Mobile: gather every file and share once so the viewer can save them all
+  // to their gallery in one tap. Falls back to a zip if sharing isn't possible.
+  if(_MOBILE&&navigator.canShare){
+    const items=[...allP.map(it=>({it,v:false})),...allV.map(it=>({it,v:true}))];
+    const splash=document.getElementById('dl-splash');
+    const bar=document.getElementById('dl-splash-bar');
+    const status=document.getElementById('dl-splash-status');
+    const count=document.getElementById('dl-splash-count');
+    if(splash){splash.style.display='flex';bar.style.width='0%';count.textContent='0 / '+items.length;status.textContent='Preparing…';}
+    const files=[];let done=0;
+    for(const {it,v} of items){
+      try{files.push(_mediaFile(await _fetchMediaBlob(it,v),it.name));}catch(e){}
+      done++;
+      if(splash){bar.style.width=Math.round(done/items.length*100)+'%';count.textContent=done+' / '+items.length;status.textContent='Fetching '+(it.name||'')+'…';}
+    }
+    if(splash)splash.style.display='none';
+    if(files.length&&_canShareFiles(files)){
+      try{await navigator.share({files,title:window._activeClientName||'Showcase'});return;}
+      catch(e){if(e&&e.name==='AbortError')return;} // cancelled, or too big → zip fallback
+    }
+  }
+  // Desktop, or share unavailable/declined: zip everything
+  if(btn)btn.innerHTML=orig;
   teamDownloadFiles(allP,allV,name+'-showcase');
 }
 
@@ -2754,7 +2804,7 @@ function lbOpen(list,idx){
   const lbSb=document.getElementById('lb-sb');
   if(lbSb)lbSb.style.display=viewOnly?'none':'';
   const lbDl=document.getElementById('lb-dl');
-  if(lbDl)lbDl.style.display=showcaseMode?'':'none';
+  if(lbDl){lbDl.style.display=showcaseMode?'':'none';lbDl.innerHTML=_MOBILE?'&#10515; SAVE TO PHOTOS':'&#10515; DOWNLOAD';}
   lbBuildTrack();
   lbPreload();
 }
