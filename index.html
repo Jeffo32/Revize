@@ -2657,7 +2657,19 @@ function downloadAllTeam(){
 // On mobile we hand the file to the native share sheet so the viewer can
 // "Save Image"/"Save Video" straight into their photo gallery (Files-only
 // <a download> would dump it in Downloads). Desktop falls back to a download.
-const _MOBILE=/iphone|ipad|ipod|android/i.test(navigator.userAgent);
+// iPadOS Safari reports a "Macintosh" UA, so also treat touch-capable Macs as mobile.
+const _MOBILE=/iphone|ipad|ipod|android/i.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1);
+// Cache of full-res blobs so the Save tap can call navigator.share() synchronously
+// (iOS drops the share if an await sits between the tap and the share call).
+const _shareBlob={};   // id -> resolved blob
+const _sharePromise={};// id -> in-flight fetch promise
+function _prefetchForShare(item){
+  if(!item||!_MOBILE||!showcaseMode)return;
+  if(_shareBlob[item.id]||_sharePromise[item.id])return;
+  _sharePromise[item.id]=_fetchMediaBlob(item,item.type==='video')
+    .then(b=>{_shareBlob[item.id]=b;return b;})
+    .catch(()=>{delete _sharePromise[item.id];});
+}
 function _mimeFromName(name){
   const ext=(name||'').toLowerCase().split('.').pop();
   return {jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',gif:'image/gif',webp:'image/webp',heic:'image/heic',heif:'image/heif',
@@ -2703,11 +2715,40 @@ async function downloadSingle(item){
   }catch(e){alert('Download failed — please try again');}
 }
 function lbDownloadCurrent(){
+  const item=lbList[lbIdx];
+  if(!item)return;
   const btn=document.getElementById('lb-dl');
-  const orig=btn?btn.innerHTML:'';
-  if(btn){btn.disabled=true;btn.innerHTML=_MOBILE?'SAVING…':'DOWNLOADING…';}
-  Promise.resolve(downloadSingle(lbList[lbIdx])).finally(()=>{
-    if(btn){btn.disabled=false;btn.innerHTML=orig||'&#10515; DOWNLOAD';}
+  const label=btn?btn.innerHTML:'';
+  // Mobile → native share sheet so it saves to the photo gallery.
+  if(_MOBILE&&navigator.canShare){
+    const ready=_shareBlob[item.id];
+    if(ready){
+      // Blob already cached: call share SYNCHRONOUSLY to keep the tap gesture
+      // alive, otherwise iOS rejects it and we'd silently download instead.
+      const file=_mediaFile(ready,item.name);
+      if(_canShareFiles([file])){
+        navigator.share({files:[file]}).catch(e=>{if(e&&e.name!=='AbortError')_saveBlob(ready,item.name);});
+        return;
+      }
+      _saveBlob(ready,item.name);return;
+    }
+    // Not cached yet — fetch, then share. (Gesture may lapse on slow links; if
+    // the share is refused we fall back to saving the file.)
+    if(btn){btn.disabled=true;btn.innerHTML='PREPARING…';}
+    const p=_sharePromise[item.id]||_fetchMediaBlob(item,item.type==='video').then(b=>{_shareBlob[item.id]=b;return b;});
+    p.then(b=>{
+      if(!b)throw new Error('no blob');
+      const file=_mediaFile(b,item.name);
+      if(_canShareFiles([file]))return navigator.share({files:[file]}).catch(e=>{if(e&&e.name!=='AbortError')_saveBlob(b,item.name);});
+      _saveBlob(b,item.name);
+    }).catch(()=>alert('Save failed — please try again'))
+      .finally(()=>{if(btn){btn.disabled=false;btn.innerHTML=label||'&#10515; SAVE TO PHOTOS';}});
+    return;
+  }
+  // Desktop → direct download
+  if(btn){btn.disabled=true;btn.innerHTML='DOWNLOADING…';}
+  Promise.resolve(downloadSingle(item)).finally(()=>{
+    if(btn){btn.disabled=false;btn.innerHTML=label||'&#10515; DOWNLOAD';}
   });
 }
 async function downloadAllShowcase(){
@@ -2984,6 +3025,7 @@ function lbBuildTrack(){
 function lbUpdateUI(){
   const n=lbList.length;
   const item=lbList[lbIdx];
+  _prefetchForShare(item); // warm the blob so Save-to-Photos can fire on tap
   document.getElementById('lb-fn').textContent=item.name;
   document.getElementById('lb-cnt').textContent=(lbIdx+1)+' / '+n;
   const s=item.type==='video'?selV:selP;
